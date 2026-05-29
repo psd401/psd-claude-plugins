@@ -2,7 +2,7 @@
 name: pdf-builder
 description: "Generate branded PSD PDF documents with letterhead, clean fonts, and Documenso-ready field coordinates. Use when: creating forms, permission slips, agreements, contracts, waivers, board resolutions, or any document needing PSD branding and/or digital signing. Triggers on: create pdf, build pdf, branded pdf, generate form, pdf builder, letterhead document, signable document."
 argument-hint: "[template or description] — e.g., 'permission-slip', 'leave-request', 'create a new vendor agreement'"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 paths:
   - scripts/

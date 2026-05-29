@@ -2,7 +2,7 @@
 name: scope
 description: Scope classification and tiered planning for features, fixes, and improvements — scales from quick tasks to full PRDs
 argument-hint: "[feature idea, problem description, or topic to scope]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: Plan

@@ -1,8 +1,8 @@
 # PSD Productivity
 
-**32 productivity workflows + 1 agent for Peninsula School District**
+**34 productivity workflows + 1 agent for Peninsula School District**
 
-Version: 2.11.0
+Version: 2.12.0
 
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -30,10 +30,12 @@ Author: Kris Hagel (hagelk@psd401.net)
 | `/redrover-manager` | Red Rover absence management data for PSD staff attendance |
 | `/legislative-tracker` | Track WA State K-12 education legislation via SOAP API |
 
-### Content & Document Generation (9)
+### Content & Document Generation (11)
 
 | Skill | Description |
 |-------|-------------|
+| `/html-artifact` | Beautiful, self-contained single-page HTML — docs, reports, code-review explainers, design explorations, interactive editors; anti-slop taste, optional PSD branding |
+| `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
 | `/writer` | Generate content in your authentic voice — emails, blogs, social media, reports |
 | `/docx` | Document creation, editing, tracked changes, comments, and text extraction |
 | `/pptx` | Presentation creation, editing, layouts, and speaker notes |
@@ -127,6 +129,8 @@ psd-productivity/
     psd-brand-guidelines/
     psd-instructional-vision/
     enrollment/
+    html-artifact/
+    board-policy-formatter/
     chief-of-staff/
   agents/                    # Created as needed per workflow
   README.md

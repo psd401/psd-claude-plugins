@@ -2,7 +2,7 @@
 name: test
 description: Comprehensive testing command for running, writing, and validating tests
 argument-hint: "[issue number, PR number, or test scope]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

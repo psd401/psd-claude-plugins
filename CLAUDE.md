@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.13.1
+**Version**: 2.14.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 21 | 44 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 32 | 1 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 34 | 1 |
 
 ### Key Changes in v2.0.0
 
@@ -54,7 +54,7 @@ psd-claude-plugins/                           # repo root
     psd-productivity/                         # productivity workflows (Cowork-friendly)
       .claude-plugin/
         plugin.json                           # name: "psd-productivity"
-      skills/                                 # 32 user-invocable skills
+      skills/                                 # 34 user-invocable skills
         freshservice-manager/                 # Freshservice ticket management
         redrover-manager/                     # Red Rover absence data
         legislative-tracker/                  # WA State K-12 legislation
@@ -86,6 +86,8 @@ psd-claude-plugins/                           # repo root
         n8n-manager/                          # n8n workflow automation management
         docusign-manager/                     # DocuSign migration and export
         documenso-manager/                    # Document signing (Documenso)
+        board-policy-formatter/               # Reformat docs into PSD board policy/procedure template
+        html-artifact/                        # Beautiful anti-slop single-page HTML artifacts
         chief-of-staff/                       # Executive support
       agents/                                 # workflow-specific agents
         powerschool-navigator.md              # Chrome DevTools MCP PS report automation
@@ -179,7 +181,7 @@ psd-claude-plugins/                           # repo root
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
 
-### psd-productivity Skills (32 total)
+### psd-productivity Skills (34 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -214,6 +216,8 @@ psd-claude-plugins/                           # repo root
 | `/n8n` | Build, deploy, and manage n8n workflow automations — CRUD, executions, credentials, PSD integrations |
 | `/docusign` | DocuSign migration and export — bulk envelope download, template export, PowerForm inventory |
 | `/documenso` | Document signing — create envelopes, manage recipients/fields, distribute, download signed PDFs, templates |
+| `/html-artifact` | Generate beautiful, self-contained single-page HTML artifacts with anti-slop design taste — documents, reports, code-review explainers, design explorations, interactive editors; optional PSD branding |
+| `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
 | `/chief-of-staff` | Daily briefings and priority management |
 
 ### Memory-Based Learning System
@@ -403,7 +407,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 
 ### Model Selection Strategy
 - **sonnet-4-6**: Default for agents and lightweight coding tasks
-- **opus-4-6**: All skills that specify `model:` in frontmatter
+- **opus-4-8**: All skills that specify `model:` in frontmatter
 - **effort: high**: Default for most skills/agents
 - **effort: xhigh**: Heavy-lifting skills: `/architect`, `/product-manager`, `/lfg`, `/evolve`, meta-reviewer agent (v2.1.111)
 - **extended-thinking: true**: Enabled on all skills/agents
@@ -411,11 +415,11 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 
 ### Model Selection Rules for Skills
 
-**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-6` with `effort: high` (or `xhigh` for heavy-lifting skills). Never specify `model: claude-sonnet-4-6` in skill frontmatter while the Claude Code default is Opus 4.6.
+**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-8` with `effort: high` (or `xhigh` for heavy-lifting skills). Never specify `model: claude-sonnet-4-6` in skill frontmatter while the Claude Code default is Opus 4.8.
 
-**Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. Opus 4.6 supports effort; Sonnet 4.6 does not. Skills specifying sonnet receive this unsupported parameter → API error. GitHub issue #30795 (open as of 2026-03-15).
+**Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. Opus 4.8 supports effort; Sonnet 4.6 does not. Skills specifying sonnet receive this unsupported parameter → API error. GitHub issue #30795 (open as of 2026-03-15).
 
-**Lightweight skills** (changelog, triage, bump-version, etc.) that don't specify a model inherit the default (currently Opus 4.6) and are safe.
+**Lightweight skills** (changelog, triage, bump-version, etc.) that don't specify a model inherit the default (currently Opus 4.8) and are safe.
 
 **If you want to use Sonnet in a skill**: Remove the `model:` field entirely and let it inherit the default. Do NOT explicitly specify `model: claude-sonnet-4-6` until issue #30795 is resolved.
 

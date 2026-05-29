@@ -2,7 +2,7 @@
 name: debug
 description: Structured root-cause analysis — reproduce, hypothesize, test, verify, fix, and capture learnings
 argument-hint: "[issue number, error message, or bug description]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

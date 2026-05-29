@@ -2,7 +2,7 @@
 name: lfg
 description: Autonomous end-to-end workflow — implement, test, review, fix, and capture learnings in one shot
 argument-hint: "[issue number OR description of work]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: xhigh
 context: fork
 agent: general-purpose

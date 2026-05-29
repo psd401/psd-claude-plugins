@@ -2,7 +2,7 @@
 name: security-audit
 description: Security audit for code review and vulnerability analysis
 argument-hint: "[PR number]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

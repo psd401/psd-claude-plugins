@@ -2,7 +2,7 @@
 name: review-pr
 description: Address feedback from pull request reviews systematically and efficiently
 argument-hint: "[PR number] [--full to force complete re-review]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

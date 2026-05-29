@@ -2,7 +2,7 @@
 name: documenso-manager
 description: "Manage document signing with Documenso — create envelopes, add recipients/fields, distribute for signature, download signed PDFs, manage templates. Use when: sending documents for signature, creating signing workflows, checking document status, managing templates, building e-signature automations. Triggers on: documenso, sign, signature, envelope, signing, document signing, e-sign."
 argument-hint: "[command] [args...] — e.g., 'status', 'list', 'create <pdf>', 'send <id>', 'templates'"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 paths:
   - scripts/

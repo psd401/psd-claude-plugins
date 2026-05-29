@@ -2,7 +2,7 @@
 name: google-workspace
 description: Unified Google Workspace integration for managing email, calendar, files, and communication across multiple accounts
 argument-hint: "[service] [action] [args...]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 allowed-tools:
   - Bash

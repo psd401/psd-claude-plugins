@@ -2,7 +2,7 @@
 name: issue
 description: Research and create well-structured GitHub issues for feature requests, bug reports, or improvements
 argument-hint: "[feature description, bug report, or improvement idea]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: Explore

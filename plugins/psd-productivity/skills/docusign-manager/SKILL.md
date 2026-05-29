@@ -2,7 +2,7 @@
 name: docusign-manager
 description: "Export and archive DocuSign envelopes, templates, and documents for migration to Documenso. Read-only — no creating or modifying content. Use when: downloading signed documents, exporting templates, bulk archiving, querying envelope status, migrating to Documenso. Triggers on: docusign, export, archive, migration, signed documents, bulk download."
 argument-hint: "[command] [args...] — e.g., 'status', 'list-templates', 'bulk-download', 'export-templates'"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 paths:
   - scripts/

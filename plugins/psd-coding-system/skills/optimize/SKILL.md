@@ -2,7 +2,7 @@
 name: optimize
 description: Metric-driven iterative optimization loops — measure, hypothesize, experiment, evaluate, keep winners
 argument-hint: "[metric to optimize, e.g. 'reduce API latency', 'improve test coverage', 'shrink bundle size']"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

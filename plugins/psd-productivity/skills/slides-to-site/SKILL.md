@@ -7,7 +7,7 @@ description: >-
   psd401.ai website. Triggers on: add presentation to site, slides to site,
   publish presentation, psd401.ai presentation.
 argument-hint: "<google-slides-url>"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 allowed-tools:
   - Bash

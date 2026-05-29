@@ -2,7 +2,7 @@
 name: meta-reviewer
 description: Analyzes accumulated learnings and agent memory to identify patterns, recurring errors, and improvement opportunities
 tools: Bash, Read, Grep, Glob
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: xhigh
 memory: project
 extended-thinking: true

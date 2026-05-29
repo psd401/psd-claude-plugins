@@ -67,13 +67,13 @@ When version changes detected, validate ALL 5 required locations are updated:
 
 When model changes detected, validate consistency across:
 - Agent frontmatter: `model: claude-sonnet-4-6` (current standard)
-- Command frontmatter: `model: claude-opus-4-6`
+- Command frontmatter: `model: claude-opus-4-8`
 - Code references: check for hardcoded model names
 - Documentation: ensure model references are up-to-date
 
 **Common model errors:**
 - Inconsistent naming: `claude-sonnet-4-6` vs `sonnet-4-5` vs `claude-sonnet-4-6-20250101`
-- Old model IDs: `claude-opus-4-1` instead of `claude-opus-4-6`
+- Old model IDs: `claude-opus-4-1` instead of `claude-opus-4-8`
 - Hardcoded in code: `const model = "claude-sonnet-4-6"` instead of config
 - Model change in agent but not documented in CLAUDE.md
 

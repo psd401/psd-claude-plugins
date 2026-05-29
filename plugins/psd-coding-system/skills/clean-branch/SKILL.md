@@ -1,7 +1,7 @@
 ---
 name: clean-branch
 description: Clean up merged branches, close issues, and extract compound learning insights
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: new
 agent: general-purpose

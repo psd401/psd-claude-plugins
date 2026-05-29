@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
-    "version": "2.13.1",
+    "version": "2.14.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -15,7 +15,7 @@
       "name": "psd-coding-system",
       "source": "./plugins/psd-coding-system",
       "description": "AI-assisted development system with workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
-      "version": "2.3.1",
+      "version": "2.4.0",
       "category": "productivity",
       "keywords": [
         "workflow",
@@ -31,8 +31,8 @@
     {
       "name": "psd-productivity",
       "source": "./plugins/psd-productivity",
-      "description": "32 productivity workflows + 1 agent — DocuSign migration/export, PDF Builder, Documenso document signing, n8n workflow automation, document generation, research, TTS, enrollment automation, browser control, Google Workspace, and district operations",
-      "version": "2.11.0",
+      "description": "34 productivity workflows + 1 agent — beautiful HTML artifact generation, board policy formatting, DocuSign migration/export, PDF Builder, Documenso document signing, n8n workflow automation, document generation, research, TTS, enrollment automation, browser control, Google Workspace, and district operations",
+      "version": "2.12.0",
       "category": "productivity",
       "keywords": [
         "productivity",

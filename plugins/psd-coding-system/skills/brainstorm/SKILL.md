@@ -2,7 +2,7 @@
 name: brainstorm
 description: Collaborative requirements exploration — flesh out ideas before scoping or implementing
 argument-hint: "[idea, feature concept, or problem to explore]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

@@ -2,7 +2,7 @@
 name: bump-version
 description: Automate the version bump ritual — three independent tracks (marketplace, psd-coding-system, psd-productivity)
 argument-hint: "[patch|minor|major]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose

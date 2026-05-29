@@ -2,7 +2,7 @@
 name: chief-of-staff
 description: Chief of Staff workflow — daily briefings, priority management, and executive support
 argument-hint: "[briefing|priorities|delegate]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 keep-coding-instructions: true
 allowed-tools:

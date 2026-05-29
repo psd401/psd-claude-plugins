@@ -2,7 +2,7 @@
 name: browser-control
 description: "Browser automation for authenticated web apps using Chrome DevTools MCP. Use when navigating PowerSchool, filling forms, downloading reports, or automating any browser task requiring login. Triggers on: browser control, navigate website, PowerSchool, fill form, download report, automate browser."
 argument-hint: "[url-or-task]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 allowed-tools:
   - Bash

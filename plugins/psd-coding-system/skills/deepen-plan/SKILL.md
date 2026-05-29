@@ -2,7 +2,7 @@
 name: deepen-plan
 description: Enhance a plan with parallel research agents validating each section against best practices
 argument-hint: "[plan file path]"
-model: claude-opus-4-6
+model: claude-opus-4-8
 effort: high
 context: fork
 agent: general-purpose
