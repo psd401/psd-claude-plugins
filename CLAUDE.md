@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.14.0
+**Version**: 2.15.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -216,7 +216,7 @@ psd-claude-plugins/                           # repo root
 | `/n8n` | Build, deploy, and manage n8n workflow automations — CRUD, executions, credentials, PSD integrations |
 | `/docusign` | DocuSign migration and export — bulk envelope download, template export, PowerForm inventory |
 | `/documenso` | Document signing — create envelopes, manage recipients/fields, distribute, download signed PDFs, templates |
-| `/html-artifact` | Generate beautiful, self-contained single-page HTML artifacts with anti-slop design taste — documents, reports, code-review explainers, design explorations, interactive editors; optional PSD branding |
+| `/html-artifact` | Generate beautiful, self-contained single-page HTML artifacts with anti-slop design taste — documents, reports, code-review explainers, design explorations, interactive editors, and self-contained data dashboards / charts / data-story pages (inline-SVG charts, inline JSON data); optional PSD branding |
 | `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
 | `/chief-of-staff` | Daily briefings and priority management |
 

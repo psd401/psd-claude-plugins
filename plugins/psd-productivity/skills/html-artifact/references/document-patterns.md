@@ -49,7 +49,7 @@ Pair with `taste-core.md` and `anti-slop-bans.md`.
 
 - **Lead with the answer**: status, impact, what changed — above the fold, no preamble.
 - **Timeline** as a vertical or horizontal sequence (real sequence → numbers are earned here).
-- **Metrics** as small, honest charts (inline SVG or a tiny canvas). No invented numbers.
+- **Metrics** as small, honest charts. No invented numbers. For anything beyond a sparkline — real charts, KPI cards, a dashboard — read `data-viz.md` and `dashboard-patterns.md`.
 - **Next steps / owners** as a short table. Keep the whole thing to one screen of substance
   plus optional collapsible detail.
 

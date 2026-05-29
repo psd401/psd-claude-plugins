@@ -80,11 +80,14 @@ matching register reference(s) — and nothing else:
 |----------|------|-----------|
 | Document / report | spec, plan, PR/code-review explainer, research writeup, status/incident report | `references/document-patterns.md` |
 | Design / marketing | landing page, portfolio, visual identity, hero design | (taste-core + anti-slop are enough) |
+| Data / dashboard | dashboard, data-rich report, analysis, KPIs, charts, data-story landing | `references/data-viz.md` + `references/dashboard-patterns.md` |
 | Interactive editor | tune values, reorder/triage, annotate, export-as-prompt | `references/interactive-patterns.md` |
 | Multi-variant | "give me N directions to compare" | `references/multivariant.md` |
 
-A single task may combine registers (e.g., a report with one interactive chart). Load
-the union, but add interactive/variant machinery only where the task actually needs it.
+A single task may combine registers. Load the union: a charted report pulls document-patterns
++ data-viz; a data-story landing pulls dashboard-patterns + data-viz; a dashboard with filters
+adds interactive-patterns. Add interactive/variant machinery only where the task needs it. The
+`assets/chart-snippets.html` scaffold has data-driven inline-SVG charts and KPI cards to copy.
 
 ### 4. Decide branding (taste-first; PSD opt-in)
 

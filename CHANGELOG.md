@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.15.0] - 2026-05-29
+
+### Added
+- **`/html-artifact` data register** (psd-productivity 2.13.0) — the skill can now build self-contained data dashboards, data-rich analytical reports, and data-story / scrollytelling landing pages, alongside the existing document/design/interactive/multi-variant registers.
+  - **`references/data-viz.md`** — charting doctrine: inline the dataset as JSON (always self-contained), hybrid rendering (hand-built inline SVG by default; CDN library only for complex/interactive, with a vetted `file://`-safe list — Observable Plot, uPlot, ECharts, Chart.js, D3), and the chart-taste rules (one chart/one message, direct labeling, honest zero baselines, restrained grid, accent-derived color that is never the sole encoding, no chartjunk, humanized numbers, motivated motion, required `role="img"`/aria-label or hidden-table fallback).
+  - **`references/dashboard-patterns.md`** — the three page shapes (analytical dashboard, data-story landing, analytical report), tasteful KPI cards (number + comparison context + trend, no gradient), bento/grid layout with mixed cell sizes, sticky filter toolbars that re-render from the inline data, BLUF/findings→recommendations structure, and data-honesty rules.
+  - **`assets/chart-snippets.html`** — a reference scaffold with data-driven inline-SVG bar, line+area (with reference line and end label), sparkline, and KPI-card patterns, all reading from an inline JSON block.
+  - Wired into SKILL.md routing (new "Data / dashboard" register), nuanced the `anti-slop-bans.md` hero-metric ban (bans the cliché execution, not KPI cards), cross-linked `document-patterns.md`, and added data-specific checks to `preflight-audit.md`.
+
 ## [2.14.0] - 2026-05-29
 
 ### Added

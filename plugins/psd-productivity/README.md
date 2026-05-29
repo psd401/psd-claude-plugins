@@ -2,7 +2,7 @@
 
 **34 productivity workflows + 1 agent for Peninsula School District**
 
-Version: 2.12.0
+Version: 2.13.0
 
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -34,7 +34,7 @@ Author: Kris Hagel (hagelk@psd401.net)
 
 | Skill | Description |
 |-------|-------------|
-| `/html-artifact` | Beautiful, self-contained single-page HTML — docs, reports, code-review explainers, design explorations, interactive editors; anti-slop taste, optional PSD branding |
+| `/html-artifact` | Beautiful, self-contained single-page HTML — docs, reports, code-review explainers, design explorations, interactive editors, and data dashboards / charts / data-story pages (inline-SVG charts, inline JSON); anti-slop taste, optional PSD branding |
 | `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
 | `/writer` | Generate content in your authentic voice — emails, blogs, social media, reports |
 | `/docx` | Document creation, editing, tracked changes, comments, and text extraction |

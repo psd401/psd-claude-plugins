@@ -66,7 +66,7 @@ Token names are tells too: `--paper`, `--cream`, `--sand`, `--bone`, `--linen`, 
   header, where the right column is just text. Stack them vertically instead (max-width 65ch).
   Use the split only when the right column carries a real visual/interactive element.
 - **Identical card grids**: same-size icon + heading + text cards repeated endlessly.
-- **Hero-metric template**: big number, small label, gradient accent, three supporting stats.
+- **Hero-metric template**: big number, small label, gradient accent, three supporting stats. *(This bans the cliché execution, not KPI cards — a real dashboard KPI carries comparison context plus a trend and uses no gradient. See `dashboard-patterns.md`.)*
 - **Hand-drawn / sketchy SVG** (class names like `doodle`, `wavy`, `loose-sketch`;
   `feTurbulence`). Reads amateur, not whimsical.
 - **`repeating-linear-gradient` diagonal stripes** in a body background. Pure decoration.

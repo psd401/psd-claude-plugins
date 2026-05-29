@@ -47,6 +47,16 @@ A failure here is broken work, not a style preference.
       `<div>` screenshots**. No hand-drawn `feTurbulence`/doodle SVG unless the brief asks.
 - [ ] All meaningful images have `alt` text. Logo (if any) is a real file, never AI-generated.
 
+## Data & charts (data register only)
+- [ ] Dataset is **inlined** in the file (no fetch unless the brief required live data).
+- [ ] **No invented or fake-precise numbers** — every figure is real data or labeled mock; sources cited.
+- [ ] Bars/areas start at a **zero baseline**; any non-zero line axis is labeled, not misleading.
+- [ ] **Color is not the only encoding** (labels/arrows/position too); chart palette derives from the one accent; readable in grayscale.
+- [ ] No chartjunk: no 3D, no bar shadows, no dual y-axis without reason, no pie/donut beyond ~5 slices.
+- [ ] Each chart has a **title + one-sentence takeaway** and a `role="img"` aria-label (or a hidden data-table fallback).
+- [ ] KPI cards carry **comparison context + trend** and use no gradient (not the banned hero-metric cliché).
+- [ ] Chart entrance animation (if any) is gated behind `prefers-reduced-motion` and the chart reads fully static.
+
 ## Motion & a11y
 - [ ] **`prefers-reduced-motion`** alternative present for every animation (scaffold guard kept).
 - [ ] Reveal animations enhance an already-visible default (content is not gated behind a class
