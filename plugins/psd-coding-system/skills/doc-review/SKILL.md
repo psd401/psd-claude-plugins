@@ -183,14 +183,19 @@ Present the unified findings:
 If the document review should be saved for reference, write the synthesized report:
 
 ```bash
-PLUGIN_DIR="$(pwd)"
-DOCS_DIR="$PLUGIN_DIR/docs"
+if [[ -d "plugins/psd-coding-system/docs" ]]; then
+  DOCS_DIR="plugins/psd-coding-system/docs"
+elif [[ -d "docs" ]]; then
+  DOCS_DIR="docs"
+else
+  DOCS_DIR=""
+fi
 
-# Create reviews directory if it doesn't exist
-if [[ -d "$DOCS_DIR" ]]; then
+if [[ -n "$DOCS_DIR" ]]; then
   mkdir -p "$DOCS_DIR/reviews"
   DATE=$(date +"%Y-%m-%d")
-  DOC_NAME=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50)
+  CLEAN_ARG=$(basename "$ARGUMENTS")
+  DOC_NAME=$(echo "$CLEAN_ARG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
   REVIEW_FILE="$DOCS_DIR/reviews/${DATE}-${DOC_NAME}-review.md"
   echo "Review will be saved to: $REVIEW_FILE"
 else
