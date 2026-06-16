@@ -1,6 +1,6 @@
 ---
 name: swarm
-description: Orchestrate parallel agent teams using Task-parallel dispatch or Claude Code's Agent Teams feature
+description: Orchestrate parallel agent teams using Task-Parallel dispatch or Claude Code's Agent Teams feature
 argument-hint: "[task description or workflow to parallelize]"
 model: claude-opus-4-8
 effort: high
