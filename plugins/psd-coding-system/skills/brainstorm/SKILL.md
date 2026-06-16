@@ -7,7 +7,9 @@ effort: high
 context: fork
 agent: general-purpose
 allowed-tools:
+  - Bash(*)
   - Read
+  - Write
   - Grep
   - Glob
   - WebSearch
@@ -107,13 +109,19 @@ Synthesize everything into a structured output:
 After presenting the brief, save it so it can be referenced in future work sessions:
 
 ```bash
-PLUGIN_DIR="$(pwd)"
-DOCS_DIR="$PLUGIN_DIR/docs"
+if [[ -d "plugins/psd-coding-system/docs" ]]; then
+  DOCS_DIR="plugins/psd-coding-system/docs"
+elif [[ -d "docs" ]]; then
+  DOCS_DIR="docs"
+else
+  DOCS_DIR=""
+fi
 
-if [[ -d "$DOCS_DIR" ]]; then
+if [[ -n "$DOCS_DIR" ]]; then
   mkdir -p "$DOCS_DIR/brainstorms"
   DATE=$(date +"%Y-%m-%d")
-  TOPIC_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
+  CLEAN_ARG=$(basename "$ARGUMENTS")
+  TOPIC_SLUG=$(echo "$CLEAN_ARG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
   ARTIFACT_PATH="$DOCS_DIR/brainstorms/${DATE}-${TOPIC_SLUG}.md"
   echo ""
   echo "Saving brainstorm artifact to: $ARTIFACT_PATH"
