@@ -84,7 +84,7 @@ CUTOFF_DATE=$(date -v-90d +"%Y-%m-%d" 2>/dev/null || date -d "90 days ago" +"%Y-
 EXPIRED_COUNT=0
 for f in $(find "$PLUGIN_DIR/docs/learnings" -name "*.md" -not -name ".gitkeep" -type f 2>/dev/null); do
   FILE_DATE=$(grep -m1 "^date:" "$f" 2>/dev/null | sed 's/^date: *//')
-  if [ -n "$FILE_DATE" ] && [["$FILE_DATE" < "$CUTOFF_DATE"]]; then
+  if [ -n "$FILE_DATE" ] && [[ "$FILE_DATE" < "$CUTOFF_DATE" ]]; then
     rm "$f"
     EXPIRED_COUNT=$((EXPIRED_COUNT + 1))
   fi
