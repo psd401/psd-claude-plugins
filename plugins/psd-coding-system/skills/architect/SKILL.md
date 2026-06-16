@@ -9,6 +9,7 @@ agent: Plan
 allowed-tools:
   - Bash(*)
   - Read
+  - Write
   - Grep
   - Glob
   - Task
@@ -169,16 +170,22 @@ fi
 After posting to GitHub (or after Phase 2 for topic-based designs), save the design to `docs/plans/` for future reference:
 
 ```bash
-PLUGIN_DIR="$(pwd)"
-DOCS_DIR="$PLUGIN_DIR/docs"
+if [[ -d "plugins/psd-coding-system/docs" ]]; then
+  DOCS_DIR="plugins/psd-coding-system/docs"
+elif [[ -d "docs" ]]; then
+  DOCS_DIR="docs"
+else
+  DOCS_DIR=""
+fi
 
-if [[ -d "$DOCS_DIR" ]]; then
+if [[ -n "$DOCS_DIR" ]]; then
   mkdir -p "$DOCS_DIR/plans"
   DATE=$(date +"%Y-%m-%d")
   if [ -n "$ISSUE_NUMBER" ]; then
     ARTIFACT_SLUG="issue-${ISSUE_NUMBER}"
   else
-    ARTIFACT_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
+    CLEAN_ARG=$(basename "$ARGUMENTS")
+    ARTIFACT_SLUG=$(echo "$CLEAN_ARG" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
   fi
   ARTIFACT_PATH="$DOCS_DIR/plans/${DATE}-${ARTIFACT_SLUG}.md"
   echo ""
