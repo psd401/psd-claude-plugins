@@ -2,6 +2,7 @@
 name: git-history-analyzer
 description: Git archaeology agent for blame analysis, change velocity, hot file detection, and ownership mapping
 tools: Bash, Read, Grep, Glob
+disallowed-tools: [Write, Edit]
 model: claude-sonnet-4-6
 extended-thinking: true
 color: blue

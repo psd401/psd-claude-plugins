@@ -2,6 +2,7 @@
 name: learnings-researcher
 description: Searches knowledge base for relevant past learnings before implementing new features
 tools: Read, Grep, Glob
+disallowed-tools: [Write, Edit]
 model: claude-sonnet-4-6
 memory: project
 extended-thinking: true
