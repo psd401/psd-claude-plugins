@@ -36,9 +36,9 @@ psd-claude-plugins/                           # repo root
     psd-coding-system/                        # development workflows
       .claude-plugin/
         plugin.json                           # name: "psd-coding-system"
-      skills/                                 # 21 user-invocable skills
-      agents/                                 # 44 specialized agents
-        review/                               # 16 code review specialists
+      skills/                                 # 23 user-invocable skills
+      agents/                                 # 49 specialized agents
+        review/                               # 21 code review specialists
         domain/                               # 7 domain specialists
         quality/                              # 3 quality assurance
         research/                             # 6 research agents
@@ -119,7 +119,7 @@ psd-claude-plugins/                           # repo root
 - Each plugin ships its own agents
 - `enabledPlugins` in `.claude/settings.json` allows selective enabling/disabling
 
-### psd-coding-system Skills (21 total)
+### psd-coding-system Skills (23 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -147,9 +147,9 @@ psd-claude-plugins/                           # repo root
 | `/doc-review` | Multi-persona document review (coherence, feasibility, scope, product, adversarial) |
 | `/product-pulse` | Time-windowed production health report — GitHub health, bug trends, git velocity |
 
-### psd-coding-system Agents (44 total)
+### psd-coding-system Agents (49 total)
 
-**Review Agents** (16) — `agents/review/`:
+**Review Agents** (21) — `agents/review/`:
 - **Security**: security-analyst, security-analyst-specialist
 - **Deployment**: deployment-verification-agent, data-migration-expert
 - **Architecture**: agent-native-reviewer, architecture-strategist
