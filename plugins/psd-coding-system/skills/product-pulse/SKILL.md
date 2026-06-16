@@ -41,6 +41,15 @@ if [ -z "$REPO_ARG" ]; then
 fi
 
 echo "=== Product Pulse Configuration ==="
+
+# Validate repo format before use in gh CLI calls
+if [ -n "$REPO_ARG" ] && [ "$REPO_ARG" != "unknown" ]; then
+  if [[ ! "$REPO_ARG" =~ ^[a-zA-Z0-9_.-]+/[a-zA-Z0-9_.-]+$ ]]; then
+    echo "WARNING: repo '$REPO_ARG' does not match expected owner/repo format — skipping GitHub checks"
+    REPO_ARG="unknown"
+  fi
+fi
+
 echo "Repo: $REPO_ARG"
 echo "Window: last $WINDOW_DAYS days"
 echo "As of: $(date -u +"%Y-%m-%d %H:%M UTC")"
