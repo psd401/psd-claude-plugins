@@ -1,6 +1,6 @@
 ---
 name: swarm
-description: Orchestrate parallel agent teams using Claude Code's experimental Agent Teams feature
+description: Orchestrate parallel agent teams using Task-parallel dispatch or Claude Code's Agent Teams feature
 argument-hint: "[task description or workflow to parallelize]"
 model: claude-opus-4-8
 effort: high
@@ -152,3 +152,9 @@ Dispatch frontend-specialist and backend-specialist in parallel for full-stack f
 - **Maximum 6 agents per group** — more than 6 parallel agents is diminishing returns
 - **Include full context** — each agent gets its own prompt; don't assume shared knowledge
 - **Prefer Task-Parallel** — it's stable and production-ready. Agent Teams is experimental.
+
+## Future Upgrade: Dynamic Workflows (v2.1.154)
+
+Claude Code v2.1.154 introduced **dynamic workflows** — JS scripts that orchestrate up to 1,000 subagents (16 concurrent) with built-in find → refute → converge verification patterns. This is the long-term successor to both `/swarm` and Agent Teams.
+
+When to upgrade: if you need >6 concurrent agents, need the converge/refute verification loop, or your plan requires Max/Team/Enterprise tier features. Until then, Task-Parallel mode here is stable and sufficient for most swarm workloads.

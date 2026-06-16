@@ -438,3 +438,5 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 | `claude plugin tag` | v2.1.118 | bump-version skill | Replaces manual git tag in release workflow |
 | `$schema` in plugin.json | v2.1.120 | Both plugins | Enables `claude plugin validate` |
 | PostToolUse `outputReplace` | v2.1.121 | hooks.json | Auto-redacts secrets from Bash output |
+| `disallowed-tools:` agent frontmatter | v2.1.152 | 6 research agents | learnings-researcher, spec-flow-analyzer, best-practices-researcher, framework-docs-researcher, git-history-analyzer, repo-research-analyst — blocks accidental writes |
+| Dynamic workflows noted in `/swarm` | v2.1.154 | swarm skill | Documented as future upgrade path; Task-Parallel remains default |
