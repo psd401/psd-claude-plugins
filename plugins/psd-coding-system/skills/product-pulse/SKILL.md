@@ -9,6 +9,7 @@ agent: general-purpose
 allowed-tools:
   - Bash(*)
   - Read
+  - Write
   - Grep
   - Glob
   - WebSearch
@@ -62,7 +63,7 @@ Gather issue and PR metrics for the window:
 ```bash
 echo ""
 echo "=== GitHub Issue Health ==="
-SINCE_DATE=$(date -d "$WINDOW_DAYS days ago" +"%Y-%m-%dT00:00:00Z" 2>/dev/null || date -v-${WINDOW_DAYS}d +"%Y-%m-%dT00:00:00Z")
+SINCE_DATE=$(date -u -d "$WINDOW_DAYS days ago" +"%Y-%m-%dT00:00:00Z" 2>/dev/null || date -u -v-${WINDOW_DAYS}d +"%Y-%m-%dT00:00:00Z")
 
 # Open issues by label
 echo "--- Open issues (all) ---"
@@ -78,7 +79,7 @@ gh issue list --repo "$REPO_ARG" --state open --limit 100 --json number,title,la
 
 echo ""
 echo "--- Issues opened in last $WINDOW_DAYS days ---"
-gh issue list --repo "$REPO_ARG" --state open --limit 100 --json number,title,createdAt 2>/dev/null | \
+gh issue list --repo "$REPO_ARG" --state all --limit 100 --json number,title,createdAt 2>/dev/null | \
   jq --arg since "$SINCE_DATE" '[.[] | select(.createdAt > $since)] | length' 2>/dev/null || echo "(unavailable)"
 
 echo ""
@@ -130,7 +131,7 @@ echo ""
 echo "--- Most active files/dirs ---"
 git log --name-only --since="$WINDOW_DAYS days ago" --format="" 2>/dev/null | \
   sort | uniq -c | sort -rn | head -10 | \
-  awk '{print "  " $2 " (" $1 " changes)"}'
+  awk '{count=$1; $1=""; sub(/^ /, ""); print "  " $0 " (" count " changes)"}'
 
 # Recent commits
 echo ""
@@ -302,10 +303,15 @@ Synthesize everything into the pulse digest:
 If a `docs/` directory exists, save the pulse for trending:
 
 ```bash
-PLUGIN_DIR="$(pwd)"
-DOCS_DIR="$PLUGIN_DIR/docs"
+if [[ -d "plugins/psd-coding-system/docs" ]]; then
+  DOCS_DIR="plugins/psd-coding-system/docs"
+elif [[ -d "docs" ]]; then
+  DOCS_DIR="docs"
+else
+  DOCS_DIR=""
+fi
 
-if [[ -d "$DOCS_DIR" ]]; then
+if [[ -n "$DOCS_DIR" ]]; then
   mkdir -p "$DOCS_DIR/pulse"
   DATE=$(date +"%Y-%m-%d")
   PULSE_FILE="$DOCS_DIR/pulse/${DATE}-product-pulse.md"
