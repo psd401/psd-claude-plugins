@@ -27,13 +27,15 @@ You are a multi-persona document review orchestrator. You run five specialized r
 
 If `$ARGUMENTS` looks like a file path, **use the Read tool** (not Bash `cat`) to load it. The Read tool is project-scoped and cannot access paths outside the project — it is safer than `cat` for user-supplied paths.
 
-- **File path** (starts with `/` or `./`): Use `Read(file_path: "$ARGUMENTS")`
+- **File path** (starts with `/`, `./`, or any relative path that exists on disk — check with `test -f "$ARGUMENTS"`): Use `Read(file_path: "$ARGUMENTS")`
 - **GitHub issue URL** (`https://github.com/.../issues/N`): Use Bash to call `gh issue view N`
 - **Inline text or topic**: Use the text of `$ARGUMENTS` directly
 
 ```bash
-# GitHub issue path only — file paths handled via Read tool above
-if [[ "$ARGUMENTS" =~ ^https://github\.com/([^/]+)/([^/]+)/issues/([0-9]+) ]]; then
+# Detect input type: file, GitHub issue URL, or inline text
+if test -f "$ARGUMENTS" 2>/dev/null; then
+  echo "=== File detected: $ARGUMENTS — load via Read tool ==="
+elif [[ "$ARGUMENTS" =~ ^https://github\.com/([^/]+)/([^/]+)/issues/([0-9]+) ]]; then
   echo "=== Loading GitHub issue ==="
   ISSUE_NUMBER=$(echo "$ARGUMENTS" | grep -oE '[0-9]+$')
   REPO_PATH=$(echo "$ARGUMENTS" | sed 's|https://github.com/||;s|/issues/.*||')
