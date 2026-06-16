@@ -17,6 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.16.0] - 2026-06-16
+
+### Added
+- **`/doc-review` skill** (psd-coding-system 2.5.0) — multi-persona document review that runs five specialized agents in parallel (coherence, feasibility, scope, product, adversarial) and synthesizes findings into a single prioritized action list with P0–P3 severity tiers. Adapted from Every's Compound Engineering CE doc-review pattern. Optionally persists synthesized reviews to `docs/reviews/`.
+- **Document review agents** (psd-coding-system 2.5.0, agents/review/) — five specialized agents invoked by `/doc-review`:
+  - **`document-coherence-reviewer`** — checks internal consistency, logical flow, section–header alignment, cross-reference integrity, and narrative arc
+  - **`document-feasibility-reviewer`** — evaluates technical, resource, and timeline feasibility; pressure-tests assumptions; identifies dependency blockers
+  - **`document-scope-guardian`** — detects scope creep, implicit work items, "also" additions, non-goal violations, and unrealistic sizing
+  - **`document-product-reviewer`** — reviews through product/user value lens: problem–solution fit, adoption friction, success metrics, user journey gaps
+  - **`document-adversarial-reviewer`** — steel-mans opposing views, surfaces hidden assumptions, writes pre-mortems, and identifies fatal flaws before commitment
+- **`/product-pulse` skill** (psd-coding-system 2.5.0) — time-windowed production health report gathering GitHub issue/PR health, git velocity, FreshService bug signal, and CI/deployment indicators. Outputs a single actionable digest with 🟢/🟡/🔴 status per dimension and a prioritized "Attention Items" list. Optionally persists pulse snapshots to `docs/pulse/`.
+- **Artifact persistence for `/brainstorm`** (psd-coding-system 2.5.0) — Phase 6 added: brainstorm briefs are now saved to `docs/brainstorms/YYYY-MM-DD-slug.md` with YAML frontmatter for future reference and agent cross-session lookup.
+- **Artifact persistence for `/architect`** (psd-coding-system 2.5.0) — Phase 4 added: architecture designs are now saved to `docs/plans/YYYY-MM-DD-slug.md` (or `docs/plans/YYYY-MM-DD-issue-N.md`) with YAML frontmatter. Plans are retained indefinitely (not subject to the 90-day learnings TTL).
+- **Artifact directories** — `docs/brainstorms/`, `docs/plans/`, `docs/pulse/`, `docs/reviews/` directories added with `.gitkeep` files. All are gitignored by default (local working data); commit manually to share with the team.
+
+Addresses issue #64 — adopts highest-value patterns from Every's Compound Engineering v3.9.
+
 ## [2.15.0] - 2026-05-29
 
 ### Added

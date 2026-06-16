@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
-    "version": "2.15.0",
+    "version": "2.16.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -15,7 +15,7 @@
       "name": "psd-coding-system",
       "source": "./plugins/psd-coding-system",
       "description": "AI-assisted development system with workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
-      "version": "2.4.0",
+      "version": "2.5.0",
       "category": "productivity",
       "keywords": [
         "workflow",

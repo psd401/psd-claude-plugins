@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.15.0
+**Version**: 2.16.0
 **Status**: Production-Ready
 
 ### Plugins
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 21 | 44 |
+| `psd-coding-system` | AI-assisted development workflows | 23 | 49 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 34 | 1 |
 
 ### Key Changes in v2.0.0
@@ -144,6 +144,8 @@ psd-claude-plugins/                           # repo root
 | `/optimize` | Metric-driven iterative optimization loops |
 | `/clean-branch` | Post-merge cleanup |
 | `/triage` | FreshService ticket triage |
+| `/doc-review` | Multi-persona document review (coherence, feasibility, scope, product, adversarial) |
+| `/product-pulse` | Time-windowed production health report — GitHub health, bug trends, git velocity |
 
 ### psd-coding-system Agents (44 total)
 
@@ -154,6 +156,7 @@ psd-claude-plugins/                           # repo root
 - **Code Quality**: code-simplicity-reviewer, pattern-recognition-specialist
 - **Correctness**: correctness-reviewer, adversarial-reviewer
 - **Schema & Data**: schema-drift-detector, data-integrity-guardian
+- **Document Review**: document-coherence-reviewer, document-feasibility-reviewer, document-scope-guardian, document-product-reviewer, document-adversarial-reviewer
 - **Language-Specific**: typescript-reviewer, python-reviewer, swift-reviewer, sql-reviewer
 
 **Domain Specialists** (7) — `agents/domain/`:
