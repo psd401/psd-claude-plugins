@@ -164,18 +164,61 @@ else
 fi
 ```
 
+### Phase 4: Persist Architecture Artifact
+
+After posting to GitHub (or after Phase 2 for topic-based designs), save the design to `docs/plans/` for future reference:
+
+```bash
+PLUGIN_DIR="$(pwd)"
+DOCS_DIR="$PLUGIN_DIR/docs"
+
+if [[ -d "$DOCS_DIR" ]]; then
+  mkdir -p "$DOCS_DIR/plans"
+  DATE=$(date +"%Y-%m-%d")
+  if [ -n "$ISSUE_NUMBER" ]; then
+    ARTIFACT_SLUG="issue-${ISSUE_NUMBER}"
+  else
+    ARTIFACT_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
+  fi
+  ARTIFACT_PATH="$DOCS_DIR/plans/${DATE}-${ARTIFACT_SLUG}.md"
+  echo ""
+  echo "Saving architecture plan to: $ARTIFACT_PATH"
+else
+  echo "(No docs/ directory — architecture plan not persisted)"
+  ARTIFACT_PATH=""
+fi
+```
+
+If `ARTIFACT_PATH` is set, write the artifact using the Write tool with this structure:
+
+```markdown
+---
+title: "[Architecture topic or Issue #N]"
+date: [YYYY-MM-DD]
+issue: [issue number if applicable, else null]
+type: architecture-plan
+status: draft
+---
+
+# Architecture Plan: [Topic]
+
+[Full content of the architecture design from architect-specialist]
+```
+
+This creates a searchable record in `docs/plans/` for future `/work` runs, learning-writer, and meta-reviewer to reference. Plans are retained indefinitely (not subject to the 90-day TTL that governs learnings).
+
 ## Usage Examples
 
 **With issue number:**
 ```bash
 /architect 347
-# Loads issue #347, invokes architect-specialist, posts design to issue
+# Loads issue #347, invokes architect-specialist, posts design to issue, saves to docs/plans/
 ```
 
 **With architecture topic:**
 ```bash
 /architect "Design caching layer for API responses"
-# Invokes architect-specialist with topic, displays design
+# Invokes architect-specialist with topic, displays design, saves to docs/plans/
 ```
 
 ## Notes
@@ -184,5 +227,6 @@ fi
 - The agent contains all architecture expertise and patterns
 - This command focuses on context gathering and GitHub integration
 - For architecture design without GitHub integration, the agent can be invoked directly
+- Plans saved to `docs/plans/` are persisted indefinitely for future reference
 
 Remember: Good architecture enables change. Design for the future, but build for today.

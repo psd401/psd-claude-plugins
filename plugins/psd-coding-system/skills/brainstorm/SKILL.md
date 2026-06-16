@@ -102,6 +102,44 @@ Synthesize everything into a structured output:
 [One of: `/scope [topic]`, `/issue [description]`, `/work [description]`, or "needs more research"]
 ```
 
+## Phase 6: Persist Brainstorm Artifact
+
+After presenting the brief, save it so it can be referenced in future work sessions:
+
+```bash
+PLUGIN_DIR="$(pwd)"
+DOCS_DIR="$PLUGIN_DIR/docs"
+
+if [[ -d "$DOCS_DIR" ]]; then
+  mkdir -p "$DOCS_DIR/brainstorms"
+  DATE=$(date +"%Y-%m-%d")
+  TOPIC_SLUG=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50 | sed 's/-$//')
+  ARTIFACT_PATH="$DOCS_DIR/brainstorms/${DATE}-${TOPIC_SLUG}.md"
+  echo ""
+  echo "Saving brainstorm artifact to: $ARTIFACT_PATH"
+else
+  echo "(No docs/ directory — brainstorm artifact not persisted)"
+  ARTIFACT_PATH=""
+fi
+```
+
+If `ARTIFACT_PATH` is set, write the artifact using the Write tool with this structure:
+
+```markdown
+---
+title: "[Topic from $ARGUMENTS]"
+date: [YYYY-MM-DD]
+type: brainstorm
+status: draft
+---
+
+# Brainstorm: [Topic]
+
+[Full content of the Brainstorm Brief from Phase 5]
+```
+
+This creates a searchable record in `docs/brainstorms/` that agents with `memory: project` and future `/work` runs can reference. The artifact is gitignored alongside learnings by default but can be committed if the team wants to preserve it.
+
 ## Guidelines
 
 - **Diverge before converging** — explore widely in Phase 3, narrow in Phase 5
@@ -109,3 +147,4 @@ Synthesize everything into a structured output:
 - **Keep it lightweight** — this should take 5-10 minutes, not an hour
 - **Don't implement** — produce the brief, not code
 - **Challenge assumptions** — if the user's framing seems off, say so constructively
+- **Always persist** — save the artifact in Phase 6 whenever `docs/` exists

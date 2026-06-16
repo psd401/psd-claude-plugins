@@ -15,6 +15,18 @@ plugins/psd-coding-system/docs/learnings/**/*.md
 # Evolve state (local per-machine, not shared)
 plugins/psd-coding-system/docs/learnings/.evolve-state.json
 
+# Brainstorm artifacts (local working data — commit manually if desired)
+plugins/psd-coding-system/docs/brainstorms/*.md
+
+# Architecture plan artifacts (local working data — commit manually if desired)
+plugins/psd-coding-system/docs/plans/*.md
+
+# Product pulse snapshots (local working data)
+plugins/psd-coding-system/docs/pulse/*.md
+
+# Document review artifacts (local working data)
+plugins/psd-coding-system/docs/reviews/*.md
+
 # Python
 __pycache__/
 *.pyc
