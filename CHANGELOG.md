@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.16.0] - 2026-06-16
+
+### Added
+- **`/parentsquare` skill (psd-productivity → 2.14.0)** — self-contained ParentSquare district-data CLI, generated with Printing Press from the live ParentSquare web app (no public API/spec; discovered via authenticated browser-sniff) and hand-extended for PSD:
+  - **15 read endpoints** — district student/staff rosters (`dashboard/*.json`), school directories (`/api/v2/schools/{id}/directory`), class rosters (`/api/v2/sections/{id}/students|staff`), district/school/group/class event calendars, user autocomplete search, attendance report contacts, and `/api/v2/districts/{id}/data_health_stats | sync_info | totals`.
+  - **`notification-activity`** — parses ParentSquare's server-rendered Notifications Activity report (no JSON API exists for it): per-school / per-staff / per-recipient message counts (posts, DMs, alerts, auto-notices, secure documents), with district→school drill-in and `--section` (school-usage / staff-usage / recipients) / `--resource` / date-range filters.
+  - **`create-draft`** — creates an *unsent* draft post; hard-forces `publish_option=DRAFT` and zeroes every recipient include, so it structurally cannot notify anyone (there is no "send" path); dry-run by default, `--confirm` to create.
+  - **Cookie auth** — `auth login --chrome` reads the ParentSquare session cookie from Chrome via `pycookiecheat` (host-scoped to `www.parentsquare.com`).
+  - **Distribution (no committed binaries)** — Go source vendored under `plugins/psd-productivity/skills/parentsquare/cli/`; prebuilt binaries (darwin/arm64, linux/amd64, windows/amd64; pure-Go, `CGO_ENABLED=0`) published via GitHub Release and fetched on first run by `scripts/ensure-binary.sh` (falls back to `go build` when offline + Go present). New `.github/workflows/parentsquare-cli-release.yml` cross-builds + publishes the gzipped binaries on a `parentsquare-cli-v*` tag.
+
 ## [2.15.0] - 2026-05-29
 
 ### Added
