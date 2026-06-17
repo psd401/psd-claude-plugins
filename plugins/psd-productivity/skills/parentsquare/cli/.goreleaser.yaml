@@ -1,0 +1,51 @@
+version: 2
+project_name: parentsquare-pp-cli
+changelog:
+  disable: true
+builds:
+  - id: parentsquare-pp-cli
+    main: ./cmd/parentsquare-pp-cli
+    binary: parentsquare-pp-cli
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X parentsquare-pp-cli/internal/cli.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+  - id: parentsquare-pp-mcp
+    main: ./cmd/parentsquare-pp-mcp
+    binary: parentsquare-pp-mcp
+    env:
+      - CGO_ENABLED=0
+    ldflags:
+      - -s -w -X main.version={{ .Version }}
+    targets:
+      - darwin_amd64
+      - darwin_arm64
+      - linux_amd64
+      - linux_arm64
+      - windows_amd64
+      - windows_arm64
+archives:
+  - formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+checksum:
+  name_template: checksums.txt
+brews:
+  - name: parentsquare-pp-cli
+    repository:
+      owner: krishagel
+      name: homebrew-tap
+    homepage: "https://github.com/krishagel/parentsquare-pp-cli"
+    description: "Discovered API spec for parentsquare"
+    install: |
+      bin.install "parentsquare-pp-cli"
+      bin.install "parentsquare-pp-mcp"

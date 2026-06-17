@@ -1,0 +1,688 @@
+name: parentsquare
+description: Discovered API spec for parentsquare
+version: 0.1.0
+base_url: https://www.parentsquare.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+    type: cookie
+    header: Cookie
+    format: ""
+    env_vars:
+        - PARENTSQUARE_COOKIES
+    in: cookie
+    cookie_domain: www.parentsquare.com
+    browser_session_reason: browser clearance is required to replay captured website traffic
+auth_warnings:
+    - 'rejected auth candidate "filter[]" from query: search input'
+    - 'rejected auth candidate "limit" from query: search input'
+    - 'rejected auth candidate "query" from query: search input'
+config:
+    format: toml
+    path: ~/.config/parentsquare-pp-cli/config.toml
+resources:
+    districts:
+        description: Operations on students.json
+        endpoints:
+            get_autocomplete:
+                method: GET
+                path: /districts/{district_id}/users/autocomplete
+                description: GET /districts/{district_id}/users/autocomplete
+                params:
+                    - name: chat
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: limit
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: query
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: autocomplete
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_class_events:
+                method: GET
+                path: /districts/{district_id}/class-events
+                description: GET /districts/{district_id}/class-events
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timeZone
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: class_events
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_data_health_stats:
+                method: GET
+                path: /api/v2/districts/{district_id}/data_health_stats
+                description: GET /api/v2/districts/{district_id}/data_health_stats
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: DataHealthStatData
+                pagination: null
+                response_path: data
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_district_events:
+                method: GET
+                path: /districts/{district_id}/district-events
+                description: GET /districts/{district_id}/district-events
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timeZone
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: DistrictEvent
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_group_events:
+                method: GET
+                path: /districts/{district_id}/group-events
+                description: GET /districts/{district_id}/group-events
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timeZone
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: group_events
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_school_events:
+                method: GET
+                path: /districts/{district_id}/school-events
+                description: GET /districts/{district_id}/school-events
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timeZone
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: school_events
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_staff.json:
+                method: GET
+                path: /districts/{district_id}/dashboard/staff.json
+                description: GET /districts/{district_id}/dashboard/staff.json
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: filter[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: StaffJson
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_students.json:
+                method: GET
+                path: /districts/{district_id}/dashboard/students.json
+                description: GET /districts/{district_id}/dashboard/students.json
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                    - name: filter[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: StudentsJson
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_sync_info:
+                method: GET
+                path: /api/v2/districts/{district_id}/sync_info
+                description: GET /api/v2/districts/{district_id}/sync_info
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: SyncInfoData
+                pagination: null
+                response_path: data
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_totals:
+                method: GET
+                path: /api/v2/districts/{district_id}/totals
+                description: GET /api/v2/districts/{district_id}/totals
+                params:
+                    - name: district_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The district_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Total
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    schools:
+        description: Operations on directory
+        endpoints:
+            get_directory:
+                method: GET
+                path: /api/v2/schools/{school_id}/directory
+                description: GET /api/v2/schools/{school_id}/directory
+                params:
+                    - name: school_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The school_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: DirectoryIncluded
+                pagination: null
+                response_path: included
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_report_email_users:
+                method: GET
+                path: /schools/{school_id}/attendance_settings/report_email_users
+                description: GET /schools/{school_id}/attendance_settings/report_email_users
+                params:
+                    - name: school_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The school_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ReportEmailUser
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_school_events:
+                method: GET
+                path: /schools/{school_id}/school-events
+                description: GET /schools/{school_id}/school-events
+                params:
+                    - name: end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: school_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The school_id path segment
+                      fields: []
+                    - name: start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: timeZone
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: school_events
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    sections:
+        description: Operations on students
+        endpoints:
+            get_staff:
+                method: GET
+                path: /api/v2/sections/{section_id}/staff
+                description: GET /api/v2/sections/{section_id}/staff
+                params:
+                    - name: section_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The section_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: StaffData
+                pagination: null
+                response_path: data
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            get_students:
+                method: GET
+                path: /api/v2/sections/{section_id}/students
+                description: GET /api/v2/sections/{section_id}/students
+                params:
+                    - name: section_id
+                      type: string
+                      required: true
+                      positional: true
+                      default: null
+                      description: The section_id path segment
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: StudentData
+                pagination: null
+                response_path: data
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+types:
+    Attributes:
+        fields:
+            - name: address
+              type: string
+            - name: app_name
+              type: string
+            - name: city_and_region
+              type: string
+            - name: external_provider
+              type: string
+            - name: has_current_rollover
+              type: bool
+            - name: id
+              type: integer
+            - name: is_manual
+              type: bool
+            - name: is_sftp
+              type: bool
+            - name: name
+              type: string
+            - name: phone
+              type: string
+            - name: region
+              type: string
+            - name: time_zone
+              type: string
+            - name: type
+              type: string
+    Attributes2:
+        fields:
+            - name: associated_user_id
+              type: integer
+            - name: first_name
+              type: string
+            - name: full_name
+              type: string
+            - name: id
+              type: integer
+            - name: last_name
+              type: string
+            - name: unlisted
+              type: bool
+    Attributes3:
+        fields:
+            - name: first_name
+              type: string
+            - name: id
+              type: integer
+            - name: last_name
+              type: string
+            - name: role
+              type: string
+            - name: user_title
+              type: string
+    Attributes4:
+        fields:
+            - name: institute_id
+              type: integer
+            - name: institute_type
+              type: string
+            - name: logo_url
+              type: string
+              format: url
+            - name: name
+              type: string
+            - name: relationships
+              type: object
+    Attributes5:
+        fields:
+            - name: archived_or_archive_skipped
+              type: bool
+            - name: emergency_contacts_enabled
+              type: bool
+            - name: institute_id
+              type: integer
+            - name: institute_type
+              type: string
+            - name: name
+              type: string
+            - name: quota_met
+              type: bool
+            - name: status
+              type: string
+    Attributes6:
+        fields:
+            - name: groups
+              type: object
+            - name: parents
+              type: object
+            - name: sections
+              type: object
+            - name: staff
+              type: object
+            - name: students
+              type: object
+            - name: total
+              type: object
+    Data:
+        fields:
+            - name: attributes
+              type: ref:Attributes6
+            - name: id
+              type: string
+            - name: type
+              type: string
+    DataHealthStatData:
+        fields:
+            - name: attributes
+              type: ref:Attributes4
+            - name: id
+              type: string
+            - name: type
+              type: string
+    DirectoryIncluded:
+        fields:
+            - name: attributes
+              type: ref:Attributes
+            - name: id
+              type: string
+            - name: relationships
+              type: ref:Relationships
+            - name: type
+              type: string
+    DistrictEvent:
+        fields:
+            - name: allDay
+              type: bool
+            - name: description
+              type: string
+            - name: end
+              type: string
+            - name: id
+              type: integer
+            - name: origin
+              type: string
+            - name: recurring
+              type: bool
+            - name: start
+              type: string
+            - name: summary
+              type: string
+            - name: title
+              type: string
+            - name: url
+              type: string
+    Relationships:
+        fields:
+            - name: school_api_credential
+              type: object
+            - name: smart_site_configuration
+              type: object
+    Relationships2:
+        fields:
+            - name: grade
+              type: object
+            - name: parents
+              type: object
+    Relationships3:
+        fields:
+            - name: last_data_sync
+              type: object
+    ReportEmailUser:
+        fields:
+            - name: email
+              type: string
+              format: email
+            - name: id
+              type: integer
+            - name: name
+              type: string
+    StaffData:
+        fields:
+            - name: attributes
+              type: ref:Attributes3
+            - name: id
+              type: string
+            - name: type
+              type: string
+    StaffJson:
+        fields:
+            - name: data
+              type: array
+    StudentData:
+        fields:
+            - name: attributes
+              type: ref:Attributes2
+            - name: id
+              type: string
+            - name: relationships
+              type: ref:Relationships2
+            - name: type
+              type: string
+    StudentsJson:
+        fields:
+            - name: data
+              type: array
+    SyncInfoData:
+        fields:
+            - name: attributes
+              type: ref:Attributes5
+            - name: id
+              type: string
+            - name: relationships
+              type: ref:Relationships3
+            - name: type
+              type: string
+    Total:
+        fields:
+            - name: data
+              type: ref:Data

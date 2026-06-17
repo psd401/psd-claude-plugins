@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.15.0
+**Version**: 2.16.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -89,6 +89,7 @@ psd-claude-plugins/                           # repo root
         board-policy-formatter/               # Reformat docs into PSD board policy/procedure template
         html-artifact/                        # Beautiful anti-slop single-page HTML artifacts
         chief-of-staff/                       # Executive support
+        parentsquare/                         # ParentSquare district data CLI (vendored Go source; binary via GitHub Release)
       agents/                                 # workflow-specific agents
         powerschool-navigator.md              # Chrome DevTools MCP PS report automation
         enrollment-validator.md               # P223 data validation checks
@@ -181,7 +182,7 @@ psd-claude-plugins/                           # repo root
 - plan-validator, document-validator, configuration-validator
 - breaking-change-validator, telemetry-data-specialist
 
-### psd-productivity Skills (34 total)
+### psd-productivity Skills (35 total)
 
 | Skill | Description |
 |-------|-------------|
@@ -219,6 +220,7 @@ psd-claude-plugins/                           # repo root
 | `/html-artifact` | Generate beautiful, self-contained single-page HTML artifacts with anti-slop design taste — documents, reports, code-review explainers, design explorations, interactive editors, and self-contained data dashboards / charts / data-story pages (inline-SVG charts, inline JSON data); optional PSD branding |
 | `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
 | `/chief-of-staff` | Daily briefings and priority management |
+| `/parentsquare` | Query ParentSquare district data — student/staff rosters, school directories, class lists, calendars, user search, data-health/sync/totals, notification-activity stats (per school/staff/recipient + drill-in); create unsent draft posts (never notifies). Self-contained Go CLI; binary auto-fetched from GitHub Release |
 
 ### Memory-Based Learning System
 
