@@ -1,0 +1,1414 @@
+name: classintercom
+description: Discovered API spec for classintercom
+version: 0.1.0
+base_url: https://app.classintercom.com
+spec_source: sniffed
+http_transport: browser-chrome
+auth:
+    type: cookie
+    header: Cookie
+    format: ""
+    env_vars:
+        - CLASSINTERCOM_COOKIES
+    in: cookie
+    cookie_domain: app.classintercom.com
+    requires_browser_session: true
+    browser_session_reason: browser clearance is required to replay captured website traffic
+    browser_session_validation_path: /api/channels
+    browser_session_validation_method: GET
+auth_warnings:
+    - 'rejected auth candidate "page" from query: search input'
+    - 'rejected auth candidate "sort_field" from query: search input'
+    - 'rejected auth candidate "sort_order" from query: search input'
+config:
+    format: toml
+    path: ~/.config/classintercom-pp-cli/config.toml
+resources:
+    binder:
+        description: Operations on filters_config
+        endpoints:
+            list_filters_config:
+                method: GET
+                path: /api/binder/filters_config
+                description: GET /api/binder/filters_config
+                params:
+                    - name: labels
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: types
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                body: []
+                response:
+                    type: array
+                    item: FiltersConfigType
+                pagination: null
+                response_path: types
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    channels:
+        description: Operations on channels
+        endpoints:
+            list_channels:
+                method: GET
+                path: /api/channels
+                description: GET /api/channels
+                params:
+                    - name: scope
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Channel
+                pagination: null
+                response_path: channels
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    content:
+        description: Operations on holidays
+        endpoints:
+            list_content:
+                method: GET
+                path: /api/content
+                description: GET /api/content
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rows
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_field
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_order
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ContentActivity
+                pagination: null
+                response_path: activities
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_failed_count:
+                method: GET
+                path: /api/content/failed_count
+                description: GET /api/content/failed_count
+                params:
+                    - name: count
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: FailedCount
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_filters_config:
+                method: GET
+                path: /api/content/filters_config
+                description: GET /api/content/filters_config
+                params:
+                    - name: assignees
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: items
+                          type: array
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields:
+                            - name: avatar_url
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                              format: url
+                            - name: label
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                            - name: value
+                              type: string
+                              required: true
+                              positional: false
+                              default: null
+                              description: ""
+                              fields: []
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: labels
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: statuses
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: users
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: avatar_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                body: []
+                response:
+                    type: array
+                    item: FiltersConfigAssignee
+                pagination: null
+                response_path: assignees
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_holidays:
+                method: GET
+                path: /api/content/holidays
+                description: GET /api/content/holidays
+                params:
+                    - name: date_end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: date_start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Holiday
+                pagination: null
+                response_path: holidays
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_tasks:
+                method: GET
+                path: /api/content/tasks
+                description: GET /api/content/tasks
+                params:
+                    - name: date_end
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: date_start
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Task
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    libraries:
+        description: Operations on filters_config
+        endpoints:
+            list_filters_config:
+                method: GET
+                path: /api/libraries/filters_config
+                description: GET /api/libraries/filters_config
+                params:
+                    - name: labels
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: libraries
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: FiltersConfig
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_libraries:
+                method: GET
+                path: /api/libraries
+                description: GET /api/libraries
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rows
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_field
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_order
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: states[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Library
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    moderation:
+        description: Operations on moderation
+        endpoints:
+            list_filters_config:
+                method: GET
+                path: /api/moderation/filters_config
+                description: GET /api/moderation/filters_config
+                params:
+                    - name: brands
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                    - name: labels
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: states
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: types
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                body: []
+                response:
+                    type: array
+                    item: FiltersConfigBrand2
+                pagination: null
+                response_path: brands
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_moderation:
+                method: GET
+                path: /api/moderation
+                description: GET /api/moderation
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rows
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_field
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_order
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: states[]
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: object
+                    item: Moderation
+                pagination: null
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    reports:
+        description: Operations on reports
+        endpoints:
+            list_filters_config:
+                method: GET
+                path: /api/reports/filters_config
+                description: GET /api/reports/filters_config
+                params:
+                    - name: available_report_types
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: brands
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: avatar_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                    - name: keyword_groups
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: moderation_statuses
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: networks
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: tags
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: users
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: avatar_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                body: []
+                response:
+                    type: array
+                    item: FiltersConfigAvailableReportType
+                pagination: null
+                response_path: available_report_types
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_reports:
+                method: GET
+                path: /api/reports
+                description: GET /api/reports
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rows
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_field
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_order
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: ReportReportRun
+                pagination: null
+                response_path: report_runs
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    social:
+        description: Operations on filters_config
+        endpoints:
+            list_feed:
+                method: GET
+                path: /api/social/feed
+                description: GET /api/social/feed
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: scope
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: FeedFeedItem
+                pagination: null
+                response_path: feed_items
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_filters_config:
+                method: GET
+                path: /api/social/filters_config
+                description: GET /api/social/filters_config
+                params:
+                    - name: features
+                      type: object
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: is_classintercom
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: threads
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: tiktok_access
+                          type: boolean
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: networks
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: users
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: id
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                        - name: name
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                body: []
+                response:
+                    type: array
+                    item: FiltersConfigNetwork
+                pagination: null
+                response_path: networks
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+    tasks:
+        description: Operations on assignables
+        endpoints:
+            list_assignables:
+                method: GET
+                path: /api/tasks/assignables
+                description: GET /api/tasks/assignables
+                params:
+                    - name: users
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: avatar_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                body: []
+                response:
+                    type: array
+                    item: AssignableUser
+                pagination: null
+                response_path: users
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_filters_config:
+                method: GET
+                path: /api/tasks/filters_config
+                description: GET /api/tasks/filters_config
+                params:
+                    - name: brands
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: avatar_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                    - name: statuses
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                    - name: users
+                      type: array
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields:
+                        - name: avatar_url
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: url
+                        - name: label
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                        - name: value
+                          type: string
+                          required: true
+                          positional: false
+                          default: null
+                          description: ""
+                          fields: []
+                          format: uuid
+                body: []
+                response:
+                    type: array
+                    item: FiltersConfigBrand
+                pagination: null
+                response_path: brands
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+            list_tasks:
+                method: GET
+                path: /api/tasks
+                description: GET /api/tasks
+                params:
+                    - name: page
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: rows
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_field
+                      type: string
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                    - name: sort_order
+                      type: integer
+                      required: false
+                      positional: false
+                      default: null
+                      description: ""
+                      fields: []
+                body: []
+                response:
+                    type: array
+                    item: Task2
+                pagination: null
+                response_path: tasks
+                observed_auth:
+                    - cookie
+                    - x-csrf-token
+types:
+    AssignableUser:
+        fields:
+            - name: avatar_url
+              type: string
+              format: url
+            - name: label
+              type: string
+            - name: value
+              type: string
+              format: uuid
+    Channel:
+        fields:
+            - name: avatar_url
+              type: string
+              format: url
+            - name: brand_id
+              type: string
+              format: uuid
+            - name: label
+              type: string
+            - name: network
+              type: string
+            - name: value
+              type: string
+              format: uuid
+    Channel2:
+        fields:
+            - name: id
+              type: string
+              format: uuid
+            - name: name
+              type: string
+            - name: network
+              type: string
+            - name: social
+              type: bool
+    ContentActivity:
+        fields:
+            - name: activity_date
+              type: string
+              format: date-time
+            - name: approvers
+              type: array
+            - name: author
+              type: string
+            - name: brand_name
+              type: string
+            - name: channels
+              type: '[]ref:Channel2'
+            - name: compose_mode
+              type: string
+            - name: content_type
+              type: string
+            - name: has_attachments
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: image_url
+              type: string
+              format: url
+            - name: labels
+              type: array
+            - name: message
+              type: string
+            - name: note_count
+              type: integer
+            - name: publish_immediately
+              type: bool
+            - name: state
+              type: string
+    FailedCount:
+        fields:
+            - name: count
+              type: integer
+    FeedFeedItem:
+        fields:
+            - name: actions
+              type: array
+            - name: brand_avatar_url
+              type: string
+              format: url
+            - name: brand_name
+              type: string
+            - name: channel_id
+              type: string
+              format: uuid
+            - name: channel_name
+              type: string
+            - name: conversation_id
+              type: string
+              format: uuid
+            - name: deleted
+              type: bool
+            - name: external_id
+              type: string
+            - name: external_link
+              type: string
+              format: url
+            - name: flagged
+              type: bool
+            - name: has_notes
+              type: bool
+            - name: hidden
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: is_root
+              type: bool
+            - name: keyword_flagged
+              type: bool
+            - name: keyword_terms
+              type: array
+            - name: liked
+              type: bool
+            - name: media
+              type: '[]ref:Media'
+            - name: mention
+              type: bool
+            - name: network
+              type: string
+            - name: notes_count
+              type: integer
+            - name: object_type
+              type: string
+            - name: parent_external_id
+              type: string
+            - name: private_message
+              type: bool
+            - name: published_at
+              type: string
+              format: date-time
+            - name: resolved
+              type: bool
+            - name: source_avatar
+              type: string
+              format: url
+            - name: source_initials
+              type: string
+            - name: source_name
+              type: string
+            - name: source_profile_url
+              type: string
+              format: url
+            - name: source_screen_name
+              type: string
+            - name: stats
+              type: ref:Stats
+            - name: text
+              type: string
+            - name: time_ago
+              type: string
+            - name: user_generated
+              type: bool
+    FiltersConfig:
+        fields:
+            - name: labels
+              type: array
+            - name: libraries
+              type: array
+    FiltersConfigAssignee:
+        fields:
+            - name: items
+              type: '[]ref:Item'
+            - name: label
+              type: string
+    FiltersConfigAvailableReportType:
+        fields:
+            - name: label
+              type: string
+            - name: value
+              type: string
+    FiltersConfigBrand:
+        fields:
+            - name: avatar_url
+              type: string
+              format: url
+            - name: label
+              type: string
+            - name: value
+              type: string
+              format: uuid
+    FiltersConfigBrand2:
+        fields:
+            - name: label
+              type: string
+            - name: value
+              type: string
+              format: uuid
+    FiltersConfigNetwork:
+        fields:
+            - name: label
+              type: string
+            - name: value
+              type: string
+    FiltersConfigType:
+        fields:
+            - name: label
+              type: string
+            - name: value
+              type: string
+    Holiday:
+        fields:
+            - name: date
+              type: string
+            - name: name
+              type: string
+    Item:
+        fields:
+            - name: avatar_url
+              type: string
+              format: url
+            - name: label
+              type: string
+            - name: value
+              type: string
+    Library:
+        fields:
+            - name: items
+              type: array
+            - name: pagination
+              type: ref:Pagination2
+    Media:
+        fields:
+            - name: alt_text
+              type: string
+            - name: archived_source
+              type: string
+              format: url
+            - name: network_id
+              type: string
+            - name: source
+              type: string
+              format: url
+            - name: type
+              type: string
+    Moderation:
+        fields:
+            - name: activities
+              type: array
+            - name: pagination
+              type: ref:Pagination
+    Pagination:
+        fields:
+            - name: current_page
+              type: integer
+            - name: rows_per_page
+              type: integer
+            - name: total_records
+              type: integer
+    Pagination2:
+        fields:
+            - name: current_page
+              type: integer
+            - name: rows_per_page
+              type: integer
+            - name: total_records
+              type: integer
+    Params:
+        fields:
+            - name: action
+              type: string
+            - name: authenticity_token
+              type: string
+            - name: brand_ids
+              type: array
+            - name: build
+              type: string
+            - name: channel_ids
+              type: array
+            - name: controller
+              type: string
+            - name: date_range
+              type: string
+            - name: network
+              type: string
+            - name: report
+              type: string
+    ReportReportRun:
+        fields:
+            - name: created_at
+              type: string
+              format: date-time
+            - name: created_by
+              type: string
+            - name: created_by_id
+              type: string
+              format: uuid
+            - name: finished_at
+              type: string
+              format: date-time
+            - name: id
+              type: string
+              format: uuid
+            - name: main_product_url
+              type: string
+              format: url
+            - name: params
+              type: ref:Params
+            - name: progress_current
+              type: integer
+            - name: progress_total
+              type: integer
+            - name: ran_at
+              type: string
+              format: date-time
+            - name: range_beginning
+              type: string
+            - name: range_ending
+              type: string
+            - name: report_name
+              type: string
+            - name: state
+              type: string
+    Stats:
+        fields:
+            - name: angry
+              type: string
+            - name: haha
+              type: string
+            - name: like
+              type: integer
+            - name: like_count
+              type: integer
+            - name: love
+              type: string
+            - name: sad
+              type: string
+            - name: wow
+              type: string
+    Task:
+        fields:
+            - name: tasks
+              type: object
+    Task2:
+        fields:
+            - name: assignee
+              type: string
+            - name: assignee_avatar_url
+              type: string
+              format: url
+            - name: assignee_id
+              type: string
+              format: uuid
+            - name: attachment_count
+              type: integer
+            - name: brand_id
+              type: string
+              format: uuid
+            - name: brand_name
+              type: string
+            - name: created_at
+              type: string
+              format: date-time
+            - name: created_by
+              type: string
+            - name: created_by_avatar_url
+              type: string
+              format: url
+            - name: has_attachments
+              type: bool
+            - name: id
+              type: string
+              format: uuid
+            - name: related_content_count
+              type: integer
+            - name: status
+              type: string
+            - name: subtask_count
+              type: integer
+            - name: title
+              type: string
