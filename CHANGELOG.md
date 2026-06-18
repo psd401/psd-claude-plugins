@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.17.0] - 2026-06-18
+
+### Added
+- **`/class-intercom` skill (psd-productivity → 2.15.0)** — self-contained Class Intercom social-comms CLI, generated with Printing Press from the live Class Intercom web app (a React SPA with a cookie/CSRF-authenticated Rails `/api` backend; no public API/spec — discovered via an authenticated in-page `fetch`/XHR capture) and hand-extended for PSD:
+  - **Read commands** — social `channels` (with their UUIDs), the content/activity feed (`content list-content`), content tasks/failed-count/holidays (`content list-holidays` requires `--date-start`/`--date-end`), the social feed (`social list-feed`), `libraries`, the `moderation` queue, `reports`, `tasks` (+ `list-assignables`), `binder`, and per-resource `list-filters-config`. All hit real JSON `/api/...` endpoints.
+  - **`create-draft`** — creates an *unsent* draft social post via `POST /api/compose-v2/submit_new` with `state` hard-forced to `save_draft` (never `publish`/`schedule`), so it structurally cannot post or notify; dry-run by default, `--confirm` to create. Generates a fresh `assignment_id` (v4 UUID) per draft like the composer does, and fetches the Rails CSRF token from an app page to send as `X-CSRF-Token` (the write 422s without it). Live-verified against PSD's workspace (HTTP 200, `state:"draft"`).
+  - **Cookie auth** — `auth login --chrome` reads the Class Intercom session cookie from Chrome via `pycookiecheat` (base URL `app.classintercom.com`).
+  - **Distribution (no committed binaries)** — Go source vendored under `plugins/psd-productivity/skills/class-intercom/cli/`; prebuilt binaries (darwin/arm64, linux/amd64, windows/amd64; pure-Go `modernc.org/sqlite`, `CGO_ENABLED=0`, ~13 MB gzipped) published via GitHub Release and fetched on first run by `scripts/ensure-binary.sh` (falls back to `go build` when offline + Go present). New `.github/workflows/classintercom-cli-release.yml` cross-builds + publishes the gzipped binaries on a `classintercom-cli-v*` tag.
+
 ## [2.16.0] - 2026-06-16
 
 ### Added
