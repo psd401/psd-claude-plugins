@@ -96,3 +96,4 @@ They never merge PRs and never edit protected files (`.claude/`, hooks, workflow
 | Work on several issues at once | `/worktree` + a Claude window each |
 | Bank learnings / improve the plugin | `/evolve` |
 | Cut a release | `/bump-version` |
+| Tidy up after merges — delete merged branches (local + remote), prune worktrees, close orphaned issues | `/worktree clean` |

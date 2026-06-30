@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.20.0
+**Version**: 2.21.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -131,7 +131,7 @@ psd-claude-plugins/                           # repo root
 | `/lfg` | Autonomous build-to-done: implement → verify the full DoD (build/lint-zero-warning/typecheck/**full** suite/Playwright + screenshots) → open PR with visual evidence → watch CI + the project's AI reviewers and fix every round until **100% clean**. Absorbs work/test/debug/optimize/review-pr/security-audit |
 | `/evolve` | Compound learnings into CLAUDE.md/patterns/agents then **prune** them; release tracking; competitor compare |
 | `/setup` | Write `.psd/verify.json` — the per-project verification gate (commands, E2E flows, strictness, AI-reviewer logins, commit-learnings, active review agents) |
-| `/worktree` | Git worktree management + the multi-window "run several `/lfg` in parallel" how-to |
+| `/worktree` | Git worktree management + multi-window parallel how-to + `clean` post-merge hygiene (prune worktrees, delete merged local/remote branches, close orphaned issues — restores `/clean-branch`) |
 | `/bump-version` | Version bump ritual (absorbs `/changelog`) — three independent tracks |
 
 **Removed/folded in v3.0.0:** work, test, debug, optimize, review-pr, security-audit, architect, brainstorm, scope, product-manager, deepen-plan, issue, changelog, clean-branch, swarm, triage (triage intake now lives only in the cloud routine). Contracts: `docs/patterns/{definition-of-done,issue-contract,worktrees-explained}.md`.

@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.21.0] - 2026-06-30
+
+### Added
+- **`/worktree clean` — post-merge hygiene** (restores the useful part of the removed `/clean-branch`). One command sweeps: stale worktrees (both `.worktrees/*` and the auto `.claude/worktrees/*`), merged local branches, lingering remote branches whose PR merged/closed, and issues still open whose PR already merged. **Squash-merge-aware** — detects merged branches via `gh pr list --head <branch> --state merged`, not just `git branch --merged` (which misses squash merges, the default for this org). Excludes `main`/`dev`/`master`, `dependabot/*`, and any branch with an open PR; **confirms** the destructive remote-branch deletions and issue closes via AskUserQuestion before running. Documents the auto-close gotcha (GitHub only auto-closes an issue when its PR merges into the repo's *default* branch). The lightweight worktrees-only sweep is split out as its own `/worktree prune` subcommand.
+
+### Changed
+- Versions: **psd-coding-system 3.2.0 → 3.3.0**, **marketplace 2.20.0 → 2.21.0**. Updated `worktrees-explained.md`, `how-to-use.md`, the plugin README, and the CLAUDE.md skill table for the new `clean` subcommand.
+
 ## [2.20.0] - 2026-06-30
 
 ### Added
