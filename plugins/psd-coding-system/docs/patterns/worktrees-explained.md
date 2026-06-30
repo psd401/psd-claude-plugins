@@ -73,5 +73,5 @@ Under the hood `/lfg` uses Claude Code's built-in worktree support (`EnterWorktr
 
 - **Don't check out the same branch in two worktrees** — git refuses; each branch lives in exactly one worktree.
 - **Worktrees are folders on disk** — they take space and have their own `node_modules`. Run install once per worktree (or symlink/hardlink heavy dirs if your tooling supports it).
-- **Clean up after merge** — a stale worktree pointing at a deleted branch is clutter; `/worktree clean` prunes them.
+- **Clean up after merge** — `/worktree clean` is full post-merge hygiene: it prunes stale worktrees, deletes merged local **and** remote branches (squash-merge-aware), and closes issues whose PR already merged (confirming the destructive steps first). `/worktree prune` is the lightweight worktrees-only version.
 - **`.env` and secrets** — the `WorktreeCreate` hook symlinks `.env`; anything else machine-specific you need, copy in.

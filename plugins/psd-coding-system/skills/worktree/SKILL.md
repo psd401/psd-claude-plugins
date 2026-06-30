@@ -1,7 +1,7 @@
 ---
 name: worktree
-description: Parallel development using git worktrees — work on multiple branches simultaneously
-argument-hint: "[branch-name or issue-number] [optional: base-branch]"
+description: Parallel development with git worktrees — create/list/remove worktrees, plus `clean` for post-merge hygiene (prune worktrees, delete merged local+remote branches, close orphaned issues)
+argument-hint: "[issue-number | branch-name | list | clean | prune | remove <branch>]"
 model: claude-opus-4-8
 effort: high
 context: fork
@@ -11,6 +11,7 @@ allowed-tools:
   - Read
   - Grep
   - Glob
+  - AskUserQuestion
 extended-thinking: true
 ---
 
@@ -30,7 +31,10 @@ case "$ARGS" in
   list|ls)
     SUBCOMMAND="list"
     ;;
-  clean|prune)
+  prune)
+    SUBCOMMAND="prune"
+    ;;
+  clean|sweep|tidy)
     SUBCOMMAND="clean"
     ;;
   remove\ *|rm\ *)
@@ -60,7 +64,7 @@ echo "=== Branches in Worktrees ==="
 git worktree list --porcelain | grep "^branch" | sed 's/branch refs\/heads\//  /'
 ```
 
-### If `clean`:
+### If `prune` (worktrees only — lightweight):
 
 ```bash
 echo "=== Pruning stale worktrees ==="
@@ -70,6 +74,65 @@ echo ""
 echo "=== Remaining worktrees ==="
 git worktree list
 ```
+
+### If `clean` (post-merge hygiene — restores what `/clean-branch` used to do):
+
+Sweeps merged branches (local **and** remote, squash-merge-aware), stale worktrees, and issues that should be closed. Gather the candidates first; the destructive steps (remote-branch deletion, issue closing) are confirmed before running.
+
+```bash
+echo "=== /worktree clean — post-merge hygiene ==="
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo main)
+if git ls-remote --exit-code --heads origin dev >/dev/null 2>&1; then BASE=dev; else BASE="$DEFAULT_BRANCH"; fi
+CUR=$(git branch --show-current); PROT='^(main|master|dev|HEAD)$'
+
+git fetch --prune origin --quiet 2>/dev/null || true   # drop tracking refs for branches already deleted on the remote
+
+echo "--- 1. local branches whose work is merged (safe to delete) ---"
+LOCAL_DELETE=""
+for b in $(git for-each-ref --format='%(refname:short)' refs/heads/); do
+  echo "$b" | grep -qE "$PROT" && continue
+  [ "$b" = "$CUR" ] && continue
+  # normal-merged into base, OR its PR is merged (covers squash merges, which change the SHA)
+  if git merge-base --is-ancestor "$b" "origin/$BASE" 2>/dev/null \
+     || [ -n "$(gh pr list --head "$b" --state merged --limit 1 --json number --jq '.[].number' 2>/dev/null)" ]; then
+    LOCAL_DELETE="$LOCAL_DELETE $b"
+  fi
+done
+echo "${LOCAL_DELETE:-(none)}"
+
+echo "--- 2. worktrees (remove any on a merged/gone branch) ---"
+git worktree list
+
+echo "--- 3. remote branches whose PR is MERGED/CLOSED (dependabot excluded) ---"
+REMOTE_DELETE=""
+for rb in $(git for-each-ref --format='%(refname:short)' refs/remotes/origin/ | sed 's#^origin/##'); do
+  echo "$rb" | grep -qE "$PROT" && continue
+  echo "$rb" | grep -qE '^dependabot/' && continue     # Dependabot manages its own branches
+  S=$(gh pr list --head "$rb" --state all --limit 1 --json state --jq '.[].state' 2>/dev/null)
+  case "$S" in MERGED|CLOSED) REMOTE_DELETE="$REMOTE_DELETE $rb" ;; esac
+done
+echo "${REMOTE_DELETE:-(none)}"
+
+echo "--- 4. issues still OPEN whose linked PR already merged ---"
+ORPHANS=""
+for pr in $(gh pr list --state merged --limit 30 --json number --jq '.[].number' 2>/dev/null); do
+  for issue in $(gh pr view "$pr" --json closingIssuesReferences --jq '.closingIssuesReferences[].number' 2>/dev/null); do
+    [ "$(gh issue view "$issue" --json state --jq '.state' 2>/dev/null)" = "OPEN" ] && ORPHANS="$ORPHANS #${issue}(PR#${pr})"
+  done
+done
+echo "${ORPHANS:-(none)}"
+```
+
+Then act on the candidates:
+
+1. **Local branches** — delete the merged ones (they're already merged, so this is non-destructive): `git branch -D <branch>` for each in list 1.
+2. **Worktrees** — `git worktree prune`; for any worktree whose branch is in list 1 (merged) or gone, `git worktree remove <path>` (confirm no uncommitted changes first; `git worktree list` shows paths). Both `.worktrees/*` (manual) and `.claude/worktrees/*` (auto from `/lfg`) are covered.
+3. **Remote branches** (list 3) — remote deletion is destructive and outward-facing. **Use AskUserQuestion to confirm the list first**, then `git push origin --delete <branch>` for each approved branch.
+4. **Orphan issues** (list 4) plus any merged PR that had **no** closing reference but an issue number in its head branch (`feature/<N>-…`, `claude/lfg-issue-<N>-…`) — surface those as *candidates*, and verify each really is the work that PR did (check the issue title) before acting. **Confirm with AskUserQuestion**, then `gh issue close <N> --comment "Closed via merged PR #<pr>."` for each approved one.
+
+Print a summary: local branches deleted, remote branches deleted, worktrees removed, issues closed.
+
+> **Note on auto-close:** issues only auto-close when their PR merges into the repo's **default** branch. If a repo's default is `main` but PRs target `dev`, `Closes #N` won't fire until `dev` → `main` — step 4 closes them explicitly so they don't linger.
 
 ### If `remove`:
 
@@ -161,7 +224,7 @@ Present the result clearly:
 - **Path:** [worktree path]
 - **Branch:** [branch name]
 - **Base:** [base branch]
-- **Status:** [created / listed / removed / pruned]
+- **Status:** [created / listed / removed / pruned / cleaned]
 
 **Tip:** Each worktree is a full, independent checkout. Open a separate Claude Code window in it and run `/lfg` — multiple worktrees = multiple `/lfg` sessions in parallel, with zero collisions. New to worktrees? Read `docs/patterns/worktrees-explained.md`.
 ```
