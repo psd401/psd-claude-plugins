@@ -138,8 +138,14 @@ echo "=== Worktree created ==="
 echo "Path: $(pwd)/$WORKTREE_DIR"
 echo "Branch: $BRANCH_NAME"
 echo ""
-echo "To work in this worktree:"
-echo "  cd $WORKTREE_DIR"
+echo "To run an independent session in this worktree:"
+echo "  1. Open a NEW terminal/window"
+echo "  2. cd $WORKTREE_DIR"
+echo "  3. claude          # a fresh, isolated Claude Code session scoped to this folder"
+echo "  4. /lfg $TARGET    # build this issue to done, in parallel with your other windows"
+echo ""
+echo "Repeat /worktree for another issue to run several /lfg sessions side by side."
+echo "Full explanation: plugins/psd-coding-system/docs/patterns/worktrees-explained.md"
 echo ""
 echo "Active worktrees:"
 git worktree list
@@ -157,5 +163,5 @@ Present the result clearly:
 - **Base:** [base branch]
 - **Status:** [created / listed / removed / pruned]
 
-**Tip:** Each worktree is a full checkout. You can run `/work`, `/test`, or any other command inside it independently.
+**Tip:** Each worktree is a full, independent checkout. Open a separate Claude Code window in it and run `/lfg` — multiple worktrees = multiple `/lfg` sessions in parallel, with zero collisions. New to worktrees? Read `docs/patterns/worktrees-explained.md`.
 ```

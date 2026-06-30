@@ -1,6 +1,6 @@
 ---
 name: evolve
-description: Auto-evolve the plugin — analyzes learnings, checks releases, compares competition, contributes patterns
+description: Auto-evolve the plugin — compounds learnings into CLAUDE.md/patterns/agents then prunes them, checks releases, compares competition, contributes patterns
 model: claude-opus-4-8
 effort: xhigh
 context: fork
@@ -79,7 +79,10 @@ for dir in "$PLUGIN_DIR/docs/learnings"/*/; do
 done
 
 echo ""
-echo "=== TTL Cleanup (90 days) ==="
+echo "=== TTL Cleanup (90-day SAFETY BACKSTOP) ==="
+# Primary pruning is compound-then-prune in Phase 3A (analyze → fold insight into
+# CLAUDE.md/patterns/agents → delete the learning). This TTL only catches stragglers
+# that were never compounded.
 CUTOFF_DATE=$(date -v-90d +"%Y-%m-%d" 2>/dev/null || date -d "90 days ago" +"%Y-%m-%d")
 EXPIRED_COUNT=0
 for f in $(find "$PLUGIN_DIR/docs/learnings" -name "*.md" -not -name ".gitkeep" -type f 2>/dev/null); do
@@ -103,7 +106,7 @@ echo "=== Learning Capture Health ==="
 RECENT_COMMITS=$(git log --oneline --since="14 days ago" 2>/dev/null | wc -l | tr -d ' ')
 if [ "$TOTAL_LEARNINGS" -lt 3 ] && [ "$RECENT_COMMITS" -gt 5 ]; then
   echo "⚠ Learning capture appears underactive — $RECENT_COMMITS commits in last 14 days but only $TOTAL_LEARNINGS learnings."
-  echo "  Verify learning-writer is functioning by running a real /work task."
+  echo "  Verify learning-writer is functioning by running a real /lfg task."
 else
   echo "OK ($TOTAL_LEARNINGS learnings, $RECENT_COMMITS recent commits)"
 fi
@@ -246,6 +249,21 @@ Present the meta-reviewer's report with:
 - Knowledge gap warnings
 - Suggested next steps
 
+#### Phase 3A.5: Compound, then prune (capture → commit → compound → prune)
+
+This is the compounding step — and the only place learnings get deleted in the normal flow.
+
+1. **Fold each durable insight into a permanent home:** update the root `CLAUDE.md`, add/extend a doc in `docs/patterns/`, or sharpen an agent's instructions in `agents/`. A learning that changes future behavior belongs in one of those, not in a growing pile.
+2. **Prune the learnings you compounded.** Delete each analyzed learning file whose insight now lives in a durable doc, and commit the deletion so the pile shrinks:
+
+```bash
+# After folding insights into CLAUDE.md/patterns/agents, remove the compounded learnings:
+git rm <docs/learnings/.../compounded-learning.md> ...
+git commit -m "chore(evolve): compound N learnings into docs/patterns + CLAUDE.md, prune source files"
+```
+
+3. Keep only learnings that are still unprocessed or genuinely one-off. The goal is a small, current learnings dir — not an archive.
+
 ### Phase 3B: Claude Code Release Gap Analysis
 
 Use WebFetch to check for Claude Code updates:
@@ -298,11 +316,14 @@ If confirmed, for each learning:
 
 ### Phase 3D: Plugin Comparison
 
-Use WebFetch to analyze Every's Compound Engineering plugin:
+Use WebFetch/WebSearch to compare against the current state of the art (fetch sparingly, summarize aggressively):
 
-1. Fetch `https://raw.githubusercontent.com/EveryInc/compound-engineering-plugin/main/README.md`
-2. Fetch `https://raw.githubusercontent.com/EveryInc/compound-engineering-plugin/main/plugins/compound-engineering/.claude-plugin/plugin.json`
-3. Compare agent counts, skill patterns, architecture approaches
+1. **Every — Compound Engineering**: `https://github.com/EveryInc/compound-engineering-plugin` + every.to articles (the plan/work/review/compound loop).
+2. **Obra superpowers** (Jesse Vincent): `https://github.com/obra/superpowers` + `https://blog.fsck.com` (discipline-as-text, brainstorm→plan→subagent-driven dev→verification-before-completion, git-worktrees).
+3. **Boris Cherny / Anthropic team**: `https://howborisusesclaudecode.com` + Claude Code best-practices docs (verification loops, parallel sessions, slash-command diet, CLAUDE.md discipline).
+4. **Matt Pocock**: `https://github.com/mattpocock/skills` (clarify-first / 50-questions-before-code discipline).
+
+Compare our 3-surface model (/plan, /lfg, /evolve) + agents against these. Where conflicting or hype, flag it.
 
 Present a structured comparison:
 ```markdown
@@ -473,7 +494,7 @@ gh issue create \
 
 **For project-specific findings:**
 
-Create the issue on `$CURRENT_REPO` (the repo where `/evolve` was run). Do NOT create project-specific issues on the plugin repo.
+Create the issue on `$CURRENT_REPO` (the repo where `/evolve` was run). Do NOT create project-specific issues on the plugin repo. If the finding is a concrete, implementable fix, write the issue body per `docs/patterns/issue-contract.md` (include the `<!-- dod:start -->…<!-- dod:end -->` Definition of Done block) and add the `lfg-ready` label so `/lfg` can pick it up directly.
 
 ```bash
 TARGET_REPO="$CURRENT_REPO"
@@ -527,11 +548,11 @@ Based on remaining staleness in the state file, suggest when to run `/evolve` ag
 ### Next Steps
 
 **Issues created this run:**
-- #N — [title] → `/work N`
-- #M — [title] → `/work M`
+- #N — [title] → `/lfg N`
+- #M — [title] → `/lfg M`
 
 Pick one to start implementing, or run `/evolve` again after [condition] to [action].
-Meanwhile, `/work`, `/test`, `/review-pr`, and `/lfg` continue capturing learnings automatically.
+Meanwhile, `/lfg` continues capturing and committing learnings automatically.
 ```
 
 If no issues were created, omit the issues list and just show the next evolve trigger condition.

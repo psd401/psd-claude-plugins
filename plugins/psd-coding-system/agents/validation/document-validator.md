@@ -454,9 +454,9 @@ function validateImplementationPlan(plan: any): ValidationResult {
   // For production: const validAgentNames = fs.readdirSync('agents/').map(f => f.replace('.md', ''));
   const validAgentNames = [
     'backend-specialist', 'frontend-specialist', 'database-specialist', 'llm-specialist',
-    'test-specialist', 'security-analyst-specialist', 'performance-optimizer',
-    'documentation-writer', 'architect-specialist', 'plan-validator', 'gpt-5', 'ux-specialist',
-    'meta-orchestrator', 'code-cleanup-specialist', 'pr-review-responder',
+    'test-specialist', 'security-reviewer', 'performance-optimizer',
+    'documentation-writer', 'architect-specialist', 'plan-validator', 'gpt-5-codex', 'ux-specialist',
+    'meta-reviewer', 'runtime-verifier',
     'document-validator', 'breaking-change-validator', 'telemetry-data-specialist',
     'shell-devops-specialist', 'configuration-validator'
   ];

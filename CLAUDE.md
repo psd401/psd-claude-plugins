@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.17.0
+**Version**: 2.18.0
 **Status**: Production-Ready
 
 ### Plugins
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 21 | 44 |
+| `psd-coding-system` | AI-assisted development workflows | 6 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 36 | 1 |
 
 ### Key Changes in v2.0.0
@@ -121,36 +121,27 @@ psd-claude-plugins/                           # repo root
 - Each plugin ships its own agents
 - `enabledPlugins` in `.claude/settings.json` allows selective enabling/disabling
 
-### psd-coding-system Skills (21 total)
+### psd-coding-system Skills (6 total)
+
+**v3.0.0 consolidated 21 overlapping skills into 3 disciplined surfaces + 3 utilities.** "Done" is a machine-checkable Definition of Done (`docs/patterns/definition-of-done.md`), enforced by a verify gate + Stop hook, not agent goodwill.
 
 | Skill | Description |
 |-------|-------------|
-| `/work` | Implement solutions with auto reviews + learning capture |
-| `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn |
-| `/debug` | Structured root-cause analysis: reproduce → hypothesize → test → verify → fix → learn |
-| `/test` | Comprehensive testing with self-healing retry loop + learning capture |
-| `/review-pr` | Iterative PR feedback (rounds 2+ process only new comments) + learning capture |
-| `/architect` | Architecture design |
-| `/brainstorm` | Collaborative requirements exploration |
-| `/changelog` | Auto-generate Keep-a-Changelog entries from git history |
-| `/deepen-plan` | Enhance plans with parallel per-section research |
-| `/setup` | Configure per-project review agent activation |
-| `/issue` | GitHub issue creation |
-| `/product-manager` | Product specifications |
-| `/security-audit` | Security review |
-| `/scope` | Scope classification and tiered planning on-ramp |
-| `/evolve` | Auto-evolve: analyze learnings, check releases, compare plugins |
-| `/worktree` | Git worktree management for parallel development |
-| `/swarm` | Parallel agent team orchestration |
-| `/bump-version` | Automate version bump ritual |
-| `/optimize` | Metric-driven iterative optimization loops |
-| `/clean-branch` | Post-merge cleanup |
-| `/triage` | FreshService ticket triage |
+| `/plan` | Clarify → research (parallel) → design → emit tasks + a machine-checkable Definition of Done (+ contract-compliant issues). Absorbs architect/brainstorm/scope/product-manager/deepen-plan/issue |
+| `/lfg` | Autonomous build-to-done: implement → verify the full DoD (build/lint-zero-warning/typecheck/**full** suite/Playwright + screenshots) → open PR with visual evidence → watch CI + the project's AI reviewers and fix every round until **100% clean**. Absorbs work/test/debug/optimize/review-pr/security-audit |
+| `/evolve` | Compound learnings into CLAUDE.md/patterns/agents then **prune** them; release tracking; competitor compare |
+| `/setup` | Write `.psd/verify.json` — the per-project verification gate (commands, E2E flows, strictness, AI-reviewer logins, commit-learnings, active review agents) |
+| `/worktree` | Git worktree management + the multi-window "run several `/lfg` in parallel" how-to |
+| `/bump-version` | Version bump ritual (absorbs `/changelog`) — three independent tracks |
+
+**Removed/folded in v3.0.0:** work, test, debug, optimize, review-pr, security-audit, architect, brainstorm, scope, product-manager, deepen-plan, issue, changelog, clean-branch, swarm, triage (triage intake now lives only in the cloud routine). Contracts: `docs/patterns/{definition-of-done,issue-contract,worktrees-explained}.md`.
 
 ### psd-coding-system Agents (44 total)
 
-**Review Agents** (16) — `agents/review/`:
-- **Security**: security-analyst, security-analyst-specialist
+See `plugins/psd-coding-system/docs/agent-manifest.md` for the full skill→agent dispatch map.
+
+**Review Agents** (15) — `agents/review/`:
+- **Security**: security-reviewer (merged from security-analyst + security-analyst-specialist in v3.0.0)
 - **Deployment**: deployment-verification-agent, data-migration-expert
 - **Architecture**: agent-native-reviewer, architecture-strategist
 - **Code Quality**: code-simplicity-reviewer, pattern-recognition-specialist
@@ -162,8 +153,8 @@ psd-claude-plugins/                           # repo root
 - backend-specialist, frontend-specialist, database-specialist, llm-specialist
 - ux-specialist, architect-specialist, shell-devops-specialist
 
-**Quality Agents** (3) — `agents/quality/`:
-- test-specialist (`memory: project`), performance-optimizer, documentation-writer
+**Quality Agents** (4) — `agents/quality/`:
+- runtime-verifier (`memory: project`; runs build/lint/typecheck/full-suite/Playwright + captures screenshot evidence — the only agent that executes the app), test-specialist (`memory: project`), performance-optimizer, documentation-writer
 
 **Research Agents** (6) — `agents/research/`:
 - learnings-researcher (`memory: project`), spec-flow-analyzer, best-practices-researcher

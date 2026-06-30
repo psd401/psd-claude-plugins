@@ -113,24 +113,39 @@ Read each file before editing (required by Edit tool).
 
 **CRITICAL for marketplace.json edits:** The file has three version strings. Use sufficient surrounding context in Edit calls to uniquely target each one — never use `replace_all: true` on marketplace.json.
 
-## Phase 5: Update CHANGELOG
+## Phase 5: Update CHANGELOG (auto-generated from git history)
 
-Use AskUserQuestion to ask for a brief description of what changed. Add entry at top of CHANGELOG.md:
+This absorbs the old `/changelog` skill — generate the entry from commits since the last release tag rather than asking the user to recall what changed.
+
+```bash
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+echo "=== Commits since ${LATEST_TAG:-repo start} ==="
+git log ${LATEST_TAG:+$LATEST_TAG..HEAD} --format="%h %s%n%b---" --no-merges
+echo "=== Files changed ==="
+git diff --stat ${LATEST_TAG:+$LATEST_TAG..HEAD}
+TODAY=$(date +%Y-%m-%d)
+echo "Date: $TODAY"
+```
+
+Classify every commit into Keep-a-Changelog sections and write the entry at the top of `CHANGELOG.md` (before the first existing `## [` entry):
 
 ```markdown
 ## [X.Y.Z] - YYYY-MM-DD
 
 ### Added
-- [New features if any]
+- **Component** — user-visible new capability
 
 ### Changed
-- [Changes to existing functionality if any]
+- **Component** — what changed for the user
+
+### Removed
+- **Component** — what was removed
 
 ### Fixed
-- [Bug fixes if any]
+- **Area** — what was fixed
 ```
 
-Run `date +%Y-%m-%d` for today's date.
+**Rules:** describe user-visible impact (not implementation), bold the component, group related commits, omit version-bump and merge commits, include only non-empty sections. If git history is too terse to classify, fall back to AskUserQuestion for a brief description.
 
 ## Phase 6: Update Skill/Agent Counts (if changed)
 

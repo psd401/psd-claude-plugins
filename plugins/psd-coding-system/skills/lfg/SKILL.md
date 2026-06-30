@@ -1,6 +1,6 @@
 ---
 name: lfg
-description: Autonomous end-to-end workflow — implement, test, review, fix, and capture learnings in one shot
+description: Autonomous build-to-done — implement, verify the full Definition of Done (build/lint/typecheck/full suite/Playwright + screenshots), open a PR with visual evidence, then watch CI and the AI reviewers and fix every round until 100% clean. Does not stop until done.
 argument-hint: "[issue number OR description of work]"
 model: claude-opus-4-8
 effort: xhigh
@@ -12,288 +12,171 @@ allowed-tools:
   - Edit
   - Write
   - Task
+  - Monitor
+  - AskUserQuestion
 extended-thinking: true
 ---
 
-# LFG — Autonomous End-to-End Workflow
+# LFG — Autonomous Build-to-Done
 
-You are an experienced full-stack developer running an autonomous pipeline: implement → test → review → fix → learn. Heavy phases are delegated to Task agents to keep this orchestrator's context lean.
+You implement a change and drive it all the way to a clean, fully-reviewed PR: implement → verify the Definition of Done → open a PR with screenshots → watch CI and the AI reviewers and fix every finding, round after round, until everything is green. **You do not stop at "ready for review." You stop when the PR is 100% clean.**
+
+This skill absorbs the old `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`, and `/security-audit`.
 
 **Target:** $ARGUMENTS
 
+Contracts: `docs/patterns/definition-of-done.md`, `docs/patterns/issue-contract.md`.
+
 ## ANTI-DEFERRAL MANDATE
 
-**Fix everything now.** If an agent flags it, fix it. If a test fails, fix it. If a warning appears, fix it.
+**Fix everything now.** If a test fails, fix it. If lint warns, fix it. If a reviewer flags it, fix it. No deferral, no TODOs, no follow-up issues. The only exception: a fix genuinely blocked by an external constraint (an API you don't control, a separate deploy pipeline) — then stop and use AskUserQuestion. Never suppress with `eslint-disable` / `# noqa` / `@ts-ignore`.
 
-There is no deferral. If an agent flags it, fix it now. Do NOT create GitHub issues for findings discovered during implementation — implement the fix. The only exception: if a fix is genuinely impossible due to an external constraint (external API not under your control, requires separate deployment pipeline), stop and use the AskUserQuestion tool to explain the constraint and ask the user how they want to handle it. Do not add TODOs. Do not create GitHub issues.
-
----
-
-## Phase 1: Determine Work Type
+## Phase 1: Work type + Definition of Done
 
 ```bash
 if [[ "$ARGUMENTS" =~ ^[0-9]+$ ]]; then
-  echo "=== Working on Issue #$ARGUMENTS ==="
-  WORK_TYPE="issue"
-  ISSUE_NUMBER=$ARGUMENTS
-
-  gh issue view $ARGUMENTS
-  echo -e "\n=== All Context (PM specs, research, architecture) ==="
-  gh issue view $ARGUMENTS --comments
-
+  WORK_TYPE="issue"; ISSUE_NUMBER=$ARGUMENTS
+  gh issue view $ISSUE_NUMBER
+  gh issue view $ISSUE_NUMBER --comments
   ISSUE_BODY=$(gh issue view $ISSUE_NUMBER --json body --jq '.body')
-  gh pr list --search "mentions:$ARGUMENTS"
 else
-  echo "=== Quick Fix Mode ==="
-  echo "Description: $ARGUMENTS"
-  WORK_TYPE="quick-fix"
-  ISSUE_NUMBER=""
-  ISSUE_BODY="$ARGUMENTS"
+  WORK_TYPE="quick-fix"; ISSUE_NUMBER=""; ISSUE_BODY="$ARGUMENTS"
 fi
 ```
 
-## Phase 2: Create Branch
+**Load the DoD** — extract the block between `<!-- dod:start -->` and `<!-- dod:end -->` from the issue body. If absent (quick fix or non-contract issue), generate a DoD from the canonical list in `definition-of-done.md` + the project's `.psd/verify.json`. This is your loop exit condition; restate it explicitly before coding.
+
+## Phase 2: Branch (+ optional worktree)
 
 ```bash
-DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo "main")
+DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo main)
 git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"
-
-if [ "$WORK_TYPE" = "issue" ]; then
-  git checkout -b "feature/$ISSUE_NUMBER-brief-description"
-else
-  BRANCH_NAME=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | cut -c1-50)
-  git checkout -b "fix/$BRANCH_NAME"
-fi
-
-echo "=== Branch created ==="
-git branch --show-current
+if [ "$WORK_TYPE" = "issue" ]; then BR="feature/$ISSUE_NUMBER-brief-desc"; else
+  BR="fix/$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g;s/--*/-/g' | cut -c1-50)"; fi
+git checkout -b "$BR"; git branch --show-current
 ```
 
-## Phase 3: Research (Task-Delegated)
+For parallel work across several issues, see `docs/patterns/worktrees-explained.md` and use `/worktree <issue>` to run multiple `/lfg` sessions side by side.
 
-Invoke the **work-researcher** agent to gather pre-implementation context.
+## Phase 3: Research (Task-delegated)
 
-- subagent_type: "psd-coding-system:workflow:work-researcher"
-- description: "Research for #$ISSUE_NUMBER"
-- prompt: "WORK_TYPE=$WORK_TYPE ISSUE_NUMBER=$ISSUE_NUMBER ISSUE_BODY=$ISSUE_BODY ARGUMENTS=$ARGUMENTS — Gather pre-implementation context: knowledge lookup, codebase research, external research (if high-risk), git history, test strategy, security review, UX considerations. Return structured Research Brief."
+Invoke **work-researcher** (`psd-coding-system:workflow:work-researcher`) with `WORK_TYPE / ISSUE_NUMBER / ISSUE_BODY / ARGUMENTS` to gather knowledge, codebase, git-history, test-strategy, security and UX context. If it fails, proceed with what you have.
 
-**If the agent fails, proceed anyway** — incorporate available findings into implementation.
+## Phase 4: Implement (TDD, atomic commits)
 
-## Phase 4: Implementation (Inline — Main Context Consumer)
-
-Implement the solution following the Research Brief, local CLAUDE.md conventions, and type safety.
-
-### Commit Heuristic
-
-Commit incrementally: **"Can I write a complete, meaningful commit message right now?"** If yes — commit now. Each commit should be atomic.
+Follow the Research Brief, local CLAUDE.md, and the DoD. Write a failing test first where practical, then make it pass. Commit each atomic unit (builds, lints clean, deployable):
 
 ```bash
-# After each meaningful unit of work:
-git add [specific files]
-git commit -m "feat(scope): [what this atomic change does]
+git add <specific files>
+git commit -m "feat(scope): <atomic change>
 
-- [Detail 1]
-- [Detail 2]
+- <detail>
 
 Part of #$ISSUE_NUMBER"
 ```
 
-### Inline Testing
+When diagnosing a bug (the absorbed `/debug` path): reproduce → trace to root cause → fix the cause, not the symptom → add a regression test.
 
-Run tests as you go to catch issues early:
+## Phase 5: Verify-loop — run the gate until GREEN
 
-```bash
-npm test || yarn test || pytest || cargo test || go test ./...
-npm run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null
-npm run lint 2>/dev/null || true
-```
+Run the **full** Definition-of-Done gate and the configured Playwright flows. Loop fix→verify until green. **No `|| true`. Whole app, not touched files.**
 
-## Phase 5: Thorough Testing (Task-Delegated)
+Dispatch **runtime-verifier** (`psd-coding-system:quality:runtime-verifier`):
+- description: "Verify DoD for #$ISSUE_NUMBER"
+- prompt: "MODE=gate CHANGED_FILES=<git diff --name-only $DEFAULT_BRANCH...HEAD> E2E_FLOWS=<flows from DoD>. Run build/lint(zero-warning)/typecheck/FULL test suite + Playwright for the named flows, capture screenshots to the configured screenshot_dir, return PASS/FAIL with failing steps, root causes, and evidence paths."
 
-Invoke the **test-specialist** agent for comprehensive test coverage beyond inline checks.
+Handle the report:
+- **FAIL** → fix every failing step (use the root causes), commit, re-dispatch. Repeat until PASS.
+- It also writes `.psd/last-gate-result`; confirm GREEN at current HEAD before moving on.
 
-- subagent_type: "psd-coding-system:quality:test-specialist"
-- description: "Thorough testing for #$ISSUE_NUMBER"
-- prompt: "Run comprehensive tests for recent changes. Write missing tests for new code paths. Validate coverage thresholds. Run quality gates (lint, typecheck, tests). Report: tests written, coverage %, failing tests, quality gate status."
+If `.psd/verify.json` is absent, run the gate commands you can detect and tell the user the gate is unconfigured (recommend `/setup`).
 
-**Handle results:**
-- If tests fail: fix implementation code, re-run inline tests to verify
-- If coverage gaps identified: write additional tests
-- If agent fails: fall back to inline test results from Phase 4
+## Phase 6: Self-review (parallel agents) → fix
 
-## Phase 6: Validation (Task-Delegated)
+Before opening the PR, run the internal reviewers configured in `.psd/verify.json` `review_agents`:
+- **Always-on**: security-reviewer, correctness-reviewer, adversarial-reviewer, code-simplicity-reviewer, architecture-strategist, pattern-recognition-specialist.
+- **Language reviewers** for the changed-file extensions (typescript/python/swift/sql).
+- **Context-triggered** by changed-file patterns: migrations/schema → data-migration-expert, schema-drift-detector, deployment-verification-agent; PII/data → data-integrity-guardian; config/version files → configuration-validator; deletions → breaking-change-validator; data pipelines/metrics → telemetry-data-specialist; extraction/encoding → document-validator; agents/skills/prompts → agent-native-reviewer; UI → ux-specialist; perf-sensitive → performance-optimizer.
 
-Invoke the **work-validator** agent for language-specific reviews and deployment checks.
+Dispatch the applicable agents in parallel via Task. Fix **all** findings (P1/P2/P3), commit, then re-run Phase 5 so the gate is green again after fixes. (Work-validator already runs the language/deployment subset + runtime-verifier; this phase is the broader self-review.)
 
-```bash
-CHANGED_FILES=$(git diff --name-only "$DEFAULT_BRANCH"...HEAD 2>/dev/null || git diff --name-only HEAD~1 2>/dev/null || echo "")
-echo "Changed files for validation:"
-echo "$CHANGED_FILES"
-```
-
-- subagent_type: "psd-coding-system:workflow:work-validator"
-- description: "Validation for #$ISSUE_NUMBER"
-- prompt: "ISSUE_NUMBER=$ISSUE_NUMBER CHANGED_FILES=$CHANGED_FILES — Run language-specific light reviews and deployment verification. Return Validation Report with status PASS/PASS_WITH_WARNINGS/FAIL."
-
-**Handle results:**
-- **PASS**: Proceed
-- **PASS_WITH_WARNINGS**: Fix the warnings, then proceed
-- **FAIL**: Fix critical issues, then proceed
-- **Agent failure**: Fall back to inline quality gates
-
-## Phase 7: Commit & Create PR
+## Phase 7: Open PR with visual evidence
 
 ```bash
-# Commit any remaining changes
-if ! git diff --cached --quiet 2>/dev/null || ! git diff --quiet 2>/dev/null; then
-  git add [specific changed files]
-
-  if [ "$WORK_TYPE" = "issue" ]; then
-    git commit -m "feat: implement solution for #$ISSUE_NUMBER
-
-- [List key changes]
-- [Note any breaking changes]
-
-Closes #$ISSUE_NUMBER"
-  else
-    git commit -m "fix: $ARGUMENTS
-
-- [Describe what was fixed]
-- [Note any side effects]"
-  fi
-fi
-
 git push -u origin HEAD
-
-if [ "$WORK_TYPE" = "issue" ]; then
-  gh pr create \
-    --title "feat: #$ISSUE_NUMBER - [Descriptive Title]" \
-    --body "## Summary
-Implements #$ISSUE_NUMBER
-
-## Changes
-- [Key change 1]
-- [Key change 2]
-
-## Test Plan
-- [ ] Tests pass
-- [ ] Manual verification
-
-Closes #$ISSUE_NUMBER" \
-    --assignee "@me"
-else
-  gh pr create \
-    --title "fix: $ARGUMENTS" \
-    --body "## Summary
-Quick fix: $ARGUMENTS
+# Commit the captured evidence so it renders on the PR.
+SHOT_DIR=$(jq -r '.screenshot_dir // ".verification"' .psd/verify.json 2>/dev/null || echo ".verification")
+git add "$SHOT_DIR" 2>/dev/null && git commit -m "test: verification evidence for #$ISSUE_NUMBER" 2>/dev/null || true
+git push
+PR_URL=$(gh pr create --assignee "@me" --title "<type>: #$ISSUE_NUMBER - <title>" --body "$(cat <<'EOF'
+## Summary
+Implements #<ISSUE>
 
 ## Changes
-- [What was changed]
+- <key change>
 
-## Test Plan
-- [ ] Tests pass" \
-    --assignee "@me"
-fi
+## Verification (all green before opening)
+- Build: ✅   Lint (zero-warning): ✅   Typecheck: ✅
+- Tests: ✅ <X passed> (full suite)
+- E2E: ✅ flows `<names>`
 
-echo "=== PR created ==="
+## Evidence
+![<flow>](<raw-blob-or-asset-URL-of-committed-screenshot>)
+
+Closes #<ISSUE>
+EOF
+)")
 PR_NUMBER=$(gh pr view --json number --jq '.number')
 ```
 
-## Phase 8: Review (Task-Delegated — Parallel)
+**Screenshots must render on the GitHub PR page** — embed them with `![alt](url)` pointing at the committed evidence files (use the `https://github.com/<owner>/<repo>/blob/<branch>/<path>?raw=true` form, or upload as a gh asset). No empty checkboxes; every claim above is backed by Phase 5 evidence.
 
-Dispatch review agents in parallel for a self-review before requesting human review.
+## Phase 8: Watch-until-clean — the core loop (cap 10)
 
-**Detect languages from changed files:**
+Reuse the `pr-fix` machinery (`routines/pr-fix/routine-prompt.md`). Read the expected reviewer logins from `.psd/verify.json` `reviewers`. Repeat up to **10 rounds**:
 
-```bash
-HAS_TYPESCRIPT=$(echo "$CHANGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' | head -1)
-HAS_PYTHON=$(echo "$CHANGED_FILES" | grep -E '\.py$' | head -1)
-HAS_SWIFT=$(echo "$CHANGED_FILES" | grep -E '\.swift$' | head -1)
-HAS_SQL=$(echo "$CHANGED_FILES" | grep -E '\.sql$' | head -1)
-```
+1. **Wait for CI** (efficient, not busy-wait):
+   ```bash
+   timeout 30m gh pr checks "$PR_NUMBER" --watch --interval 30 || true
+   ```
+2. **Wait for the AI reviewers** to each post a review. Poll on a **~3-minute** interval using the **Monitor** tool (the sanctioned non-busy wait) until every login in `reviewers` appears in `gh api repos/{owner}/{repo}/pulls/$PR_NUMBER/reviews --jq '.[].user.login'` or the round times out.
+3. **Read the verdict + findings:**
+   ```bash
+   gh pr view "$PR_NUMBER" --json reviewDecision,reviews,statusCheckRollup
+   gh api "repos/{owner}/{repo}/pulls/$PR_NUMBER/comments" --paginate   # inline
+   gh pr checks "$PR_NUMBER" --json name,state,bucket,link --jq '.[] | select(.state=="FAILURE" or .bucket=="fail")'
+   ```
+4. **Categorize** each comment (pr-fix rules): actionable (fix it) / discussion (reply) / already-addressed / stylistic. Fix every actionable finding and every failing check. Commit per fix, push.
+5. **Re-run the verify-loop (Phase 5)** after fixes so local DoD stays green, then drop a round-marker comment and loop.
+6. **Exit when clean:** `reviewDecision == APPROVED` (or no `CHANGES_REQUESTED` from any required reviewer) AND no failing required checks AND every actionable comment addressed.
 
-**Always invoke security, correctness, and adversarial reviews:**
+If after 10 rounds it is still not clean (a reviewer never posts, a check is flaky, or feedback isn't actionable), **escalate** via AskUserQuestion with the specifics — do not silently stop.
 
-- subagent_type: "psd-coding-system:review:security-analyst-specialist"
-- description: "Security review for PR #$PR_NUMBER"
-- prompt: "Review changed files for security vulnerabilities: XSS, injection, auth bypass, secrets, OWASP top 10. Changed files: $CHANGED_FILES. Report findings with severity (P1/P2/P3)."
-
-- subagent_type: "psd-coding-system:review:correctness-reviewer"
-- description: "Correctness review for PR #$PR_NUMBER"
-- prompt: "Review changed files for logic errors, off-by-one bugs, null/undefined handling gaps, state management issues, comparison bugs, and async correctness. Enumerate edge cases for significant functions. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Changed files: $CHANGED_FILES. Report findings with severity (P1/P2/P3)."
-
-- subagent_type: "psd-coding-system:review:adversarial-reviewer"
-- description: "Adversarial review for PR #$PR_NUMBER"
-- prompt: "Map all component boundaries in changed files. Construct failure scenarios: data contract violations, partial failure/recovery, timing/ordering failures, cascading failures, and resource exhaustion. Trace cross-boundary failure propagation for high-risk scenarios. Rate findings with confidence scores (HIGH/MEDIUM/LOW). Changed files: $CHANGED_FILES. Report findings with severity (P1/P2/P3)."
-
-**Invoke language reviewers based on detected languages (in parallel with above):**
-
-If TypeScript/JavaScript detected:
-- subagent_type: "psd-coding-system:review:typescript-reviewer"
-- description: "TS review for PR #$PR_NUMBER"
-- prompt: "Review changed TypeScript/JavaScript files for type safety, error handling, async patterns, performance. Report findings with severity (P1/P2/P3)."
-
-If Python detected:
-- subagent_type: "psd-coding-system:review:python-reviewer"
-- description: "Python review for PR #$PR_NUMBER"
-- prompt: "Review changed Python files for type hints, error handling, async patterns, security. Report findings with severity (P1/P2/P3)."
-
-If Swift detected:
-- subagent_type: "psd-coding-system:review:swift-reviewer"
-- description: "Swift review for PR #$PR_NUMBER"
-- prompt: "Review changed Swift files for optionals, memory management, concurrency. Report findings with severity (P1/P2/P3)."
-
-If SQL detected:
-- subagent_type: "psd-coding-system:review:sql-reviewer"
-- description: "SQL review for PR #$PR_NUMBER"
-- prompt: "Review changed SQL files for injection prevention, performance, constraints. Report findings with severity (P1/P2/P3)."
-
-**Synthesize all agent findings into P1/P2/P3 severity tiers.**
-
-## Phase 9: Fix Review Findings (Inline)
-
-Address ALL findings from Phase 8 — P1, P2, and P3. If an agent flagged it, fix it.
-
-**P1 (Blocks Merge):** Security vulnerabilities, data loss risks, auth bypasses, breaking API changes.
-**P2 (Must Fix):** Missing error handling, missing tests on critical paths, SOLID violations, accessibility issues.
-**P3 (Fix):** Style, naming, minor optimizations — fix these too.
+## Phase 9: Finalize — gate, learnings, summary
 
 ```bash
-# After fixing all issues:
-git add [specific fixed files]
-git commit -m "fix: address P1/P2/P3 review findings
-
-- [P1 fix description]
-- [P2 fix description]
-
-Self-review fixes for PR #$PR_NUMBER"
-
-git push
+# 1. Refresh the gate at current HEAD so the Stop hook can confirm green.
+GATE="${CLAUDE_PLUGIN_ROOT:-}/scripts/verify-gate.sh"; [ -x "$GATE" ] || GATE=$(find / -maxdepth 6 -path "*/psd-coding-system/scripts/verify-gate.sh" 2>/dev/null | head -1)
+[ -n "$GATE" ] && bash "$GATE" || true
 ```
 
-If no findings at any severity, skip this phase.
-
-## Phase 10: Learning Capture (Task-Delegated — Always)
-
-Always dispatch the learning-writer agent with a session summary. **You MUST fill in the bracketed placeholders below with actual data from this session** — do not pass the template text literally.
-
-- subagent_type: "psd-coding-system:workflow:learning-writer"
-- description: "Capture learning from /lfg session"
-- prompt: "SUMMARY=[FILL: end-to-end session — implementation approach, errors encountered, test results, review findings, fixes applied] KEY_INSIGHT=[FILL: the most notable learning from this autonomous session] CATEGORY=[FILL: one of build-errors, test-failures, runtime-errors, performance, security, database, ui, integration, logic, workflow, debugging] TAGS=[FILL: lfg, autonomous, plus relevant tags]. Write the learning document."
-
-**Do not block on this agent** — if it fails, the PR is already created and pushed.
-
----
-
-## Summary
-
-Print a final summary:
+Dispatch **learning-writer** (`psd-coding-system:workflow:learning-writer`) with a real session summary (fill the placeholders — implementation, errors, review findings, fixes). Then **commit the learnings** if the repo opts in:
 
 ```bash
-echo "=== /lfg Complete ==="
-echo "Branch: $(git branch --show-current)"
-echo "PR: #$PR_NUMBER"
-echo "Commits: $(git log --oneline $DEFAULT_BRANCH..HEAD | wc -l | tr -d ' ')"
-echo "Review: P1=[count] P2=[count] P3=[count]"
-echo "Status: Ready for human review"
+COMMIT_LEARN=$(jq -r '.commit_learnings // true' .psd/verify.json 2>/dev/null || echo true)
+if [ "$COMMIT_LEARN" = "true" ] && [ -n "$(git status --porcelain docs/learnings 2>/dev/null)" ]; then
+  git add docs/learnings && git commit -m "chore(learnings): capture from #$ISSUE_NUMBER" && git push
+fi
 ```
+
+Now arm the finalize gate and print the summary:
+
+```bash
+mkdir -p .psd && touch .psd/finalizing   # Stop hook verifies the cached gate is GREEN at current HEAD + clean tree before allowing finish
+echo "=== /lfg complete ==="
+echo "PR: $PR_URL"
+echo "Review: APPROVED + all checks green"
+echo "Status: DONE (100% clean)"
+```
+
+The Stop hook will refuse to let you finish if the gate is not verifiably green at the current commit with a clean tree — so make sure Phases 5–8 actually landed before you summarize.

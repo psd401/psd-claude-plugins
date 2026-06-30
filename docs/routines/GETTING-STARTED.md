@@ -43,7 +43,7 @@ Every routine fire does this:
 1. **Clones the repos** you've selected, fresh, into a temporary container
 2. **Runs a setup script** that installs the `gh` CLI (one-time, cached)
 3. **Starts a Claude Code session** with your routine prompt as the instructions
-4. **First thing the session does**: runs `bootstrap.sh`, which copies the latest agents and skills from this repo into the session's home directory. This is how the routine gets access to specialized AI subagents (`work-researcher`, `security-analyst-specialist`, etc.) that normally only work in plugins.
+4. **First thing the session does**: runs `bootstrap.sh`, which copies the latest agents and skills from this repo into the session's home directory. This is how the routine gets access to specialized AI subagents (`work-researcher`, `runtime-verifier`, `security-reviewer`, etc.) that normally only work in plugins.
 5. **Does the work** — polling, fixing, reviewing — using those subagents.
 6. **Posts results** — GitHub issues, PRs, comments, labels.
 7. **Shuts down** — the container is destroyed at the end of every run, so each fire starts clean.

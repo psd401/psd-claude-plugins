@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 2.4.0
+Version: 3.0.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -10,13 +10,13 @@ Author: Kris Hagel (hagelk@psd401.net)
 
 ## What Is This?
 
-A unified Claude Code plugin combining **battle-tested development workflows** with **memory-based learning** and **knowledge compounding**. Get immediate productivity gains from proven commands while the system captures learnings and compounds knowledge over time.
+A unified Claude Code plugin that collapses development into a tight, contract-driven loop: **plan → build-to-done → compound what you learned**. The v3.0.0 overhaul consolidates 21 skills down to **6**, replaces "the agent thinks it's finished" with a **machine-checkable Definition of Done**, and makes "done" mean "the verify gate is green and the PR is 100% reviewed."
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** - 21 skills + 44 specialized agents
-2. **Memory-Based Learning** - Automatic learning capture via `/work`, `/test`, `/review-pr`, `/lfg`, `/debug`
-3. **Knowledge Evolution** - `/evolve` auto-analyzes learnings, checks releases, compares plugins, contributes patterns
+1. **Workflow Automation** — 6 skills + 44 specialized agents
+2. **Verifiable Done** — a per-project Definition-of-Done gate that `/lfg` loops against and a Stop hook that refuses to finish while it's red
+3. **Knowledge Evolution** — `/lfg` captures and commits learnings; `/evolve` compounds them into durable docs/agents, then prunes them
 
 ---
 
@@ -29,43 +29,59 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 # Install this plugin
 /plugin install psd-coding-system
 
-# Start using workflow commands immediately
-/work 347              # Implement an issue
-/test                  # Run comprehensive tests
-/review-pr 123         # Handle PR feedback
-/evolve               # Auto-evolve the plugin
+# Configure the verification gate for this repo (one-time)
+/setup
+
+# Plan, then build to done
+/plan "add response caching to the search endpoint"
+/lfg 347               # Implement issue 347 → verify → PR → fix every review round
+/evolve                # Compound accumulated learnings into the plugin
 ```
 
 ---
 
 ## Workflow Commands
 
+Six skills, each with a clear lane. The old 21 skills were absorbed — `/plan` swallows the design surface, `/lfg` swallows the build/test/review surface, and `/bump-version` swallows `/changelog`.
+
 | Command | Description | Example |
 |---------|-------------|---------|
-| `/work` | Implement solutions with auto reviews | `/work 347` or `/work "add logging"` |
-| `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn | `/lfg 347` or `/lfg "add caching"` |
-| `/debug` | Structured root-cause analysis: reproduce → hypothesize → test → verify → fix | `/debug 347` or `/debug "TypeError in auth flow"` |
-| `/architect` | System architecture via architect-specialist | `/architect 347` |
-| `/test` | Comprehensive testing with coverage validation | `/test auth` |
-| `/review-pr` | Iterative PR feedback (incremental on rounds 2+) | `/review-pr 123` |
-| `/security-audit` | Manual security audit (auto in /work) | `/security-audit 123` |
-| `/issue` | AI-validated issues with spec flow analysis | `/issue "add caching"` |
-| `/triage` | FreshService ticket to GitHub issue | `/triage 12345` |
-| `/product-manager` | Validated specs to auto sub-issues | `/product-manager "dashboard"` |
-| `/evolve` | Auto-evolve: analyze learnings, check releases, compare plugins | `/evolve` |
-| `/optimize` | Metric-driven iterative optimization | `/optimize "reduce API latency"` |
-| `/clean-branch` | Cleanup + auto learning extraction | `/clean-branch` |
+| `/plan` | Clarify → parallel research → design → emit a task breakdown + a machine-checkable Definition of Done (and optionally contract-compliant GitHub issues). Absorbs architect, brainstorm, scope, product-manager, deepen-plan, issue. | `/plan 347` or `/plan "add caching"` |
+| `/lfg` | Autonomous build-to-done: implement → verify-loop (build, zero-warning lint, typecheck, full test suite, Playwright E2E + screenshots) until green → open a PR with embedded screenshots → watch CI + the project's AI reviewers and fix every round until APPROVED and all checks pass. Commits learnings. Absorbs work, test, debug, optimize, review-pr, security-audit. | `/lfg 347` or `/lfg "fix login redirect"` |
+| `/evolve` | Compound learnings into CLAUDE.md / patterns / agents then prune them; release tracking; competitor compare. | `/evolve` |
+| `/setup` | Write `.psd/verify.json` — the per-project verify gate (commands, E2E flows, strictness, AI-reviewer logins, commit_learnings, active review agents). | `/setup` / `/setup show` / `/setup reset` |
+| `/worktree` | Git worktree management + a multi-window "run several `/lfg` in parallel" how-to. | `/worktree 347` or `/worktree list` |
+| `/bump-version` | The version-bump ritual across three independent tracks (absorbs `/changelog`). | `/bump-version minor` |
+
+> **Removed in v3.0.0:** `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`, `/security-audit`, `/architect`, `/brainstorm`, `/scope`, `/product-manager`, `/deepen-plan`, `/issue`, `/changelog`, `/clean-branch`, `/swarm`, `/triage`. Their behavior is folded into the six skills above. (FreshService-ticket intake now lives only in the cloud `triage` routine, not as a local skill.)
+
+---
+
+## The Definition-of-Done Gate
+
+The core of the overhaul. "Done" is no longer a judgment call — it's a contract the machine checks.
+
+| Piece | What it is |
+|-------|-----------|
+| `.psd/verify.json` | Per-project config written by `/setup`: build/lint/typecheck/test/e2e commands, named E2E flows, strictness, AI-reviewer logins, `commit_learnings`, and which review agents are active. Committed to git so the whole team shares it. |
+| `scripts/verify-gate.sh` | Runs the configured gate commands and writes the result to `.psd/last-gate-result`. If `.psd/verify.json` is absent the gate is **inert** — the plugin never disrupts a repo that hasn't opted in. |
+| `scripts/verify-gate-stop-hook.sh` | A **Stop hook** that blocks the session from finishing until the gate is verifiably green at the current commit with a clean tree (when `strictness: block`). |
+| `runtime-verifier` agent | The only agent that **executes** the app — runs build, zero-warning lint, typecheck, the full test suite, and Playwright E2E, and captures screenshots. Every other reviewer reads code; this one runs it. |
+| `docs/patterns/definition-of-done.md` | The canonical DoD spec the gate maps to. |
+| `docs/patterns/issue-contract.md` | The shape every issue must have so `/lfg` can drive it with no human translation step — the `<!-- dod:start -->…<!-- dod:end -->` block is the loop exit condition. |
+| `docs/patterns/worktrees-explained.md` | Mental model + recipe for running several `/lfg` sessions in parallel. |
+
+The canonical DoD (web/app project): build succeeds, **zero lint warnings** (no suppressions), typecheck clean, **full** test suite green (whole app, not touched files), configured E2E flows green, and visual evidence captured and attached to the PR.
 
 ---
 
 ## AI Agents (44 total)
 
-### Review Specialists (`agents/review/`)
+### Review Specialists (15) — `agents/review/`
 
 | Agent | Purpose |
 |-------|---------|
-| `security-analyst` | Security vulnerability analysis |
-| `security-analyst-specialist` | Comprehensive security review |
+| `security-reviewer` | Security vulnerability analysis + code review (OWASP, secrets, authz) — merged the two prior security agents in v3.0.0 |
 | `deployment-verification-agent` | Go/No-Go deployment checklists |
 | `data-migration-expert` | ID mappings, foreign key validation |
 | `agent-native-reviewer` | AI architecture parity checks |
@@ -81,7 +97,7 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `swift-reviewer` | Swift code review |
 | `sql-reviewer` | SQL code review |
 
-### Domain Specialists (`agents/domain/`)
+### Domain Specialists (7) — `agents/domain/`
 
 | Agent | Purpose |
 |-------|---------|
@@ -89,60 +105,63 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 | `frontend-specialist` | React, UI components, UX |
 | `database-specialist` | Schema design, query optimization |
 | `llm-specialist` | AI integration, prompt engineering |
-| `ux-specialist` | 68 usability heuristics, accessibility |
+| `ux-specialist` | usability heuristics, accessibility |
 | `architect-specialist` | Architecture design |
 | `shell-devops-specialist` | Shell scripting, DevOps |
 
-### Quality Assurance (`agents/quality/`)
+### Quality Assurance (4) — `agents/quality/`
 
 | Agent | Purpose |
 |-------|---------|
+| `runtime-verifier` | **The only agent that runs the app** — executes the full DoD gate (build/lint/typecheck/full suite/Playwright) and captures screenshots; returns PASS/FAIL with failing steps + evidence paths. Added in v3.0.0. |
 | `test-specialist` | Test coverage, automation, QA |
 | `performance-optimizer` | Web vitals, API latency, Big O analysis, N+1 detection |
 | `documentation-writer` | API docs, user guides |
 
-### Research (`agents/research/`)
+### Research (6) — `agents/research/`
 
 | Agent | Purpose |
 |-------|---------|
-| `spec-flow-analyzer` | Gap analysis, user flow mapping |
 | `learnings-researcher` | Knowledge base search |
+| `spec-flow-analyzer` | Gap analysis, user flow mapping |
 | `best-practices-researcher` | Two-phase knowledge lookup with deprecation validation |
 | `framework-docs-researcher` | Framework/API deprecation checking |
 | `git-history-analyzer` | Git archaeology, hot files, churn patterns |
 | `repo-research-analyst` | Codebase onboarding and deep research |
 
-### Workflow (`agents/workflow/`)
+### Workflow (4) — `agents/workflow/`
 
 | Agent | Purpose |
 |-------|---------|
-| `bug-reproduction-validator` | Documented bug reproduction with evidence |
 | `work-researcher` | Pre-implementation research orchestrator |
 | `work-validator` | Post-implementation validation orchestrator |
-| `learning-writer` | Automatic lightweight learning capture |
+| `bug-reproduction-validator` | Documented bug reproduction with evidence |
+| `learning-writer` | Automatic learning capture and deduplication |
 
-### External AI (`agents/external/`)
+### External AI (2) — `agents/external/`
 
 | Agent | Purpose |
 |-------|---------|
-| `gpt-5-codex` | GPT-5.3-Codex for second opinions |
+| `gpt-5-codex` | GPT-5.3-Codex for second opinions (registers as `external:gpt-5`) |
 | `gemini-3-pro` | Gemini 3.1 Pro for multimodal analysis |
 
-### Meta (`agents/meta/`)
+### Meta (1) — `agents/meta/`
 
 | Agent | Purpose |
 |-------|---------|
 | `meta-reviewer` | Analyzes learnings + agent memory for patterns |
 
-### Validators (`agents/validation/`)
+### Validators (5) — `agents/validation/`
 
 | Agent | Purpose |
 |-------|---------|
-| `plan-validator` | GPT-5 powered plan validation |
+| `plan-validator` | Plan validation and iteration |
 | `document-validator` | Data validation at boundaries |
 | `configuration-validator` | Multi-file consistency |
-| `breaking-change-validator` | Dependency analysis |
+| `breaking-change-validator` | Dependency analysis before deletions |
 | `telemetry-data-specialist` | Data pipeline correctness |
+
+**Skill → agent dispatch:** see [`docs/agent-manifest.md`](docs/agent-manifest.md) for the full map of which skill (or orchestrator) invokes each agent and when.
 
 ---
 
@@ -152,26 +171,22 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    KNOWLEDGE CAPTURE SYSTEM                     │
+│                  CAPTURE → COMMIT → COMPOUND → PRUNE             │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  Session Event           AI Synthesis                           │
+│  /lfg run                AI Synthesis                           │
 │  ┌───────────────────┐  ┌───────────────────┐                  │
-│  │ Error detected    │  │ learning-writer   │                  │
-│  │ Rework observed   │  │ - Auto-capture    │                  │
-│  │ User frustration  │──▶ - Deduplicate     │                  │
-│  │ Discovery made    │  │ - Generate doc    │                  │
+│  │ Errors hit        │  │ learning-writer   │                  │
+│  │ Review findings   │  │ - Capture         │                  │
+│  │ Fixes applied     │──▶ - Deduplicate     │                  │
+│  │ Discoveries       │  │ - Commit to repo  │                  │
 │  └───────────────────┘  └─────────┬─────────┘                  │
 │                                   │                             │
 │                                   ▼                             │
 │  ┌───────────────────────────────────────────────────────────┐ │
-│  │                    KNOWLEDGE STORES                        │ │
-│  ├───────────────────────────────────────────────────────────┤ │
-│  │  Project-Specific           Plugin-Wide (Shared)          │ │
-│  │  ./docs/learnings/          plugin/docs/patterns/         │ │
-│  │  - Project patterns         - Common anti-patterns        │ │
-│  │  - Domain knowledge         - Framework gotchas           │ │
-│  │  - Team conventions         - Security patterns           │ │
+│  │   docs/learnings/   ──/evolve──▶  CLAUDE.md / patterns /   │ │
+│  │   (raw learnings)    compound     agents  (durable)       │ │
+│  │                      then prune   ← source files deleted  │ │
 │  └───────────────────────────────────────────────────────────┘ │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
@@ -179,15 +194,15 @@ A unified Claude Code plugin combining **battle-tested development workflows** w
 
 ### Capturing Learnings
 
-Learnings are captured automatically by `/work`, `/test`, `/review-pr`, `/lfg`, and `/debug` via the learning-writer agent.
+Learnings are captured **and committed** by `/lfg` via the `learning-writer` agent at the end of every run (commit gated by `commit_learnings` in `.psd/verify.json`, default true). There is no separate `/test`/`/review-pr`/`/debug` capture step anymore — it all flows through `/lfg`.
 
-To analyze accumulated learnings and improve the plugin:
+### Compounding & Pruning
 
 ```bash
 /evolve
 ```
 
-The system will auto-pick the highest-value action based on current state.
+When ≥8 unanalyzed learnings accumulate, `/evolve` dispatches the `meta-reviewer` agent to fold the recurring insights into durable homes (CLAUDE.md, `docs/patterns/`, agent definitions) and then **prunes** the source learning files it compounded — so the pile shrinks instead of growing. `/evolve` auto-picks the highest-value action from a priority list: deep pattern analysis → Claude Code release-gap check → universal-pattern contribution → competitor comparison (Every's Compound Engineering plugin) → automation-concept extraction → health dashboard.
 
 ### Learning Document Format
 
@@ -222,7 +237,7 @@ How to avoid this in the future.
 
 ## Language-Specific Reviews
 
-The plugin automatically detects languages and invokes appropriate reviewers.
+`/lfg`'s self-review phase detects the changed-file extensions and dispatches the matching reviewer.
 
 ### Detection
 
@@ -232,18 +247,6 @@ Using `scripts/language-detector.sh`:
 ./scripts/language-detector.sh
 # Output: typescript python sql migration
 ```
-
-### Dual-Phase Review
-
-**Light Mode** (in `/work` before PR):
-- Quick critical checks only
-- Blocks on security issues
-- Fast turnaround
-
-**Full Mode** (in `/review-pr`):
-- Comprehensive deep analysis
-- Style and best practices
-- Performance considerations
 
 ### Supported Languages
 
@@ -256,81 +259,83 @@ Using `scripts/language-detector.sh`:
 
 ---
 
-## Enhanced Workflow Phases
+## How `/plan` Works
 
-### `/work` (v1.21.0 — Slim Orchestrator)
-
-| Phase | Description |
-|-------|-------------|
-| 1 | Determine work type |
-| **2** | **Create branch [REQUIRED]** (auto-detects default branch) |
-| 3 | Research via work-researcher agent |
-| 4 | Implementation + incremental commits + testing |
-| 5 | Validation via work-validator agent |
-| **6** | **Commit & Create PR [REQUIRED]** |
-| 7 | Learning capture (conditional — 3+ errors, novel solution, etc.) |
-
-### `/review-pr` (v1.25.1)
-
-Supports **iterative reviews** — run multiple times on the same PR. Rounds 2+ only process new feedback since last run via PR comment markers.
+The single planning surface — it scales from a one-line fix to a multi-surface system, but always emits the same shape: a task breakdown plus a machine-checkable Definition of Done.
 
 | Phase | Description |
 |-------|-------------|
-| **0.5** | **Incremental detection** — find last round marker, set `INCREMENTAL` mode |
-| 1 | Fetch PR details + inline comments (filtered on incremental runs) |
-| 2 | Parallel agent analysis (always-on agents skipped on rounds 2+) |
-| 2.5 | Language-specific deep review |
-| 2.6 | Deployment verification (if migrations) |
-| 3 | Severity classification (P1/P2/P3) + fix |
-| 4 | Update PR with round marker (`<!-- review-pr:round:N:timestamp:T:sha:S -->`) |
-| 5 | Quality checks |
-| 6 | Learning capture (with round context) |
+| 1 | **Clarify** — surface the unknowns; ask the sharp senior-engineer questions until a testable DoD could be written without guessing |
+| 2 | **Size it** — Small (tight DoD + short task list) / Medium (research + design + DoD) / Large (architecture + short PRD, decomposed into several issues) |
+| 3 | **Research (parallel)** — learnings-researcher, repo-research-analyst, best-practices/framework-docs-researcher, spec-flow-analyzer, architect-specialist (large only) |
+| 4 | **Design + write the DoD** — one recommended approach, bite-sized tasks with file paths, binary DoD items mapping to the gate, named E2E flows, out-of-scope/risks/rollback |
+| 5 | **Emit** — file contract-compliant GitHub issue(s) (with the mandatory `dod` block, labeled `lfg-ready`) or hand off to `/lfg` immediately |
 
-**Usage:** `/review-pr 123` (auto-detects round), `/review-pr 123 --full` (force full re-review)
+Optionally pressure-tested by the `plan-validator` agent before emitting.
 
-### `/test` (v1.21.0)
+---
+
+## How `/lfg` Works
+
+Autonomous build-to-done. It does **not** stop at "ready for review" — it stops when the PR is 100% clean.
 
 | Phase | Description |
 |-------|-------------|
-| 1 | Test analysis |
-| 2 | Test execution |
-| 3 | Write missing tests |
-| 3.5 | UX testing validation (if UI components) |
-| 4 | Quality gates |
-| 4.5 | Self-healing retry loop (max 3 iterations) |
-| 5 | Test documentation |
-| 6 | Learning capture (conditional — self-healing activated, investigation needed) |
+| 1 | Determine work type + **load the Definition of Done** (from the issue's `dod` block or generated from `definition-of-done.md` + `.psd/verify.json`) — this is the loop exit condition |
+| 2 | Create branch (auto-detects default branch); optional worktree for parallel work |
+| 3 | Research via `work-researcher` (knowledge, codebase, git history, test/security/UX context) |
+| 4 | Implement (TDD where practical, atomic commits). Bug path: reproduce → root cause → fix the cause → regression test |
+| 5 | **Verify-loop** — dispatch `runtime-verifier` to run the full gate + Playwright; fix→verify until GREEN (no `\|\| true`, whole app) |
+| 6 | **Self-review** — run the configured review agents in parallel; fix all P1/P2/P3 findings, then re-verify |
+| 7 | **Open PR with visual evidence** — commit screenshots so they render on the GitHub PR page; no empty checkboxes |
+| 8 | **Watch-until-clean (cap 10 rounds)** — wait for CI + the AI reviewers (self-paced ~3-min polls), fix every actionable finding and failing check each round until `reviewDecision == APPROVED` and all checks pass; escalate via AskUserQuestion if still not clean after 10 |
+| 9 | **Finalize** — refresh the gate, capture + commit learnings, arm the Stop-hook finalize check |
+
+**Anti-deferral mandate:** fix everything now — no TODOs, no follow-up issues, no `eslint-disable` / `# noqa` / `@ts-ignore`. The only exception is a fix genuinely blocked by an external constraint, in which case `/lfg` stops and asks.
 
 ---
 
 ## Hooks
 
-The plugin uses a single PostToolUse hook for automatic syntax validation:
+| Hook | Event | What It Does |
+|------|-------|--------------|
+| `verify-gate-stop-hook.sh` | Stop | Blocks finishing until the DoD gate is verifiably green at the current commit with a clean tree (when `strictness: block`) |
+| `post-edit-validate.sh` | PostToolUse (Edit/Write) | Validates `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq) — fires only for those extensions |
+| `redact-secrets.sh` | PostToolUse (Bash) | Redacts API keys, tokens, and secrets from Bash output before Claude sees it (`outputReplace`) |
+| `pre-compact-context.sh` | PreCompact | Preserves branch, uncommitted changes, recent commits, and active issue across context compaction |
+| Worktree hooks | WorktreeCreate / WorktreeRemove | Auto-symlinks `.env` into new worktrees; logs cleanup on removal |
 
-| Hook | Trigger | What It Does |
-|------|---------|--------------|
-| `post-edit-validate.sh` | After Edit/Write | Validates `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq) |
-
-Non-blocking with 10s timeout. Exits cleanly for unknown file types.
+Hooks are non-blocking (except the Stop gate) with short timeouts; they exit cleanly for unknown file types.
 
 ---
 
 ## Typical Usage Flow
 
-### Week 1-2: Learn the Commands
+### One-time per repo
 
 ```bash
-/work 347              # Implement feature
-/test                  # Run tests
-/review-pr 123         # Handle feedback
-/clean-branch          # Cleanup
+/setup                 # write .psd/verify.json (gate commands, E2E flows, reviewers)
 ```
 
-### Ongoing: Evolve the Plugin
+### Per feature
 
 ```bash
-# Auto-picks highest-value action based on current state
-/evolve
+/plan "add response caching"   # → DoD + task breakdown (+ optional lfg-ready issue)
+/lfg 347                       # → implement, verify, PR, fix every review round to APPROVED
+```
+
+### Parallel work
+
+```bash
+/worktree 347          # spin up an isolated checkout, then run /lfg in its own window
+/worktree 350          # …and another, in parallel
+```
+
+### Ongoing
+
+```bash
+/evolve                # compound + prune learnings; check releases; compare competition
+/bump-version minor    # version-bump ritual across the three tracks
 ```
 
 ---
@@ -348,15 +353,15 @@ Non-blocking with 10s timeout. Exits cleanly for unknown file types.
 
 ```bash
 /plugin list
-# Should show: psd-coding-system (v2.0.0)
+# Should show: psd-coding-system (v3.0.0)
 ```
 
-### Configure FreshService (Optional)
+### Configure the gate
 
 ```bash
-cp ~/.claude/plugins/marketplaces/psd-claude-plugins/plugins/psd-coding-system/.freshservice.env.example ~/.claude/freshservice.env
-# Edit with your credentials
-/triage 12345
+/setup           # auto-detects build/lint/test commands and PR reviewers, then writes .psd/verify.json
+/setup show      # view current config
+/setup reset     # remove it (returns the gate to inert)
 ```
 
 ---
@@ -378,15 +383,19 @@ git pull origin main
 /plugin install psd-coding-system
 ```
 
+### The Stop hook won't let me finish
+
+The DoD gate is red, or `.psd/verify.json` is misconfigured. Run the gate yourself (`scripts/verify-gate.sh`) or `/setup show` to inspect. Set `strictness: warn` while adopting the gate in a repo with pre-existing failures, or `/setup reset` to make the gate inert.
+
 ---
 
 ## Privacy & Security
 
-- Project learnings stored in `docs/learnings/` (local only, gitignored — auto-deleted after 90 days by `/evolve`)
+- Project learnings stored in `docs/learnings/` (local until `/lfg` commits them per `commit_learnings`; auto-pruned by `/evolve` once compounded, and TTL-cleaned after 90 days)
 - Agent memory stored locally by Claude Code in `.claude/agent-memory/`
-- No telemetry collection — removed in v1.21.0
-- Only hook is PostToolUse syntax validation (no data collection)
-- No external network requests
+- No telemetry collection
+- PostToolUse hooks run automatically (syntax validation + Bash-output secret redaction)
+- Stop hook only reads the local gate result — no data collection, no external network requests
 
 ---
 
@@ -394,12 +403,12 @@ git pull origin main
 
 Every interaction creates improvement opportunities:
 
-- Every bug → prevention system
+- Every bug → regression test + prevention learning
 - Every manual process → automation candidate
 - Every solution → template for similar problems
-- Every workflow → data for meta-learning
+- Every learning → compounded into a durable doc/agent, then pruned
 
-Use `/evolve` to analyze and improve.
+Use `/evolve` to analyze, compound, and improve.
 
 ---
 

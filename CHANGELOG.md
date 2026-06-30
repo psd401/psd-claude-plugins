@@ -17,6 +17,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.18.0] - 2026-06-30
+
+### Changed
+- **psd-coding-system → 3.0.0 (major, breaking): wholesale overhaul to a verification-first, run-to-100%-clean system.** Consolidated 21 overlapping skills into **3 disciplined surfaces + 3 utilities**:
+  - **`/plan`** — clarify → parallel research → design → emit tasks + a machine-checkable Definition of Done (+ contract-compliant issues). Absorbs `/architect`, `/brainstorm`, `/scope`, `/product-manager`, `/deepen-plan`, `/issue`.
+  - **`/lfg`** — autonomous build-to-done: implement → **verify-loop** (build, zero-warning lint, typecheck, **full** test suite, Playwright E2E + screenshots) until green → open a PR with embedded visual evidence → **watch CI + the project's AI reviewers and fix every round until `reviewDecision=APPROVED` and all checks pass** (self-paced ~3-min polls, cap 10, then escalate). Commits learnings. Absorbs `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`, `/security-audit`. Removed the soft `|| true` lint gate.
+  - **`/evolve`** — now compounds each learning into CLAUDE.md/patterns/agents then **prunes** the source file (capture → commit → compound → prune), replacing the blunt 90-day TTL; refreshed competitor sources (Obra superpowers, Every compound-engineering, Boris Cherny, Matt Pocock).
+
+### Added
+- **Definition-of-Done verify gate** — `scripts/verify-gate.sh` + `.psd/verify.json` (per-project commands, E2E flows, strictness, AI-reviewer logins, commit-learnings, active review agents), written by the rewritten `/setup`. Inert in repos without the config so it never disrupts opted-out repos.
+- **Stop hook** (`hooks.json` → `scripts/verify-gate-stop-hook.sh`) — blocks finishing while the local DoD gate is not verifiably green at the current commit with a clean tree; armed only by the `.psd/finalizing` sentinel so it never fires mid-implementation or during PR-watch waits.
+- **`runtime-verifier` agent** — the first agent that actually runs the app (build/lint/typecheck/full-suite/Playwright + screenshot capture), returning PASS/FAIL with evidence paths. Wired into `work-validator` as the terminal validation step.
+- **Pattern docs** — `docs/patterns/{definition-of-done,issue-contract,worktrees-explained}.md` (incl. the multi-window parallel-`/lfg` how-to).
+- **`agents/MANIFEST.md`** — skill→agent dispatch map.
+- **PR visual evidence** — `/lfg` embeds Playwright screenshots that render on the GitHub PR page; the empty-checkbox PR template is gone.
+
+### Changed (agents & routines)
+- Merged `security-analyst` + `security-analyst-specialist` → **`security-reviewer`**. Renamed stale `agents/meta/meta-orchestrator.md` → `meta-reviewer.md` (matches its registered name). Agent total unchanged at 44.
+- **Cloud routines unified to one source of truth:** the `lfg` routine now executes the `/lfg` SKILL.md workflow (Phases 3–7) instead of duplicating it and hands watch-until-clean to `pr-fix`; the `triage` routine now emits issue-contract-compliant issues (Definition-of-Done block).
+
+### Removed
+- 16 skills folded into the 3 surfaces (`work`, `test`, `debug`, `optimize`, `review-pr`, `security-audit`, `architect`, `brainstorm`, `scope`, `product-manager`, `deepen-plan`, `issue`, `changelog`, `clean-branch`, `swarm`, `triage`) and the loose snippet files (`git-workflow.md`, `parallel-dispatch.md`, `security-scan.md`, `test-runner.md`, `swarm-orchestration.md`).
+
 ## [2.17.0] - 2026-06-18
 
 ### Added

@@ -386,7 +386,7 @@ tail -f logs/app.log | grep ERROR
 Note: As an agent, I provide expertise back to the calling command.
 The command may also invoke:
 - **Database Design**: database-specialist
-- **Security Review**: security-analyst
+- **Security Review**: security-reviewer
 - **Performance**: performance-optimizer
 - **API Documentation**: documentation-writer
 

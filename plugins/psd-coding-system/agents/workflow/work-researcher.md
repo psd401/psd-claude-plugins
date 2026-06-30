@@ -126,12 +126,12 @@ fi
 ```bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 if bash "$SCRIPT_DIR/scripts/security-detector.sh" "$ISSUE_NUMBER" "issue" 2>&1; then
-  echo "DISPATCH: security-analyst-specialist"
+  echo "DISPATCH: security-reviewer"
 fi
 ```
 
-**security-analyst-specialist** (if security-sensitive):
-- subagent_type: "psd-coding-system:review:security-analyst-specialist"
+**security-reviewer** (if security-sensitive):
+- subagent_type: "psd-coding-system:review:security-reviewer"
 - description: "PRE-IMPLEMENTATION security guidance for #$ISSUE_NUMBER"
 - prompt: "Provide security guidance BEFORE implementation for: $ISSUE_BODY. Focus on requirements to follow, pitfalls to avoid, secure patterns, and security testing."
 
@@ -212,7 +212,7 @@ After all agents return, compile into a structured Research Brief:
 - Common mistakes: [pitfalls to avoid]
 
 ### Security Requirements (if applicable)
-[Summary from security-analyst-specialist]
+[Summary from security-reviewer]
 - Requirements: [must-follow rules]
 - Pitfalls: [specific risks]
 
