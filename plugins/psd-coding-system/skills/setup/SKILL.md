@@ -77,6 +77,7 @@ Use AskUserQuestion for anything not safely inferred:
 - E2E flows (named critical journeys Playwright must exercise + screenshot)
 - `strictness`: `block` (default) or `warn` (while adopting in a repo with pre-existing red)
 - `commit_learnings`: commit `/lfg`'s learning files into this repo (default true) — set false for repos where learnings shouldn't enter history
+- `auto_worktree`: run each `/lfg` in its own git worktree so parallel Claude windows don't collide (default true; set false to branch in place)
 - Which internal review agents to disable (all on by default)
 
 ## Phase 5: Write `.psd/verify.json`
@@ -101,6 +102,7 @@ Write the config (fill from detection + answers):
   "strictness": "block",
   "reviewers": ["coderabbitai[bot]", "greptile-apps[bot]", "claude[bot]"],
   "commit_learnings": true,
+  "auto_worktree": true,
   "screenshot_dir": ".verification",
   "baseline": { "allow_preexisting_failures": false },
   "review_agents": {

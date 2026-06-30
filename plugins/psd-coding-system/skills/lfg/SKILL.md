@@ -14,6 +14,8 @@ allowed-tools:
   - Task
   - Monitor
   - AskUserQuestion
+  - EnterWorktree
+  - ExitWorktree
 extended-thinking: true
 ---
 
@@ -46,17 +48,48 @@ fi
 
 **Load the DoD** — extract the block between `<!-- dod:start -->` and `<!-- dod:end -->` from the issue body. If absent (quick fix or non-contract issue), generate a DoD from the canonical list in `definition-of-done.md` + the project's `.psd/verify.json`. This is your loop exit condition; restate it explicitly before coding.
 
-## Phase 2: Branch (+ optional worktree)
+## Phase 2: Branch — auto-isolated worktree (parallel-safe)
+
+By default `/lfg` runs each issue in its **own git worktree** and switches this session into it, so you can open several Claude windows in the same repo, run `/lfg <issue>` in each, and they never collide. Opt out with `auto_worktree: false` in `.psd/verify.json` (branch in place instead). Auto-worktree is skipped automatically when the session is already inside a worktree.
 
 ```bash
 DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo main)
-git checkout "$DEFAULT_BRANCH" && git pull origin "$DEFAULT_BRANCH"
-if [ "$WORK_TYPE" = "issue" ]; then BR="feature/$ISSUE_NUMBER-brief-desc"; else
-  BR="fix/$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g;s/--*/-/g' | cut -c1-50)"; fi
-git checkout -b "$BR"; git branch --show-current
+# PSD convention: base off dev when it exists, else the default branch
+if git ls-remote --exit-code --heads origin dev >/dev/null 2>&1; then BASE=dev; else BASE="$DEFAULT_BRANCH"; fi
+
+# Branch + worktree names
+if [ "$WORK_TYPE" = "issue" ]; then
+  T=$(gh issue view "$ISSUE_NUMBER" --json title --jq '.title' 2>/dev/null | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g;s/--*/-/g' | cut -c1-40)
+  BR="feature/${ISSUE_NUMBER}-${T:-work}"; WT_NAME="feature-${ISSUE_NUMBER}-${T:-work}"
+else
+  T=$(echo "$ARGUMENTS" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g;s/--*/-/g' | cut -c1-50)
+  BR="fix/${T}"; WT_NAME="fix-${T}"
+fi
+
+AUTO_WT=$(jq -r '.auto_worktree // true' .psd/verify.json 2>/dev/null || echo true)
+[ -f .git ] && ALREADY_WT=1 || ALREADY_WT=0   # a linked worktree's .git is a FILE; the main checkout's is a DIR
+
+if [ "$AUTO_WT" = "true" ] && [ "$ALREADY_WT" = "0" ]; then
+  git fetch origin "$BASE" --quiet 2>/dev/null || true
+  grep -qxF '.claude/worktrees/' .git/info/exclude 2>/dev/null || echo '.claude/worktrees/' >> .git/info/exclude
+  WT_PATH=".claude/worktrees/${WT_NAME}"
+  git worktree add -b "$BR" "$WT_PATH" "origin/$BASE"
+  git worktree list | tail -1
+  echo "ENTER_WORKTREE=$WT_PATH"
+else
+  git checkout "$BASE" && git pull origin "$BASE"
+  git checkout -b "$BR"
+  git branch --show-current
+  echo "ENTER_WORKTREE="
+fi
 ```
 
-For parallel work across several issues, see `docs/patterns/worktrees-explained.md` and use `/worktree <issue>` to run multiple `/lfg` sessions side by side.
+**If the output printed `ENTER_WORKTREE=<path>` (non-empty), call the `EnterWorktree` tool now** with `path` set to that worktree path (use the exact path from `git worktree list` if the relative one is rejected). That moves this whole session into the isolated worktree on branch `$BR`; every later phase runs there. If `ENTER_WORKTREE=` is empty, you are already isolated — continue in place.
+
+### Bootstrap a fresh worktree
+A brand-new worktree has **no installed dependencies**, so the verify gate (build/test/Playwright) would fail. If the project uses a package manager and this worktree has no installed deps, install them before Phase 5 — `npm ci` (or `npm install`), `pnpm install`, `yarn`, `pip install -e .`, `uv sync`, `bundle install`, etc., matching the project. The `WorktreeCreate` hook already symlinks `.env` into the worktree.
+
+For manual control you can still create a worktree yourself with `/worktree <issue>`; see `docs/patterns/worktrees-explained.md`.
 
 ## Phase 3: Research (Task-delegated)
 
@@ -102,15 +135,39 @@ Dispatch the applicable agents in parallel via Task. Fix **all** findings (P1/P2
 
 ## Phase 7: Open PR with visual evidence
 
+A PR body is just markdown, and **GitHub only renders images from URLs it hosts — local PNG paths and relative links do NOT embed, and `gh`/the API has no stable endpoint for the drag-drop attachment CDN.** The reliable way: commit the screenshots to the branch, then reference each by a **commit-SHA-pinned** GitHub blob URL (durable even after the branch is squash-merged or deleted). Build the Evidence block from the files that are *actually committed* — never from a placeholder.
+
 ```bash
 git push -u origin HEAD
-# Commit the captured evidence so it renders on the PR.
+
+# 1. Commit the captured screenshots. Force-add in case screenshot_dir is gitignored.
+#    Point screenshot_dir (in .psd/verify.json) at the repo's convention if it has one
+#    (e.g. "docs/verification"); default is ".verification".
 SHOT_DIR=$(jq -r '.screenshot_dir // ".verification"' .psd/verify.json 2>/dev/null || echo ".verification")
-git add "$SHOT_DIR" 2>/dev/null && git commit -m "test: verification evidence for #$ISSUE_NUMBER" 2>/dev/null || true
-git push
-PR_URL=$(gh pr create --assignee "@me" --title "<type>: #$ISSUE_NUMBER - <title>" --body "$(cat <<'EOF'
+git add -f "$SHOT_DIR" 2>/dev/null || true
+if ! git diff --cached --quiet 2>/dev/null; then
+  git commit -m "test(verify): visual evidence for #$ISSUE_NUMBER"
+  git push
+fi
+
+# 2. Build the Evidence markdown from the committed image files, pinned to the current SHA.
+REPO_SLUG=$(gh repo view --json nameWithOwner --jq '.nameWithOwner')
+SHA=$(git rev-parse HEAD)
+EVIDENCE=""
+for f in $(git ls-files "$SHOT_DIR" | grep -iE '\.(png|jpe?g|gif|webp)$'); do
+  ALT=$(basename "$f" | sed 's/\.[^.]*$//')
+  EVIDENCE="${EVIDENCE}"$'\n'"![${ALT}](https://github.com/${REPO_SLUG}/blob/${SHA}/${f}?raw=true)"
+done
+[ -z "$EVIDENCE" ] && EVIDENCE="_N/A — no UI surface._"
+printf '%s\n' "$EVIDENCE"   # use these exact lines in the PR body
+```
+
+Then open the PR, pasting the printed `$EVIDENCE` lines verbatim into the Evidence section:
+
+```bash
+gh pr create --assignee "@me" --title "<type>: #$ISSUE_NUMBER - <title>" --body "$(cat <<EOF
 ## Summary
-Implements #<ISSUE>
+Implements #$ISSUE_NUMBER
 
 ## Changes
 - <key change>
@@ -118,18 +175,21 @@ Implements #<ISSUE>
 ## Verification (all green before opening)
 - Build: ✅   Lint (zero-warning): ✅   Typecheck: ✅
 - Tests: ✅ <X passed> (full suite)
-- E2E: ✅ flows `<names>`
+- E2E: ✅ flows \`<names>\`
 
 ## Evidence
-![<flow>](<raw-blob-or-asset-URL-of-committed-screenshot>)
+$EVIDENCE
 
-Closes #<ISSUE>
+Closes #$ISSUE_NUMBER
 EOF
-)")
+)"
 PR_NUMBER=$(gh pr view --json number --jq '.number')
 ```
 
-**Screenshots must render on the GitHub PR page** — embed them with `![alt](url)` pointing at the committed evidence files (use the `https://github.com/<owner>/<repo>/blob/<branch>/<path>?raw=true` form, or upload as a gh asset). No empty checkboxes; every claim above is backed by Phase 5 evidence.
+**Hard rules — no false evidence:**
+- The Evidence section must contain a **rendered image link for every screenshot the verifier captured**, or the literal text `N/A — no UI surface`. **Never** write prose that implies screenshots are attached when there is no image link — that is a misleading claim, not evidence.
+- Use the `https://github.com/<owner>/<repo>/blob/<SHA>/<path>?raw=true` form. Do **not** use `raw.githubusercontent.com` (does not render for private repos) and do **not** use relative paths (GitHub ignores them in PR bodies).
+- No empty checkboxes; every claim in the body is backed by the Phase 5 gate result.
 
 ## Phase 8: Watch-until-clean — the core loop (cap 10)
 

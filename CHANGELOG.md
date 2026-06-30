@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.20.0] - 2026-06-30
+
+### Added
+- **Visual How-to-Use guide + 5 infographics** — new `docs/how-to-use.md` (a scannable walkthrough of the three commands, the `/lfg` loop, the Definition-of-Done gate, parallel worktrees, and the cloud routines) plus `docs/images/` (modern tech-illustration infographics generated with the image-gen skill). Linked from the plugin README with a hero image.
+- **`/lfg` auto-creates an isolated git worktree per issue.** Open several Claude windows in the repo root, run `/lfg <issue>` in each, and each window auto-isolates into `.claude/worktrees/<branch>` on its own branch (base = `dev` if it exists, else the default) via `git worktree add` + the native `EnterWorktree` tool — no collisions, no manual setup. Skipped automatically when the session is already in a worktree (detected by a linked worktree's `.git` being a file). New `auto_worktree` knob in `.psd/verify.json` (default `true`) opts out. `/lfg` also bootstraps the fresh worktree's dependencies before the verify gate, and `.claude/worktrees/` is added to `.git/info/exclude` so it never dirties the main checkout.
+
+### Fixed
+- **`/lfg` now actually attaches screenshots to the PR.** Previously it captured screenshots locally, but the PR body carried a placeholder image link and the evidence commit used a non-forced `git add` that silently dropped gitignored screenshot dirs — so the PR *described* "visual evidence" with no images embedded. Phase 7 now force-adds the screenshots, commits + pushes them, and builds the Evidence block from the committed files using **commit-SHA-pinned** `github.com/<owner>/<repo>/blob/<sha>/<path>?raw=true` URLs (which render in private repos — unlike `raw.githubusercontent.com` — and survive branch deletion). Added a hard rule: the Evidence section must contain a real rendered image per captured screenshot, or the literal `N/A — no UI surface` — never prose implying attachment without a link.
+
+### Changed
+- Versions: **psd-coding-system 3.1.0 → 3.2.0**, **marketplace 2.19.0 → 2.20.0**. Updated `worktrees-explained.md`, `how-to-use.md`, the README parallel-work flow, and the `definition-of-done.md` / `/setup` config schema for the new `auto_worktree` and screenshot-evidence behavior.
+
 ## [2.19.0] - 2026-06-30
 
 ### Changed

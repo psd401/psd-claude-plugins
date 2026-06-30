@@ -38,6 +38,7 @@ Written by `/setup`. Absent → the gate is **inert** (the Stop hook does nothin
   "strictness": "block",
   "reviewers": ["coderabbitai[bot]", "greptile-apps[bot]", "claude[bot]"],
   "commit_learnings": true,
+  "auto_worktree": true,
   "screenshot_dir": ".verification",
   "baseline": { "allow_preexisting_failures": false }
 }
@@ -51,7 +52,8 @@ Written by `/setup`. Absent → the gate is **inert** (the Stop hook does nothin
 | `strictness` | `block` → the Stop hook blocks finalize on red. `warn` → the gate reports but does not block (use while adopting in a repo with pre-existing red). |
 | `reviewers` | The GitHub logins of the AI reviewers `/lfg` must wait for in the watch-until-clean loop. Repo-specific — never hardcoded. |
 | `commit_learnings` | When true, `/lfg` commits the learning-writer's output. Set false to keep learnings out of this repo's history. |
-| `screenshot_dir` | Where evidence is written and committed for the PR. |
+| `auto_worktree` | When true (default), `/lfg` runs each issue in its own git worktree (`.claude/worktrees/<branch>`) and switches the session into it, so parallel windows don't collide. Set false to branch in place. |
+| `screenshot_dir` | Where screenshots are written, committed, and referenced (by SHA-pinned blob URL) in the PR body. Point it at the repo's convention if one exists (e.g. `docs/verification`); default `.verification`. |
 | `baseline.allow_preexisting_failures` | When true, the gate only fails on regressions vs. the base branch, not on failures that already existed. |
 
 ## The gate script
