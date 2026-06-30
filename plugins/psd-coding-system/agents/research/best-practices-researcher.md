@@ -2,7 +2,7 @@
 name: best-practices-researcher
 description: Two-phase knowledge lookup (local → online) with mandatory deprecation validation before recommending external APIs or frameworks
 tools: Read, Grep, Glob, WebSearch, WebFetch
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 mcpServers:
   - context7

@@ -2,7 +2,7 @@
 name: gpt-5
 description: Advanced AI agent for second opinions, complex problem solving, and design validation. Leverages GPT-5.3-Codex via codex for deep analysis.
 tools: Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 ---
 

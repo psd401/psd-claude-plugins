@@ -2,7 +2,7 @@
 name: agent-native-reviewer
 description: Validates AI-agent architecture parity, prompt consistency, and agent workflow correctness
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: green
 ---
@@ -42,7 +42,7 @@ Validate YAML frontmatter consistency across agents:
 - [ ] `name`: Matches filename (kebab-case)
 - [ ] `description`: Clear, actionable description
 - [ ] `tools`: Valid tool list (Bash, Read, Edit, Write, Grep, Glob, Task, WebSearch, WebFetch)
-- [ ] `model`: Valid model ID (claude-sonnet-4-6, claude-opus-4-8)
+- [ ] `model`: Valid model ID (claude-sonnet-5, claude-opus-4-8)
 - [ ] `extended-thinking`: Boolean (true recommended)
 - [ ] `color`: Valid color for UI display
 
@@ -188,7 +188,7 @@ When invoked by `/work` or `/review-pr`, output:
 | Type | Location | Issue | Fix |
 |------|----------|-------|-----|
 | Missing Reference | skills/work/SKILL.md:45 | `nonexistent-agent` | Remove or create agent |
-| Invalid Model | agents/old-agent.md | `gpt-4` | Use `claude-sonnet-4-6` |
+| Invalid Model | agents/old-agent.md | `gpt-4` | Use `claude-sonnet-5` |
 
 ### Consistency Report
 | Check | Status |

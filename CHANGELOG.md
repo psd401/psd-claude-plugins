@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.19.0] - 2026-06-30
+
+### Changed
+- **All 41 agents migrated to Claude Sonnet 5** (`model: claude-sonnet-4-6` → `claude-sonnet-5`) — 40 in psd-coding-system, plus psd-productivity's `enrollment-validator`. Sonnet 5 supports the `effort` parameter (`low`/`medium`/`high`/`xhigh`/`max`), so the old Sonnet-4.6 effort-rejection blocker (GitHub issue #30795) no longer applies. The four heavy agents (`runtime-verifier`, `meta-reviewer`, `architect-specialist`, `plan-validator`) stay on `claude-opus-4-8`.
+- Version bumps: **psd-coding-system 3.0.0 → 3.1.0**, **psd-productivity 2.15.0 → 2.15.1**, **marketplace 2.18.0 → 2.19.0**.
+
+### Fixed
+- **Stale model-ID convention.** `agents/validation/configuration-validator.md` previously taught "append a date suffix (`claude-sonnet-4-6-20250929`)" as the correct standard — reversed to the current convention: the **bare alias** `claude-sonnet-5` with **no date suffix** (a date-suffixed Sonnet alias 404s); its validation example now flags date-suffixed IDs as the error.
+- Refreshed illustrative model references in `agent-native-reviewer.md` and the CLAUDE.md "Model Selection" rules/strategy to `claude-sonnet-5` (agents default to Sonnet 5; skills still default to `claude-opus-4-8`). Historical CHANGELOG entries left at their original values.
+
 ## [2.18.0] - 2026-06-30
 
 ### Changed

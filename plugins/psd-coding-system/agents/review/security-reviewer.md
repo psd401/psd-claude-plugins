@@ -2,7 +2,7 @@
 name: security-reviewer
 description: Security specialist for vulnerability analysis, code review, and best-practices validation — returns structured P1/P2/P3 findings (never posts comments)
 tools: Read, Grep, Glob, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: red
 ---

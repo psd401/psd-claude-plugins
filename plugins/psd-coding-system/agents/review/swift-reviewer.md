@@ -2,7 +2,7 @@
 name: swift-reviewer
 description: Swift code reviewer for optionals, memory management, concurrency, and iOS/macOS best practices
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: orange
 ---

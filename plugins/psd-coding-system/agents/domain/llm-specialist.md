@@ -2,7 +2,7 @@
 name: llm-specialist
 description: LLM integration specialist for AI features, prompt engineering, and multi-provider implementations
 tools: Read, Edit, Write, WebSearch
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: magenta
 ---

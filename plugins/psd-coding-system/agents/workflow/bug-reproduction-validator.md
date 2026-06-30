@@ -2,7 +2,7 @@
 name: bug-reproduction-validator
 description: Validates bug reports with documented reproduction attempts, evidence collection, and systematic root cause verification
 tools: Bash, Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: orange
 ---

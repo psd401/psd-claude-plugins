@@ -2,7 +2,7 @@
 name: correctness-reviewer
 description: Detects logic errors, edge cases, off-by-one bugs, null/undefined handling gaps, and state management issues that escape type checkers and linters
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: cyan
 ---

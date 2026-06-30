@@ -2,7 +2,7 @@
 name: pattern-recognition-specialist
 description: Detects code duplication, repeated patterns, and copy-paste violations with systematic threshold-based analysis
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: yellow
 ---
