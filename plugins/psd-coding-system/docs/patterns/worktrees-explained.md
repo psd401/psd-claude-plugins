@@ -55,9 +55,19 @@ Each session implements, runs the verify gate, opens its own PR, and watches its
 /worktree clean           # prune stale entries
 ```
 
-## Native helpers
+## Automatic with `/lfg` (the easy path)
 
-Claude Code also has built-in worktree support (`EnterWorktree`/`ExitWorktree` in-session, and subagents can declare `isolation: worktree` to get a throwaway checkout). `/lfg`'s parallel sub-work uses `isolation: worktree` automatically so concurrent helper agents don't conflict. For the human multi-window flow above, plain `git worktree` + a separate `claude` per folder is the reliable, explicit path.
+You usually don't need to run `/worktree` by hand. By default **`/lfg` creates and enters its own worktree per issue**: open several Claude windows in the repo root, run `/lfg 142` in one and `/lfg 150` in another, and each window auto-isolates into `.claude/worktrees/<branch>` on its own branch — no collisions, no manual setup.
+
+- **Base branch:** `dev` if it exists, else the repo default.
+- **Already inside a worktree?** `/lfg` detects it (a linked worktree's `.git` is a file, not a directory) and just branches in place — no nesting.
+- **Fresh-worktree dependencies:** a new worktree has no installed deps, so `/lfg` installs them (`npm ci`, `pip install -e .`, etc.) before running the verify gate. The `WorktreeCreate` hook symlinks `.env` in automatically.
+- **Opt out per repo:** set `auto_worktree: false` in `.psd/verify.json` and `/lfg` branches in place; isolate manually with `/worktree`.
+- **Cleanup:** on session exit you're prompted to keep or remove the worktree — keep it while the PR is open, then `/worktree clean` after it merges.
+
+## Native helpers & the manual path
+
+Under the hood `/lfg` uses Claude Code's built-in worktree support (`EnterWorktree`/`ExitWorktree`), and its parallel sub-agents declare `isolation: worktree` to get throwaway checkouts. You can still drive it manually when you want explicit control — `/worktree <issue>` to create the folder, then open a `claude` session inside it (the reliable, explicit path shown above).
 
 ## Pitfalls
 

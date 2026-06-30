@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 3.1.0
+Version: 3.2.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -17,6 +17,10 @@ A unified Claude Code plugin that collapses development into a tight, contract-d
 1. **Workflow Automation** — 6 skills + 44 specialized agents
 2. **Verifiable Done** — a per-project Definition-of-Done gate that `/lfg` loops against and a Stop hook that refuses to finish while it's red
 3. **Knowledge Evolution** — `/lfg` captures and commits learnings; `/evolve` compounds them into durable docs/agents, then prunes them
+
+> 🖼️ **New here? Start with the [visual How-to-Use guide](docs/how-to-use.md)** — infographics for the three commands, the `/lfg` loop, the Definition-of-Done gate, parallel worktrees, and the cloud routines.
+
+![PSD Coding System — three commands: /plan, /lfg, /evolve](docs/images/01-three-surfaces.png)
 
 ---
 
@@ -282,7 +286,7 @@ Autonomous build-to-done. It does **not** stop at "ready for review" — it stop
 | Phase | Description |
 |-------|-------------|
 | 1 | Determine work type + **load the Definition of Done** (from the issue's `dod` block or generated from `definition-of-done.md` + `.psd/verify.json`) — this is the loop exit condition |
-| 2 | Create branch (auto-detects default branch); optional worktree for parallel work |
+| 2 | Create branch — **auto-isolated git worktree per issue** (base = `dev` or default; skipped if already in a worktree or `auto_worktree: false`) |
 | 3 | Research via `work-researcher` (knowledge, codebase, git history, test/security/UX context) |
 | 4 | Implement (TDD where practical, atomic commits). Bug path: reproduce → root cause → fix the cause → regression test |
 | 5 | **Verify-loop** — dispatch `runtime-verifier` to run the full gate + Playwright; fix→verify until GREEN (no `\|\| true`, whole app) |
@@ -326,10 +330,14 @@ Hooks are non-blocking (except the Stop gate) with short timeouts; they exit cle
 
 ### Parallel work
 
+Open several Claude windows in the repo root and run `/lfg` in each — by default each auto-isolates into its own git worktree:
+
 ```bash
-/worktree 347          # spin up an isolated checkout, then run /lfg in its own window
-/worktree 350          # …and another, in parallel
+# window 1:  claude → /lfg 347
+# window 2:  claude → /lfg 350     # its own worktree, in parallel, no collision
 ```
+
+Opt out per repo with `auto_worktree: false` in `.psd/verify.json` (then isolate manually with `/worktree`).
 
 ### Ongoing
 
