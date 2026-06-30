@@ -2,7 +2,7 @@
 name: ux-specialist
 description: UX heuristic evaluation specialist for interface design, usability assessment, and user experience optimization
 tools: Read, Glob, Grep, WebSearch, Bash
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 ---
 

@@ -2,7 +2,7 @@
 name: data-integrity-guardian
 description: PII and compliance scanning agent for GDPR, FERPA, and sensitive data handling validation
 tools: Bash, Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: red
 ---

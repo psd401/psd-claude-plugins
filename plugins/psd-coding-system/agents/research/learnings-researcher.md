@@ -2,7 +2,7 @@
 name: learnings-researcher
 description: Searches knowledge base for relevant past learnings before implementing new features
 tools: Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 memory: project
 extended-thinking: true
 color: blue

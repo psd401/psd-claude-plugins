@@ -2,7 +2,7 @@
 name: test-specialist
 description: Testing specialist for comprehensive test coverage, automation, and quality assurance
 tools: Bash, Read, Edit, Write, WebSearch
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 memory: project
 extended-thinking: true
 keep-coding-instructions: true

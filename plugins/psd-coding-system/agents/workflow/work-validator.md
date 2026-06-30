@@ -2,7 +2,7 @@
 name: work-validator
 description: Post-implementation validation orchestrator for /work — dispatches language reviewers and deployment verification agents based on changed files
 tools: Bash, Read, Grep, Glob, Task
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 isolation: worktree
 extended-thinking: true
 initialPrompt: "Run post-implementation validation using context from $ARGUMENTS. Detect languages from changed files, dispatch reviewers in LIGHT mode, and return a Validation Report with PASS/PASS_WITH_WARNINGS/FAIL status."

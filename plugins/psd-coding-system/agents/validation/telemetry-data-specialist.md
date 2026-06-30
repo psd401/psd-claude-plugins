@@ -1,7 +1,7 @@
 ---
 name: telemetry-data-specialist
 description: Data pipeline correctness, metrics accuracy, and statistical validation specialist
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: purple
 ---

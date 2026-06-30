@@ -2,7 +2,7 @@
 name: breaking-change-validator
 description: Dependency analysis before deletions to prevent breaking changes
 tools: Bash, Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: red
 ---

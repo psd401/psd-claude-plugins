@@ -1,7 +1,7 @@
 {
   "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
   "name": "psd-coding-system",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "AI-assisted development system for Peninsula School District - workflow automation, specialized agents, memory-based learning, and Context7 framework docs",
   "author": {
     "name": "Kris Hagel",

@@ -2,7 +2,7 @@
 name: schema-drift-detector
 description: ORM-agnostic schema drift detection comparing model definitions, migrations, and raw SQL schemas
 tools: Bash, Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: orange
 ---

@@ -2,7 +2,7 @@
 name: performance-optimizer
 description: Performance optimization specialist for web vitals, database queries, API latency, and system performance
 tools: Bash, Read, Edit, Write, WebSearch
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: purple
 ---

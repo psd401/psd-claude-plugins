@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.18.0
+**Version**: 2.19.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -401,7 +401,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - PreCompact hook preserves branch/task context during compaction
 
 ### Model Selection Strategy
-- **sonnet-4-6**: Default for agents and lightweight coding tasks
+- **sonnet-5**: Default for agents and lightweight coding tasks
 - **opus-4-8**: All skills that specify `model:` in frontmatter
 - **effort: high**: Default for most skills/agents
 - **effort: xhigh**: Heavy-lifting skills: `/architect`, `/product-manager`, `/lfg`, `/evolve`, meta-reviewer agent (v2.1.111)
@@ -410,13 +410,13 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 
 ### Model Selection Rules for Skills
 
-**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-8` with `effort: high` (or `xhigh` for heavy-lifting skills). Never specify `model: claude-sonnet-4-6` in skill frontmatter while the Claude Code default is Opus 4.8.
+**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-8` with `effort: high` (or `xhigh` for heavy-lifting skills). Skills default to Opus 4.8; agents run on `claude-sonnet-5`.
 
-**Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. Opus 4.8 supports effort; Sonnet 4.6 does not. Skills specifying sonnet receive this unsupported parameter → API error. GitHub issue #30795 (open as of 2026-03-15).
+**Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. **Sonnet 5 supports effort** (`low`/`medium`/`high`/`xhigh`/`max`), so the old Sonnet 4.6 blocker (GitHub issue #30795 — Sonnet 4.6 rejected `effort`) no longer applies. Agents were moved to `claude-sonnet-5` for this reason. Skills still default to `claude-opus-4-8` for consistency.
 
 **Lightweight skills** (changelog, triage, bump-version, etc.) that don't specify a model inherit the default (currently Opus 4.8) and are safe.
 
-**If you want to use Sonnet in a skill**: Remove the `model:` field entirely and let it inherit the default. Do NOT explicitly specify `model: claude-sonnet-4-6` until issue #30795 is resolved.
+**If you want to use Sonnet in a skill**: `claude-sonnet-5` is safe (it supports `effort`), but the project default remains `claude-opus-4-8` — either set `model: claude-sonnet-5` explicitly or omit `model:` to inherit the Opus default.
 
 ### Adopted Claude Code Features
 

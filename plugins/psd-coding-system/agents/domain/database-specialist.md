@@ -2,7 +2,7 @@
 name: database-specialist
 description: Database specialist for schema design, query optimization, and data migrations
 tools: Read, Edit, Write
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: yellow
 ---

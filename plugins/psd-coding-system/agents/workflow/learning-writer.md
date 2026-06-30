@@ -2,7 +2,7 @@
 name: learning-writer
 description: Automatic lightweight learning capture — deduplicates against existing learnings and writes to docs/learnings/
 tools: Bash, Read, Write, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 memory: project
 background: true
 keep-coding-instructions: true

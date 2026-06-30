@@ -1,7 +1,7 @@
 ---
 name: configuration-validator
 description: Multi-file consistency, version tracking, and configuration drift detection specialist
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 extended-thinking: true
 color: orange
 ---
@@ -66,15 +66,15 @@ When version changes detected, validate ALL 5 required locations are updated:
 **Model Name/ID Consistency:**
 
 When model changes detected, validate consistency across:
-- Agent frontmatter: `model: claude-sonnet-4-6` (current standard)
+- Agent frontmatter: `model: claude-sonnet-5` (current standard — bare alias, no date suffix)
 - Command frontmatter: `model: claude-opus-4-8`
 - Code references: check for hardcoded model names
 - Documentation: ensure model references are up-to-date
 
 **Common model errors:**
-- Inconsistent naming: `claude-sonnet-4-6` vs `sonnet-4-5` vs `claude-sonnet-4-6-20250101`
+- Inconsistent naming: `claude-sonnet-5` vs `sonnet-5` vs `claude-sonnet-5-20260115` (use the bare alias `claude-sonnet-5`)
 - Old model IDs: `claude-opus-4-1` instead of `claude-opus-4-8`
-- Hardcoded in code: `const model = "claude-sonnet-4-6"` instead of config
+- Hardcoded in code: `const model = "claude-sonnet-5"` instead of config
 - Model change in agent but not documented in CLAUDE.md
 
 #### Environment Variable Validation
@@ -295,42 +295,41 @@ grep -h "version.*1\.11\.0" \
 ### High Priority Issue Example
 
 **File:** plugins/psd-coding-system/agents/backend-specialist.md:4
-**Issue:** Outdated model ID - using deprecated claude-sonnet-4-6 instead of current standard
-**Problem:** Agent frontmatter specifies `model: claude-sonnet-4-6` but should use full model ID `claude-sonnet-4-6-20250929` per current convention
-**Impact:** May use wrong model version, inconsistent with other agents
+**Issue:** Stale or date-suffixed model ID instead of the current bare alias
+**Problem:** Agent frontmatter specifies a date-suffixed ID like `model: claude-sonnet-5-20260115` (or a superseded model like `claude-sonnet-4-6`) — the current convention is the **bare alias** `claude-sonnet-5` with **no date suffix** (a date-suffixed Sonnet alias 404s)
+**Impact:** May 404 at launch or pin an unintended snapshot; inconsistent with other agents
 **Inconsistency Evidence:**
 ```bash
 # Check model specifications across all agents
-grep -n "^model:" plugins/psd-coding-system/agents/*.md
+grep -rn "^model:" plugins/psd-coding-system/agents/
 
 # Results show inconsistency:
-backend-specialist.md:4:model: claude-sonnet-4-6  # Incomplete ID
-frontend-specialist.md:4:model: claude-sonnet-4-6-20250929  # Correct
-test-specialist.md:4:model: claude-sonnet-4-6-20250929  # Correct
+backend-specialist.md:model: claude-sonnet-5-20260115  # Wrong — drop the date suffix
+frontend-specialist.md:model: claude-sonnet-5          # Correct — bare alias
+test-specialist.md:model: claude-sonnet-5              # Correct — bare alias
 ```
 **Fix:**
 ```diff
 # plugins/psd-coding-system/agents/backend-specialist.md
 ---
 name: backend-specialist
--model: claude-sonnet-4-6
-+model: claude-sonnet-4-6-20250929
+-model: claude-sonnet-5-20260115
++model: claude-sonnet-5
 extended-thinking: true
 ---
 ```
 **Validation:**
 ```bash
-# All agents should use consistent model ID format
-grep "^model:" plugins/psd-coding-system/agents/*.md | \
-  grep -v "claude-.*-[0-9]\{8\}"
-# Should return empty (no incomplete model IDs)
+# Flag any date-suffixed model IDs — current convention is bare aliases
+grep -rnE "^model:.*-[0-9]{8}$" plugins/psd-coding-system/agents/
+# Should return empty (no date-suffixed model IDs)
 ```
 
 ### Validated Consistency Example
 
 **Validated Consistency:**
 - All 5 version locations in sync at 1.11.0
-- All agent model IDs use full format: `claude-sonnet-4-6-20250929`
+- All agent model IDs use the bare alias: `claude-sonnet-5` (no date suffix)
 - Environment variables: 3 documented in .env.example, 3 used in code (100% match)
 - Agent count: README says "20 agents", actual count: 20 (correct)
 

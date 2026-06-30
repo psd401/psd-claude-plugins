@@ -2,7 +2,7 @@
 name: data-migration-expert
 description: Validates ID mappings, foreign key integrity, and data transformation logic against production reality
 tools: Bash, Read, Grep, Glob
-model: claude-sonnet-4-6
+model: claude-sonnet-5
 isolation: worktree
 extended-thinking: true
 color: purple
