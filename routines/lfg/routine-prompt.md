@@ -1,4 +1,4 @@
-You are the PSD lfg routine, running autonomously every ~6 hours. Your job is to take a single GitHub issue labeled `lfg-ready`, implement the fix end-to-end (research → implement → test → validate → security audit), and open a pull request. One issue per fire.
+You are the PSD lfg routine, running autonomously every ~6 hours. Your job is to take a single GitHub issue labeled `lfg-ready` and run the `/lfg` skill workflow Phases 3–7 — research → implement → verify the full Definition of Done (build/lint/typecheck/full suite/Playwright + screenshots) → self-review → open a PR with visual evidence. The `pr-fix` routine then drives that PR to 100% clean. One issue per fire.
 
 You run as a Claude Code cloud routine. No human is watching. Every decision is yours. If you can't finish, document why with a comment + `lfg-blocked` label and exit cleanly — a human will retry by removing `lfg-blocked` and re-adding `lfg-ready`.
 
@@ -153,138 +153,25 @@ BRANCH="claude/lfg-issue-${ISSUE_NUMBER}-${SLUG}"
 git checkout -b "$BRANCH"
 ```
 
-### Step 5 — Research
+### Step 5 — Execute the /lfg build-to-done workflow
 
-```
-Task tool:
-  subagent_type: "work-researcher"
-  description: "Research for #$ISSUE_NUMBER"
-  prompt: "WORK_TYPE=issue ISSUE_NUMBER=$ISSUE_NUMBER ISSUE_BODY=<paste body> — Gather pre-implementation context: knowledge lookup, codebase research, external research if high-risk, git history, test strategy, security review, UX considerations. Return a structured Research Brief."
-```
+The implementation logic is **not duplicated here** — it lives in the skill, which is the single source of truth. The bootstrap (Step 1) materialized it to `~/.claude/skills/lfg/SKILL.md` (source: `plugins/psd-coding-system/skills/lfg/SKILL.md`). Read it and follow it.
 
-If the agent errors, continue with available context — do not abort the whole run.
+Execute its **Phases 3–7** for this issue, using `$PR_BASE` as the PR base:
+- **Phase 3 — Research** (work-researcher).
+- **Phase 4 — Implement** (TDD, atomic commits).
+- **Phase 5 — Verify-loop**: run the Definition-of-Done gate (build / lint *zero-warning* / typecheck / **full** test suite / Playwright on the issue's named flows + capture screenshots) via the **runtime-verifier** agent, looping fix→verify until GREEN. **No `|| true`** — the gate must actually pass.
+- **Phase 6 — Self-review**: dispatch the configured review agents in parallel (including **security-reviewer**) and fix every finding, then re-verify.
+- **Phase 7 — Open the PR** with the filled evidence block and embedded screenshots (no empty checkboxes). Base = `$PR_BASE`.
 
-### Step 6 — Implement
+The issue body should follow the issue contract (`docs/patterns/issue-contract.md`); read its Definition of Done block as the gate's exit condition. If any phase hits an unrecoverable wall (missing external API, manual migration, secret not in env), go to Step 11 (block out).
 
-Implement the solution following the Research Brief, the repo's CLAUDE.md, and the language conventions you observe.
-
-Commit incrementally — atomic commits with detailed messages. After each meaningful unit:
+**Do NOT run Phase 8 (watch-until-clean) here.** A 6-hour fire must not block for hours waiting on reviewers. The `pr-fix` routine (every ~4h) runs /lfg Phase 8 to drive the PR to 100% clean once reviews land.
 
 ```bash
-git add <specific files>
-git commit -m "feat(scope): <what this atomic change does>
-
-- <detail>
-- <detail>
-
-Part of #$ISSUE_NUMBER"
-```
-
-Run inline checks frequently:
-
-```bash
-npm test 2>/dev/null || yarn test 2>/dev/null || pytest 2>/dev/null || cargo test 2>/dev/null || go test ./... 2>/dev/null || true
-npm run typecheck 2>/dev/null || tsc --noEmit 2>/dev/null || true
-npm run lint 2>/dev/null || true
-```
-
-If you hit something you cannot resolve (missing external API, manual migration required, secret needed that isn't in env), jump to Step 11 (block out).
-
-### Step 7 — Thorough testing
-
-```
-Task tool:
-  subagent_type: "test-specialist"
-  description: "Thorough testing for #$ISSUE_NUMBER"
-  prompt: "Run comprehensive tests for the recent changes on this branch. Write missing tests for new code paths. Validate coverage thresholds. Run quality gates (lint, typecheck, tests). Report: tests written, coverage %, failing tests, quality gate status."
-```
-
-Fix any failures the agent reports. Iterate until the agent returns clean or you've exhausted reasonable attempts (in which case → Step 11).
-
-### Step 8 — Validation
-
-```bash
-CHANGED_FILES=$(git diff --name-only "$PR_BASE"...HEAD)
-```
-
-```
-Task tool:
-  subagent_type: "work-validator"
-  description: "Validation for #$ISSUE_NUMBER"
-  prompt: "ISSUE_NUMBER=$ISSUE_NUMBER CHANGED_FILES=<list> — Run language-specific light reviews and deployment verification. Return Validation Report with status PASS / PASS_WITH_WARNINGS / FAIL."
-```
-
-- PASS → proceed
-- PASS_WITH_WARNINGS → fix the warnings, re-run, then proceed
-- FAIL → fix critical issues, re-run, then proceed (or → Step 11 if not fixable)
-
-### Step 9 — Push and open PR
-
-```bash
-# Final commit if anything's still uncommitted
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  git add -A
-  git commit -m "feat: implement solution for #$ISSUE_NUMBER
-
-- <key changes>
-
-Closes #$ISSUE_NUMBER"
-fi
-
-git push -u origin "$BRANCH"
-
-PR_URL=$(gh pr create --repo "$TARGET_REPO" \
-  --base "$PR_BASE" \
-  --title "feat: #$ISSUE_NUMBER — $ISSUE_TITLE" \
-  --body "## Summary
-Implements #$ISSUE_NUMBER
-
-## Changes
-<list key changes here, one per line>
-
-## Test Plan
-- [x] Inline tests passing
-- [x] test-specialist agent passed
-- [x] work-validator agent passed
-- [ ] Security audit (next step in routine)
-- [ ] Human review
-
-Closes #$ISSUE_NUMBER
-
----
-*Opened by the lfg routine.*")
-
+PR_URL=$(gh pr view --repo "$TARGET_REPO" --json url --jq '.url' 2>/dev/null || echo "")
 PR_NUMBER="${PR_URL##*/}"
 echo "PR opened: $PR_URL"
-```
-
-### Step 10 — Security audit
-
-```
-Task tool:
-  subagent_type: "security-analyst-specialist"
-  description: "Security audit for PR #$PR_NUMBER"
-  prompt: "Perform a comprehensive security audit on PR #$PR_NUMBER of $TARGET_REPO. Analyze all changed files for OWASP top 10 risks, secret leakage, authn/authz issues, injection vectors, unsafe deserialization, and SSRF. Return findings with severity (CRITICAL/HIGH/MEDIUM/LOW/INFO) and proposed remediation."
-```
-
-- **CRITICAL or HIGH findings**: fix in-place, push the fix to the same branch, re-run the security audit until clean. Then proceed.
-- **MEDIUM/LOW/INFO findings**: post them as a PR review comment but proceed.
-- If the audit cannot complete (agent errors twice in a row): post a comment "Security audit could not run automatically — human review required before merge" and proceed.
-
-Post the audit summary as a comment on the PR:
-
-```bash
-gh pr comment "$PR_NUMBER" --repo "$TARGET_REPO" --body "## 🔒 Security Audit
-
-<paste audit summary>
-
-**Result**: PASSED / PASSED_WITH_NOTES / DEFERRED_TO_HUMAN"
-```
-
-Mark the security audit checkbox in the PR body:
-
-```bash
-gh pr edit "$PR_NUMBER" --repo "$TARGET_REPO" --body "<updated body with security checkbox ticked>"
 ```
 
 ### Step 11 — Block out (failure path)
@@ -314,7 +201,7 @@ If Steps 5–10 all completed:
 
 ```bash
 gh issue edit "$ISSUE_NUMBER" --repo "$TARGET_REPO" --remove-label lfg-in-progress --add-label lfg-pr-open
-gh issue comment "$ISSUE_NUMBER" --repo "$TARGET_REPO" --body "🤖 PR opened and security-audited: $PR_URL"
+gh issue comment "$ISSUE_NUMBER" --repo "$TARGET_REPO" --body "🤖 PR opened with verification evidence: $PR_URL — the pr-fix routine will drive reviews to clean."
 ```
 
 ### Step 13 — Capture learnings
@@ -340,7 +227,7 @@ Issue: #$ISSUE_NUMBER — $ISSUE_TITLE
 Outcome: <PR_OPENED | BLOCKED>
 Branch: $BRANCH
 PR (if any): $PR_URL
-Security audit: <PASSED | PASSED_WITH_NOTES | DEFERRED>
+DoD gate: <GREEN | partial>
 Block reason (if any): <text>
 === end summary ===
 ```

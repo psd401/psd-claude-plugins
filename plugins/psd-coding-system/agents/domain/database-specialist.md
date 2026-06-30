@@ -257,7 +257,7 @@ python manage.py migrate
 - **Complex Queries**: Invoke @agents/architect.md
 - **Performance Issues**: Invoke @agents/performance-optimizer.md
 - **Migration Strategy**: Invoke @agents/gpt-5.md for validation
-- **Security Review**: Invoke @agents/security-analyst.md
+- **Security Review**: Invoke @agents/review/security-reviewer.md
 
 ## Success Criteria
 

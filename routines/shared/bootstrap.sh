@@ -77,7 +77,8 @@ for expected in \
   work-researcher.md \
   test-specialist.md \
   work-validator.md \
-  security-analyst-specialist.md \
+  runtime-verifier.md \
+  security-reviewer.md \
   learning-writer.md; do
   if [ -f "$AGENTS_DIR/$expected" ]; then
     echo "  ✓ $expected"

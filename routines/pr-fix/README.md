@@ -2,7 +2,7 @@
 
 Scans open pull requests across the three target repos, picks one with unaddressed review feedback or failing CI, and resolves what it can. Adds labels to communicate state.
 
-Pairs with `/review-pr` (the interactive skill) — uses the same round-marker comment convention so interactive review-pr runs and routine runs can interleave on the same PR without re-processing the same comments.
+Runs the same watch-until-clean logic as `/lfg` Phase 8 (the interactive skill reuses this routine's `gh` machinery) — uses the same round-marker comment convention so interactive `/lfg` runs and routine runs can interleave on the same PR without re-processing the same comments.
 
 ## One-time setup
 

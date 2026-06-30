@@ -160,7 +160,7 @@ Verify tool permissions are appropriate:
 
 | Agent | Tools | Risk Assessment |
 |-------|-------|-----------------|
-| security-analyst | Bash, Read, Edit, WebSearch | ⚠️ Has Edit - appropriate? |
+| security-reviewer | Read, Grep, Glob, Bash | ✅ Read-only reviewer — no Edit, appropriate |
 | test-specialist | Bash, Read, Edit, Write, WebSearch | ✅ Needs Write for tests |
 | documentation-writer | Bash, Read, Edit, Write, WebSearch | ✅ Needs Write for docs |
 

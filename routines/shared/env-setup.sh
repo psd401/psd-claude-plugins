@@ -122,7 +122,7 @@ done
 # Sanity-check a couple of expected agents (checking /home/user since that's
 # where the session reads from in practice)
 echo "--- sanity check against /home/user/.claude/agents/ ---"
-for expected in repo-research-analyst.md git-history-analyzer.md bug-reproduction-validator.md work-researcher.md test-specialist.md work-validator.md security-analyst-specialist.md learning-writer.md; do
+for expected in repo-research-analyst.md git-history-analyzer.md bug-reproduction-validator.md work-researcher.md test-specialist.md work-validator.md runtime-verifier.md security-reviewer.md learning-writer.md; do
   if [ -f "/home/user/.claude/agents/$expected" ]; then
     echo "  ✓ $expected"
   else

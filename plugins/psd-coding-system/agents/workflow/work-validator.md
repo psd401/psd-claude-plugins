@@ -95,9 +95,23 @@ echo ""
 - description: "Schema drift check for #$ISSUE_NUMBER"
 - prompt: "Detect schema drift between ORM models and migration files. Flag missing migrations, orphaned columns, index drift, and type mismatches. Changed files: $CHANGED_FILES"
 
-### Phase 3: Compile Validation Report
+### Phase 3: Runtime Verification (Terminal Gate)
 
-After all agents return, compile into a structured Validation Report:
+**After the language/deployment reviewers return, this is the LAST validator you dispatch.** Static review reads the code; runtime-verifier proves it actually works. Dispatch it via Task and wait for its result before compiling the report.
+
+**runtime-verifier** (always — this is the gate that makes "validated" mean "executed"):
+- subagent_type: "psd-coding-system:quality:runtime-verifier"
+- description: "Runtime DoD gate + Playwright for #$ISSUE_NUMBER"
+- prompt: "MODE=gate. Run the full Definition-of-Done gate (build, zero-warning lint, typecheck, FULL test suite) and the configured Playwright E2E flows, capturing screenshot evidence. Changed files: $CHANGED_FILES. Return PASS/FAIL per dimension with exact failing steps, root causes (file:line), and evidence paths."
+
+Fold the runtime-verifier result into the Validation Report:
+- Its **FAIL on any gate dimension or E2E flow forces the overall Validation Report status to FAIL**, regardless of what the static reviewers found.
+- A dimension it reports as "could not run" (e.g. no test command) is a **gap**, not a pass — record it in the report rather than treating it as PASS.
+- Copy its evidence paths (screenshots/video) into the report so the orchestrator can embed them in the PR.
+
+### Phase 4: Compile Validation Report
+
+After all agents (language/deployment reviewers + runtime-verifier) return, compile into a structured Validation Report:
 
 ```markdown
 ## Validation Report for #$ISSUE_NUMBER
@@ -132,6 +146,13 @@ After all agents return, compile into a structured Validation Report:
 - Schema drift: [summary or "no drift detected"]
 - Rollback plan: [summary]
 
+### Runtime Verification (runtime-verifier — terminal gate)
+- Overall: PASS / FAIL
+- Gate: build [PASS/FAIL] · lint [PASS/FAIL, zero-warning] · typecheck [PASS/FAIL] · test [X passed / Y failed of Z, full suite]
+- E2E flows: [per-flow PASS/FAIL]
+- Evidence: [screenshot/video paths]
+- Could-not-run (gaps): [dimensions skipped, or "none"]
+
 ### Issues Requiring Fix
 1. [Critical issue with file:line reference]
 2. [Critical issue with file:line reference]
@@ -145,9 +166,11 @@ After all agents return, compile into a structured Validation Report:
 
 ### Determining Overall Status
 
-- **PASS**: No issues from any reviewer
-- **PASS_WITH_WARNINGS**: Warnings found — all must be fixed before proceeding
-- **FAIL**: Critical issues found — all must be fixed before proceeding
+- **PASS**: No issues from any reviewer AND runtime-verifier returned PASS on every gate dimension and E2E flow
+- **PASS_WITH_WARNINGS**: Warnings found — all must be fixed before proceeding (only valid when runtime-verifier PASSED)
+- **FAIL**: Critical issues found, OR runtime-verifier reported FAIL on any gate dimension or E2E flow — all must be fixed before proceeding
+
+**The runtime gate is authoritative:** if runtime-verifier reports FAIL, the overall status is FAIL even when every static reviewer passed.
 
 ## Failure Handling
 
@@ -157,7 +180,9 @@ After all agents return, compile into a structured Validation Report:
 
 ## Success Criteria
 
-- All applicable validators dispatched in parallel
-- Report clearly states PASS / PASS_WITH_WARNINGS / FAIL
+- All applicable language/deployment validators dispatched in parallel
+- runtime-verifier dispatched as the terminal gate and its PASS/FAIL folded into the report
+- Report clearly states PASS / PASS_WITH_WARNINGS / FAIL (FAIL whenever the runtime gate fails)
 - Critical issues have file:line references for easy fixing
 - Deployment checklist included in report when migrations detected
+- Runtime evidence (screenshot/video paths) carried into the report
