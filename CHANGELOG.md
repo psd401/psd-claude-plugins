@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.21.3] - 2026-07-09
+
+### Security
+- **Patched quic-go HTTP/3 QPACK memory-exhaustion vulnerability (GHSA-vvgj-x9jq-8cj9, moderate) in both vendored Go CLIs** — the two open Dependabot alerts on the default branch. `github.com/quic-go/quic-go` (indirect dep via `enetx/surf` → `enetx/http3`) bumped v0.59.0 → v0.59.1 in `parentsquare/cli` and `class-intercom/cli` go.mod/go.sum. Practical exposure was low — the flaw lets a malicious HTTP/3 server exhaust a client's memory via QPACK trailer expansion, and these CLIs only talk to the district's ParentSquare/Class Intercom vendors — but the patch is trivial, so shipped.
+- **Rebuilt and republished the prebuilt binaries** so shipped artifacts (not just source) carry the fix: new GitHub Releases `parentsquare-cli-v1.0.1` and `classintercom-cli-v1.0.1` (darwin/arm64, linux/amd64, windows/amd64; built with Go 1.26.4, `CGO_ENABLED=0 -ldflags "-s -w"`). Both `ensure-binary.sh` scripts now fetch `v1.0.1`; CLI `version.go` fallbacks bumped to 1.0.1. Full `go build` + `go test ./...` pass in both CLIs.
+
+### Changed
+- Versions: **psd-productivity 2.15.1 → 2.15.2**, **marketplace 2.21.2 → 2.21.3** (psd-coding-system unchanged at 3.3.2).
+
 ## [2.21.2] - 2026-07-09
 
 ### Fixed

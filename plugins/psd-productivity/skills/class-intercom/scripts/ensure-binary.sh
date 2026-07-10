@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="v1.0.0"                      # bump together with the GitHub Release tag
+VERSION="v1.0.1"                      # bump together with the GitHub Release tag
 REPO="psd401/psd-claude-plugins"
 TAG="classintercom-cli-${VERSION}"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/classintercom-pp-cli/${VERSION}"
