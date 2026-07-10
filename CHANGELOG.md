@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.22.0] - 2026-07-10
+
+### Added
+- **`/psd-sign` skill (psd-coding-system)** — salvaged from stale PR #39. Signs, notarizes, and packages a macOS `.app` into a `.pkg` for PSD Jamf Self Service deployment: full Apple Developer ID pipeline (quarantine strip → codesign hardened-runtime → notarize → staple → pkgbuild → notarize pkg → staple → Gatekeeper verify). Placed in **psd-coding-system** (not psd-productivity as the PR had it) because it requires a local Mac with Xcode CLT + PSD Developer ID certs — it can't run in Cowork, and it's end-of-dev-lifecycle tooling alongside `/worktree`/`/bump-version`. Changes from the PR: frontmatter normalized to current conventions (dropped nonstandard `triggers:`/`version:`; added `model`/`effort`/`context`/`agent`); added optional Step 0 storing a `notarytool` keychain profile so the app-specific password stays out of process listings and shell history (CLI-flag fallback preserved).
+
+### Housekeeping
+- **Closed stale `pr-fix-stuck` PRs #23 and #40** — both CONFLICTING against layouts that no longer exist. #23 targeted the pre-v2.0.0 `psd-claude-coding-system/commands/` structure; #40 patched `work`/`test`/`review-pr`/`security-audit`/`debug` skills and the pre-merge security agents, all removed in v3.0.0. #39 closed as superseded by this release.
+
+### Changed
+- Versions: **psd-coding-system 3.3.3 → 3.4.0** (new skill = minor), **marketplace 2.21.5 → 2.22.0** (psd-productivity unchanged at 2.15.3).
+
 ## [2.21.5] - 2026-07-10
 
 ### Fixed

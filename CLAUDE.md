@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.21.5
+**Version**: 2.22.0
 **Status**: Production-Ready
 
 ### Plugins
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 6 | 44 |
+| `psd-coding-system` | AI-assisted development workflows | 7 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 36 | 1 |
 
 ### Key Changes in v2.0.0
@@ -121,9 +121,9 @@ psd-claude-plugins/                           # repo root
 - Each plugin ships its own agents
 - `enabledPlugins` in `.claude/settings.json` allows selective enabling/disabling
 
-### psd-coding-system Skills (6 total)
+### psd-coding-system Skills (7 total)
 
-**v3.0.0 consolidated 21 overlapping skills into 3 disciplined surfaces + 3 utilities.** "Done" is a machine-checkable Definition of Done (`docs/patterns/definition-of-done.md`), enforced by a verify gate + Stop hook, not agent goodwill.
+**v3.0.0 consolidated 21 overlapping skills into 3 disciplined surfaces + utilities.** "Done" is a machine-checkable Definition of Done (`docs/patterns/definition-of-done.md`), enforced by a verify gate + Stop hook, not agent goodwill.
 
 | Skill | Description |
 |-------|-------------|
@@ -133,6 +133,7 @@ psd-claude-plugins/                           # repo root
 | `/setup` | Write `.psd/verify.json` — the per-project verification gate (commands, E2E flows, strictness, AI-reviewer logins, commit-learnings, active review agents) |
 | `/worktree` | Git worktree management + multi-window parallel how-to + `clean` post-merge hygiene (prune worktrees, delete merged local/remote branches, close orphaned issues — restores `/clean-branch`) |
 | `/bump-version` | Version bump ritual (absorbs `/changelog`) — three independent tracks |
+| `/psd-sign` | Sign, notarize, and package a macOS `.app` into a `.pkg` for PSD Jamf Self Service — full Apple Developer ID pipeline (salvaged from PR #39 in v3.4.0) |
 
 **Removed/folded in v3.0.0:** work, test, debug, optimize, review-pr, security-audit, architect, brainstorm, scope, product-manager, deepen-plan, issue, changelog, clean-branch, swarm, triage (triage intake now lives only in the cloud routine). Contracts: `docs/patterns/{definition-of-done,issue-contract,worktrees-explained}.md`.
 

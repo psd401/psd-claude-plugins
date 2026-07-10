@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 3.3.3
+Version: 3.4.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -46,7 +46,7 @@ A unified Claude Code plugin that collapses development into a tight, contract-d
 
 ## Workflow Commands
 
-Six skills, each with a clear lane. The old 21 skills were absorbed — `/plan` swallows the design surface, `/lfg` swallows the build/test/review surface, and `/bump-version` swallows `/changelog`.
+Seven skills, each with a clear lane. The old 21 skills were absorbed — `/plan` swallows the design surface, `/lfg` swallows the build/test/review surface, and `/bump-version` swallows `/changelog`.
 
 | Command | Description | Example |
 |---------|-------------|---------|
@@ -56,8 +56,9 @@ Six skills, each with a clear lane. The old 21 skills were absorbed — `/plan` 
 | `/setup` | Write `.psd/verify.json` — the per-project verify gate (commands, E2E flows, strictness, AI-reviewer logins, commit_learnings, active review agents). | `/setup` / `/setup show` / `/setup reset` |
 | `/worktree` | Git worktree management + multi-window parallel how-to + `/worktree clean` post-merge hygiene (prune worktrees, delete merged local/remote branches, close orphaned issues). | `/worktree 347` · `/worktree clean` |
 | `/bump-version` | The version-bump ritual across three independent tracks (absorbs `/changelog`). | `/bump-version minor` |
+| `/psd-sign` | Sign, notarize, and package a macOS `.app` into a `.pkg` for PSD Jamf Self Service — the full Apple Developer ID pipeline (sign → notarize → staple → pkgbuild → notarize pkg → verify). | `/psd-sign ~/Desktop/MyApp.app` |
 
-> **Removed in v3.0.0:** `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`, `/security-audit`, `/architect`, `/brainstorm`, `/scope`, `/product-manager`, `/deepen-plan`, `/issue`, `/changelog`, `/clean-branch`, `/swarm`, `/triage`. Their behavior is folded into the six skills above. (FreshService-ticket intake now lives only in the cloud `triage` routine, not as a local skill.)
+> **Removed in v3.0.0:** `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`, `/security-audit`, `/architect`, `/brainstorm`, `/scope`, `/product-manager`, `/deepen-plan`, `/issue`, `/changelog`, `/clean-branch`, `/swarm`, `/triage`. Their behavior is folded into the skills above. (FreshService-ticket intake now lives only in the cloud `triage` routine, not as a local skill.)
 
 ---
 
