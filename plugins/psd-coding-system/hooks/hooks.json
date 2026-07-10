@@ -3,7 +3,7 @@
     "PostToolUse": [
       {
         "matcher": "Edit|Write",
-        "if": "tool_input.file_path matches '\\.(?:ts|tsx|py|json)$'",
+        "if": "tool_input.file_path matches '\\.(?:py|json)$'",
         "hooks": [
           {
             "type": "command",
