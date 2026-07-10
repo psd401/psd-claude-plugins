@@ -249,8 +249,8 @@ The `psd-coding-system` plugin configures a Context7 MCP server providing live f
 - Runs after Edit or Write tool calls (matcher: `Edit|Write`)
 - `if` conditional (v2.1.85): only fires for `.py/.json` files — skips `.ts`, `.tsx`, `.md`, `.sh`, `.yaml`, etc.
 - Fast single-file syntax check: `.py` (py_compile), `.json` (jq)
-- **No `.ts/.tsx` branch** (removed in v3.3.1, issue #77): a per-edit `tsc --noEmit` is a whole-project typecheck (~4s/edit), not a single-file check, and is redundant with the Definition-of-Done gate (`verify-gate.sh`) that runs a full typecheck once before a turn finishes
-- Non-blocking, 10s timeout
+- **No `.ts/.tsx` branch** (removed in v3.3.1, issue #77): a per-edit `tsc --noEmit` is a whole-project typecheck (~4s/edit), not a single-file check. TS type coverage moves to the Definition-of-Done gate (`verify-gate.sh` / Stop hook), which runs a full typecheck before a turn finishes **for repos opted into the gate (`.psd/verify.json` with a `typecheck` command) driven through `/lfg`**; repos/sessions outside that envelope rely on CI/PR review. Accepted trade — ~60% of the old per-edit runs were cancelled and discarded anyway
+- Non-blocking (always exits 0, including on malformed stdin), 10s timeout
 
 **PostToolUse Hook — Secret Redaction** (`scripts/redact-secrets.sh`):
 - Runs after Bash tool calls (matcher: `Bash`)
