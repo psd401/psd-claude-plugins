@@ -2,6 +2,8 @@ module parentsquare-pp-cli
 
 go 1.26
 
+toolchain go1.26.5
+
 require (
 	github.com/PuerkitoBio/goquery v1.12.0
 	github.com/enetx/http v1.0.28
@@ -35,7 +37,7 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/wzshiming/socks5 v0.7.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
-	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sys v0.45.0 // indirect

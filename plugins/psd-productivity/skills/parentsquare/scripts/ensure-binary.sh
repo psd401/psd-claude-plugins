@@ -7,7 +7,7 @@
 set -euo pipefail
 
 SKILL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VERSION="v1.0.1"                      # bump together with the GitHub Release tag
+VERSION="v1.0.2"                      # bump together with the GitHub Release tag
 REPO="psd401/psd-claude-plugins"
 TAG="parentsquare-cli-${VERSION}"
 CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/parentsquare-pp-cli/${VERSION}"
@@ -42,7 +42,7 @@ if curl -fsSL "$URL" -o "${BIN}.gz" 2>/dev/null && gunzip -f "${BIN}.gz" 2>/dev/
 fi
 rm -f "${BIN}.gz" 2>/dev/null || true
 
-# Fallback: build from the vendored source (requires Go 1.26.4+).
+# Fallback: build from the vendored source (requires Go 1.26.5+).
 if command -v go >/dev/null 2>&1; then
   echo "parentsquare: download unavailable; building from vendored source with Go..." >&2
   ( cd "${SKILL_DIR}/cli" && CGO_ENABLED=0 go build -o "$BIN" ./cmd/parentsquare-pp-cli )
@@ -52,6 +52,6 @@ fi
 
 echo "ERROR: could not download the prebuilt parentsquare-pp-cli binary for ${OS}/${ARCH}" >&2
 echo "       from ${URL}, and Go is not installed to build from source." >&2
-echo "Fix: ensure network access to GitHub Releases, or install Go 1.26.4+ (https://go.dev/dl/)" >&2
+echo "Fix: ensure network access to GitHub Releases, or install Go 1.26.5+ (https://go.dev/dl/)" >&2
 echo "     and re-run; the skill will build the binary from plugins/.../parentsquare/cli/." >&2
 exit 1

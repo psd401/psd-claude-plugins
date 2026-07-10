@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.21.4] - 2026-07-10
+
+### Security
+- **Full vulnerability sweep of both vendored Go CLIs with `govulncheck` — patched everything patchable.** After v2.21.3's quic-go fix, Dependabot's rescan surfaced 26 more alerts (13 `golang.org/x/crypto` advisories × 2 CLIs — 5 critical, 2 high, 6 medium, mostly SSH-related). These pre-existed in the dependency graph at x/crypto v0.51.0; the rescan surfaced them.
+  - **`golang.org/x/crypto` v0.51.0 → v0.52.0** (first patched version) in both `parentsquare/cli` and `class-intercom/cli`. Indirect dep; the vulnerable SSH code paths are not called by either CLI (confirmed by govulncheck reachability analysis) — defense-in-depth bump.
+  - **Go toolchain 1.26.4 → 1.26.5** (`toolchain go1.26.5` in both go.mod). govulncheck found two *stdlib* vulnerabilities Dependabot can't see: GO-2026-5856 (`crypto/tls` Encrypted Client Hello privacy leak — **reachable** from both CLIs' HTTP client paths) and GO-2026-4970 (`os`, imported not called). Both fixed in Go 1.26.5.
+  - **Post-fix scan is clean**: 0 called + 0 imported vulnerabilities in both CLIs. One known module-level advisory remains open by necessity — GO-2026-5932 (`x/crypto@v0.52.0`) has **no patched release yet** and its code is not imported by either CLI.
+  - **Rebuilt and republished binaries** as `parentsquare-cli-v1.0.2` / `classintercom-cli-v1.0.2` (darwin/arm64, linux/amd64, windows/amd64; Go 1.26.5, `CGO_ENABLED=0 -ldflags "-s -w"`). `ensure-binary.sh` pointers bumped to v1.0.2, CLI `version.go` fallbacks to 1.0.2, Go hint in error text to 1.26.5+. Full `go build` + `go test ./...` pass on 1.26.5 in both CLIs.
+
+### Changed
+- Versions: **psd-productivity 2.15.2 → 2.15.3**, **marketplace 2.21.3 → 2.21.4** (psd-coding-system unchanged at 3.3.2).
+
 ## [2.21.3] - 2026-07-09
 
 ### Security
