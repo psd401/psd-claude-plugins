@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.21.0
+**Version**: 2.21.1
 **Status**: Production-Ready
 
 ### Plugins
@@ -247,8 +247,9 @@ The `psd-coding-system` plugin configures a Context7 MCP server providing live f
 
 **PostToolUse Hook — Syntax Validation** (`scripts/post-edit-validate.sh`):
 - Runs after Edit or Write tool calls (matcher: `Edit|Write`)
-- `if` conditional (v2.1.85): only fires for `.ts/.tsx/.py/.json` files — skips `.md`, `.sh`, `.yaml`, etc.
-- Validates file syntax: `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq)
+- `if` conditional (v2.1.85): only fires for `.py/.json` files — skips `.ts`, `.tsx`, `.md`, `.sh`, `.yaml`, etc.
+- Fast single-file syntax check: `.py` (py_compile), `.json` (jq)
+- **No `.ts/.tsx` branch** (removed in v3.3.1, issue #77): a per-edit `tsc --noEmit` is a whole-project typecheck (~4s/edit), not a single-file check, and is redundant with the Definition-of-Done gate (`verify-gate.sh`) that runs a full typecheck once before a turn finishes
 - Non-blocking, 10s timeout
 
 **PostToolUse Hook — Secret Redaction** (`scripts/redact-secrets.sh`):
@@ -425,7 +426,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 | `effort:` frontmatter | v2.1.68 | All skills/agents | `high` default, `xhigh` on 5 heavy-lifters |
 | `initialPrompt:` agent auto-submit | v2.1.83 | 4 agents | learning-writer, work-researcher, meta-reviewer, work-validator |
 | `paths:` file access scoping | v2.1.84 | 5 skills | enrollment, pdf-builder, documenso, docusign, n8n |
-| `if` hook conditionals | v2.1.85 | PostToolUse hook | Only fires for .ts/.tsx/.py/.json files |
+| `if` hook conditionals | v2.1.85 | PostToolUse hook | Only fires for .py/.json files (ts/tsx dropped in v3.3.1, issue #77) |
 | `keep-coding-instructions:` | v2.1.94 | 10 skills/agents | 7 skills + work-researcher, learning-writer, test-specialist |
 | `PreCompact` hook | v2.1.105 | hooks.json | Preserves branch, commits, active issue before compaction |
 | `effort: xhigh` | v2.1.111 | 5 skills/agents | architect, product-manager, lfg, evolve, meta-reviewer |

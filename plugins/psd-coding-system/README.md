@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 3.3.0
+Version: 3.3.1
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -304,7 +304,7 @@ Autonomous build-to-done. It does **not** stop at "ready for review" — it stop
 | Hook | Event | What It Does |
 |------|-------|--------------|
 | `verify-gate-stop-hook.sh` | Stop | Blocks finishing until the DoD gate is verifiably green at the current commit with a clean tree (when `strictness: block`) |
-| `post-edit-validate.sh` | PostToolUse (Edit/Write) | Validates `.ts/.tsx` (tsc), `.py` (py_compile), `.json` (jq) — fires only for those extensions |
+| `post-edit-validate.sh` | PostToolUse (Edit/Write) | Fast single-file syntax check for `.py` (py_compile) and `.json` (jq) — fires only for those extensions. No `.ts/.tsx` typecheck (dropped in v3.3.1, issue #77): the full-project `tsc` is redundant with the DoD gate |
 | `redact-secrets.sh` | PostToolUse (Bash) | Redacts API keys, tokens, and secrets from Bash output before Claude sees it (`outputReplace`) |
 | `pre-compact-context.sh` | PreCompact | Preserves branch, uncommitted changes, recent commits, and active issue across context compaction |
 | Worktree hooks | WorktreeCreate / WorktreeRemove | Auto-symlinks `.env` into new worktrees; logs cleanup on removal |

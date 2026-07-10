@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.21.1] - 2026-07-09
+
+### Fixed
+- **`post-edit-validate.sh` no longer runs a whole-project typecheck per `.ts/.tsx` edit** (issue #77). The PostToolUse hook ran `npx tsc --noEmit` — a **full-project** typecheck, not the single-file syntax check the hook is meant to be — after every TypeScript edit. Transcript telemetry (50 sessions / 6 weeks, aistudio repo): 844 firings, **~4s median (max 7.8s)**, ~60% cancelled mid-run and discarded, ≈56 min of blocked agent-loop time. It also duplicated the Definition-of-Done gate (`verify-gate.sh`), which already runs a full typecheck once before a turn can finish. Fix (issue author's recommended Option 1): **drop the `ts|tsx` branch** from the script and narrow the `hooks.json` `if` matcher from `(?:ts|tsx|py|json)` to `(?:py|json)` so the hook no longer even spawns for `.ts/.tsx` edits. The cheap single-file `.py` (py_compile) and `.json` (jq) checks are unchanged. Behavior verified: a `.ts` edit with a type error + tsconfig present now returns in ~45ms (was ~4s), and the hook still exits 0 (non-blocking) on invalid input.
+
+### Changed
+- Versions: **psd-coding-system 3.3.0 → 3.3.1**, **marketplace 2.21.0 → 2.21.1**. Updated the hook description in `CLAUDE.md` (Hooks section + `if`-conditional feature-adoption row) and the `psd-coding-system` README hook table.
+
 ## [2.21.0] - 2026-06-30
 
 ### Added
