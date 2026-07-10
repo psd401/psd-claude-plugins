@@ -11,11 +11,12 @@
 
 set -euo pipefail
 
-# Parse file path from stdin JSON. Malformed stdin makes jq exit non-zero, which
-# `set -e` + `pipefail` would otherwise turn into a hook failure — a hook must
-# stay non-blocking, so swallow that into a clean exit.
-INPUT=$(cat)
-FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty' 2>/dev/null) || exit 0
+# Parse the edited file path from the hook payload. jq reads stdin directly — no
+# intermediate variable and no `echo` (which would mangle backslashes or eat a
+# leading `-n`/`-e`). Malformed stdin makes jq exit non-zero, which `set -e` +
+# `pipefail` would otherwise turn into a hook failure — a hook must stay
+# non-blocking, so swallow that into a clean exit.
+FILE_PATH=$(jq -r '.tool_input.file_path // empty' 2>/dev/null) || exit 0
 
 if [ -z "$FILE_PATH" ] || [ ! -f "$FILE_PATH" ]; then
   exit 0
