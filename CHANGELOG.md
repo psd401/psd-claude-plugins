@@ -17,6 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.21.2] - 2026-07-09
+
+### Fixed
+- **Release tagging reverted from `claude plugin tag` to plain `git tag -a`** (bump-version skill Phase 7 + CLAUDE.md release workflow + feature-adoption table). The `claude plugin tag` CLI now takes a plugin *path* and creates per-plugin `{name}--v{version}` tags, which does not match this repo's marketplace-wide `vX.Y.Z` tag convention (v2.21.1 was already tagged manually for this reason). `claude plugin validate` is retained as the pre-tag consistency check.
+- **`docs/learnings/` location documented accurately**: the repo-root `docs/learnings/` is the canonical learnings location used by the learning-writer agent and `/evolve` (`PLUGIN_DIR="$(pwd)"`), and it is **committed** in this repo — the CLAUDE.md privacy note claiming "local only, gitignored" was wrong for this path (only the plugin-internal `plugins/psd-coding-system/docs/learnings/` is gitignored). Moved the #77 session learning (`performance/2026-07-09-per-edit-hook-must-be-single-file-not-whole-project.md`) into the repo-root location.
+
+### Changed
+- Versions: **psd-coding-system 3.3.1 → 3.3.2**, **marketplace 2.21.1 → 2.21.2**.
+
 ## [2.21.1] - 2026-07-09
 
 ### Fixed

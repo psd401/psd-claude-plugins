@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.21.1
+**Version**: 2.21.2
 **Status**: Production-Ready
 
 ### Plugins
@@ -385,7 +385,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 2. Add CHANGELOG.md entry
 3. Commit: `git commit -m "chore: Bump version to X.Y.Z ([reason])"`
 4. Push: `git push origin main`
-5. Tag: `claude plugin tag vX.Y.Z` (v2.1.118 — validates version consistency before tagging)
+5. Validate + tag: `claude plugin validate .` then `git tag -a vX.Y.Z -m "Release vX.Y.Z — [summary]"` (do **not** use `claude plugin tag` — the CLI takes a plugin *path* and creates per-plugin `{name}--v{version}` tags, which doesn't match this repo's marketplace-wide `vX.Y.Z` convention)
 6. Push tag: `git push origin vX.Y.Z`
 
 ### Git Workflow
@@ -394,7 +394,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - Detailed commit messages required
 
 ### Learning Data & Privacy
-- Project learnings stored in `docs/learnings/` (local only, gitignored)
+- Project learnings stored in `docs/learnings/` at the **repo root** (committed in this repo — this is the canonical location the learning-writer and `/evolve` use; the plugin-internal `plugins/psd-coding-system/docs/learnings/` is gitignored)
 - Learnings auto-deleted after 90 days by `/evolve` TTL cleanup
 - Agent memory stored locally in `.claude/agent-memory/`
 - No telemetry collection
@@ -431,6 +431,6 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 | `PreCompact` hook | v2.1.105 | hooks.json | Preserves branch, commits, active issue before compaction |
 | `effort: xhigh` | v2.1.111 | 5 skills/agents | architect, product-manager, lfg, evolve, meta-reviewer |
 | Agent `mcpServers` frontmatter | v2.1.117 | 3 agents | framework-docs-researcher, best-practices-researcher, repo-research-analyst |
-| `claude plugin tag` | v2.1.118 | bump-version skill | Replaces manual git tag in release workflow |
+| `claude plugin tag` | v2.1.118 | **Reverted in 2.21.2** | CLI now creates per-plugin `{name}--v{version}` tags from a plugin path — incompatible with the repo's marketplace-wide `vX.Y.Z` tags. Release workflow uses `claude plugin validate` + plain `git tag -a` |
 | `$schema` in plugin.json | v2.1.120 | Both plugins | Enables `claude plugin validate` |
 | PostToolUse `outputReplace` | v2.1.121 | hooks.json | Auto-redacts secrets from Bash output |

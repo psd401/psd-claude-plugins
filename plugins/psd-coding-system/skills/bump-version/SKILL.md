@@ -171,13 +171,13 @@ git add \
 
 git commit -m "chore: Bump version to $NEW_MARKETPLACE — [brief reason]"
 
-# Use claude plugin tag (v2.1.118) for version-validated tagging.
-# This validates version consistency across plugin.json and marketplace.json
-# before creating the git tag, catching version mismatches early.
-claude plugin tag "v$NEW_MARKETPLACE"
+# Validate manifests before tagging (catches version mismatches early).
+# NOTE: do NOT use `claude plugin tag` here — the CLI takes a plugin *path*
+# and creates per-plugin {name}--v{version} tags, which does not match this
+# repo's marketplace-wide vX.Y.Z tag convention.
+claude plugin validate .
 
-# Fallback if claude plugin tag is not available:
-# git tag -a "v$NEW_MARKETPLACE" -m "Release v$NEW_MARKETPLACE - [brief summary]"
+git tag -a "v$NEW_MARKETPLACE" -m "Release v$NEW_MARKETPLACE - [brief summary]"
 
 git push origin HEAD
 git push origin "v$NEW_MARKETPLACE"
