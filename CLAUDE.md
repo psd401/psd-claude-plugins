@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.22.0
+**Version**: 2.22.1
 **Status**: Production-Ready
 
 ### Plugins
@@ -251,7 +251,8 @@ The `psd-coding-system` plugin configures a Context7 MCP server providing live f
 - `if` conditional (v2.1.85): only fires for `.py/.json` files — skips `.ts`, `.tsx`, `.md`, `.sh`, `.yaml`, etc.
 - Fast single-file syntax check: `.py` (py_compile), `.json` (jq)
 - **No `.ts/.tsx` branch** (removed in v3.3.1, issue #77): a per-edit `tsc --noEmit` is a whole-project typecheck (~4s/edit), not a single-file check. TS type coverage moves to the Definition-of-Done gate (`verify-gate.sh` / Stop hook), which runs a full typecheck before a turn finishes **for repos opted into the gate (`.psd/verify.json` with a `typecheck` command) driven through `/lfg`**; repos/sessions outside that envelope rely on CI/PR review. Accepted trade — ~60% of the old per-edit runs were cancelled and discarded anyway
-- Non-blocking (always exits 0, including on malformed stdin), 10s timeout
+- **Feedback on failure, never blocking** (v3.4.1, issue #63): a syntax error emits `{"decision":"block","reason":...}` + exit 2, and the hooks.json entry sets `continueOnBlock: true` (v2.1.139) so the error text reaches the model as same-turn feedback without undoing the edit or halting; clean/unknown/malformed-stdin paths exit 0. 10s timeout
+- Invoked via the `args` exec form (v2.1.139): `"command": "bash", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/..."]` — no shell tokenization of the script path
 
 **PostToolUse Hook — Secret Redaction** (`scripts/redact-secrets.sh`):
 - Runs after Bash tool calls (matcher: `Bash`)
@@ -435,3 +436,6 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 | `claude plugin tag` | v2.1.118 | **Reverted in 2.21.2** | CLI now creates per-plugin `{name}--v{version}` tags from a plugin path — incompatible with the repo's marketplace-wide `vX.Y.Z` tags. Release workflow uses `claude plugin validate` + plain `git tag -a` |
 | `$schema` in plugin.json | v2.1.120 | Both plugins | Enables `claude plugin validate` |
 | PostToolUse `outputReplace` | v2.1.121 | hooks.json | Auto-redacts secrets from Bash output |
+| Hooks `args` exec form | v2.1.139 | 4 script hooks | PostToolUse ×2, Stop, PreCompact — `command: "bash"` + `args: [script]`, no shell tokenization. Worktree hooks stay shell-form: they need compound shell logic and `${worktree_path}` delivery in exec form is undocumented |
+| PostToolUse `continueOnBlock` | v2.1.139 | syntax-validation hook | Syntax errors feed back to the model as same-turn rejection reasons (decision:block + exit 2) without undoing the edit |
+| Agent `disallowed-tools` | v2.1.152 | **Evaluated, not adopted** | Officially redundant when `tools:` allowlist is set — all 15 read-only agents already have allowlists (issue #63) |

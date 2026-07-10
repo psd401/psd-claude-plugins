@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # post-edit-validate.sh — PostToolUse hook for Edit|Write
-# Fast, single-file syntax validation after edits. Non-blocking, exits cleanly
-# for unknown types. Reads tool_input JSON from stdin to extract file_path.
+# Fast, single-file syntax validation after edits. Reads tool_input JSON from
+# stdin to extract file_path; exits cleanly for unknown types.
+#
+# On a syntax failure this emits {"decision":"block","reason":...} and exits 2.
+# The hooks.json entry sets continueOnBlock: true (v2.1.139), so the reason is
+# fed back to the model as feedback in the same turn — the edit is NOT undone
+# and execution is NOT halted. Feedback-based, still effectively non-blocking.
 #
 # Intentionally NO .ts/.tsx branch: a per-edit `tsc --noEmit` is a whole-project
 # typecheck (not a single-file syntax check), costs ~4s on large repos, and is
@@ -24,14 +29,25 @@ fi
 
 EXT="${FILE_PATH##*.}"
 
+# Emit a feedback-block decision and exit 2. With continueOnBlock: true in
+# hooks.json this reaches the model as a rejection reason without halting.
+fail() {
+  jq -n --arg reason "$1" '{decision: "block", reason: $reason}'
+  exit 2
+}
+
 case "$EXT" in
   py)
     # Python syntax check
-    python3 -m py_compile "$FILE_PATH" 2>&1 || true
+    if ! ERR=$(python3 -m py_compile "$FILE_PATH" 2>&1); then
+      fail "post-edit-validate: Python syntax error in $FILE_PATH — $ERR"
+    fi
     ;;
   json)
     # JSON syntax check
-    jq . < "$FILE_PATH" > /dev/null 2>&1 || echo "post-edit-validate: Invalid JSON in $FILE_PATH"
+    if ! ERR=$(jq . < "$FILE_PATH" 2>&1 >/dev/null); then
+      fail "post-edit-validate: Invalid JSON in $FILE_PATH — $ERR"
+    fi
     ;;
   *)
     # Unknown file type — exit cleanly

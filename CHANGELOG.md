@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.22.1] - 2026-07-10
+
+### Changed
+- **Adopted hooks `args` exec form (v2.1.139)** for the four script-based hooks (PostToolUse syntax-validation + secret-redaction, Stop verify-gate, PreCompact): `"command": "bash", "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/…"]` — script paths are no longer shell-tokenized. The two Worktree hooks deliberately stay in shell form: they need compound shell logic, and official docs do not document whether `${worktree_path}` is delivered to exec-form `args` (converting blind risks silently killing the `.env`-symlink feature).
+- **Adopted PostToolUse `continueOnBlock` (v2.1.139)** on the syntax-validation hook (closes the last live item of issue #63): `post-edit-validate.sh` now emits `{"decision":"block","reason":…}` + exit 2 on a `.py`/`.json` syntax failure, and `continueOnBlock: true` feeds that reason back to the model as same-turn feedback — previously errors went to exit-0 stdout, invisible to the model. Still never halts or undoes the edit; clean/unknown/malformed-stdin paths exit 0 unchanged. Behavior matrix verified (7 paths).
+- **Evaluated and rejected `disallowed-tools` (v2.1.152)** for the 15 read-only agents: per official docs it is redundant when a `tools:` allowlist is set, which all 15 already have. Recorded in the feature-adoption table as evaluated-not-adopted.
+- Versions: **psd-coding-system 3.4.0 → 3.4.1**, **marketplace 2.22.0 → 2.22.1** (psd-productivity unchanged at 2.15.3).
+
+### Housekeeping
+- **Closed issue #63** (Claude Code v2.1.122–157 feature adoption): Opus 4.8 evaluation resolved (all skills on opus-4-8, agents on sonnet-5 since #74); dynamic-workflows-vs-`/swarm` and `/goal`-for-loops resolved by the v3.0.0 redesign (swarm deleted; `/lfg` uses the DoD verify gate + Stop hook); `$CLAUDE_EFFORT` hook gating obsolete post-#77 (hook is ~41ms); the three live items dispositioned above; the stale version range is superseded by the fixed `/evolve` Phase 3B, which will regenerate a current release-gap analysis.
+
 ## [2.22.0] - 2026-07-10
 
 ### Added

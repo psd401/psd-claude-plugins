@@ -7,7 +7,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/post-edit-validate.sh",
+            "command": "bash",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/post-edit-validate.sh"],
+            "continueOnBlock": true,
             "timeout": 10
           }
         ]
@@ -17,7 +19,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/redact-secrets.sh",
+            "command": "bash",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/redact-secrets.sh"],
             "timeout": 5,
             "outputReplace": true
           }
@@ -29,7 +32,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/verify-gate-stop-hook.sh",
+            "command": "bash",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/verify-gate-stop-hook.sh"],
             "timeout": 30
           }
         ]
@@ -40,7 +44,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/pre-compact-context.sh",
+            "command": "bash",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/pre-compact-context.sh"],
             "timeout": 10
           }
         ]
