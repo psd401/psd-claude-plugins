@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.21.5] - 2026-07-10
+
+### Fixed
+- **Re-applied PR #68's `/evolve` release-check fix to the v3.0.0-rewritten skill** (issue #65). The overhaul rewrote `evolve/SKILL.md` but did not absorb the fix, leaving Phase 3B fetching the lossy/stale GitHub blob CHANGELOG. Now: primary source `https://code.claude.com/docs/en/changelog` + GitHub Releases cross-check; significance-ranked Tier 1/2/3 checklist (Tier 1 headline features — new slash commands, orchestration models — MUST all be listed even without an adoption recommendation, so misses like `/goal`/dynamic workflows can't recur); tiered report format. Phase 3D: fetch CE's canonical CHANGELOG and delta-filter to entries after `last_compare` instead of full-snapshot comparisons, with a "CE changes since last compare" report table.
+
+### Housekeeping
+- **Closed stale pre-overhaul PRs #66, #67, #68** (all CONFLICTING; opened 2026-06-16 by the lfg routine against the pre-v3.0.0 skill layout — swarm/architect/brainstorm no longer exist). #68's substance re-applied above; #66's parent issue #63 stays open for re-scoped feature adoption; #67's parent issue #64 closed as superseded (its add-more-surfaces premise contradicts the v3.0.0 consolidation, and `/evolve` Priority 4 owns competitor-pattern adoption).
+
+### Changed
+- Versions: **psd-coding-system 3.3.2 → 3.3.3**, **marketplace 2.21.4 → 2.21.5** (psd-productivity unchanged at 2.15.3).
+
 ## [2.21.4] - 2026-07-10
 
 ### Security

@@ -268,27 +268,56 @@ git commit -m "chore(evolve): compound N learnings into docs/patterns + CLAUDE.m
 
 Use WebFetch to check for Claude Code updates:
 
-1. Fetch `https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md` — extract recent versions
-2. Compare against our plugin structure:
-   - Check for new frontmatter fields we should adopt
-   - Check for new hook events
-   - Check for new tool permissions
-   - Check for model deprecations
-   - Check for breaking changes
+1. **Primary source** — Fetch `https://code.claude.com/docs/en/changelog` (canonical, always current; the GitHub blob was lossy and stale)
+2. **Secondary cross-check** — Fetch `https://github.com/anthropics/claude-code/releases` to confirm version dates and fill any gaps from the primary source
+3. Compare against our plugin structure using a **significance-ranked checklist**:
+
+   **Tier 1 — Headline features (MANDATORY: list ALL, even if no adoption recommended this cycle):**
+   - New slash commands (e.g. `/goal`, `/session`)
+   - New CLI subcommands (e.g. `claude session`, `claude plugin tag`)
+   - New orchestration or agent execution models (e.g. dynamic workflows, headless mode, multi-agent)
+   - New top-level capabilities that change how plugins or sessions fundamentally work
+
+   **Tier 2 — Adoption candidates:**
+   - New frontmatter fields for skills/agents (`effort:`, `paths:`, `keep-coding-instructions:`, `initialPrompt:`, etc.)
+   - New hook events (`PreCompact`, `WorktreeCreate/Remove`, etc.)
+   - New tool permissions or scoping mechanisms
+   - New `$schema` or plugin validation tooling
+
+   **Tier 3 — Maintenance checks:**
+   - Model deprecations or renames
+   - Breaking changes to existing APIs or hook formats
+   - Bug fixes relevant to known plugin issues
+
+**CRITICAL:** The release report MUST explicitly list every new top-level slash command and every new orchestration paradigm shipped since `last_updates_check`, even if no adoption action is recommended. Omitting a shipped command (e.g. `/goal`, dynamic workflows) is a miss — the checklist exists precisely to catch these.
 
 Present a structured report:
 ```markdown
 ### Claude Code Release Analysis
 
-| Version | Key Changes | Impact on Plugin |
-|---------|-------------|-----------------|
-| X.Y.Z   | ...         | ...             |
+**Tier 1 — New Commands & Orchestration (ALL must be listed)**
+
+| Command / Feature | Version | Description | Adopt? |
+|------------------|---------|-------------|--------|
+| ...              | ...     | ...         | Yes/No/Later |
+
+**Tier 2 — Adoption Candidates**
+
+| Feature | Version | Impact on Plugin |
+|---------|---------|------------------|
+| ...     | ...     | ...              |
+
+**Tier 3 — Maintenance**
+
+| Version | Change | Action Required |
+|---------|--------|-----------------|
+| X.Y.Z   | ...    | ...             |
 
 ### Required Actions
-- [List any breaking changes]
+- [List any breaking changes or urgent adoption items]
 
 ### Recommended Improvements
-- [List new features we should adopt]
+- [List Tier 1 + Tier 2 features to adopt, ranked by impact]
 ```
 
 ### Phase 3C: Pattern Contribution
@@ -318,7 +347,7 @@ If confirmed, for each learning:
 
 Use WebFetch/WebSearch to compare against the current state of the art (fetch sparingly, summarize aggressively):
 
-1. **Every — Compound Engineering**: `https://github.com/EveryInc/compound-engineering-plugin` + every.to articles (the plan/work/review/compound loop).
+1. **Every — Compound Engineering**: `https://github.com/EveryInc/compound-engineering-plugin` + every.to articles (the plan/work/review/compound loop). Also fetch `https://raw.githubusercontent.com/EveryInc/compound-engineering-plugin/main/CHANGELOG.md` — CE publishes canonical release notes there — and **filter to entries after `last_compare`** so each run compares only what is NEW since the last one, not a full snapshot (if `last_compare` is null, report all entries).
 2. **Obra superpowers** (Jesse Vincent): `https://github.com/obra/superpowers` + `https://blog.fsck.com` (discipline-as-text, brainstorm→plan→subagent-driven dev→verification-before-completion, git-worktrees).
 3. **Boris Cherny / Anthropic team**: `https://howborisusesclaudecode.com` + Claude Code best-practices docs (verification loops, parallel sessions, slash-command diet, CLAUDE.md discipline).
 4. **Matt Pocock**: `https://github.com/mattpocock/skills` (clarify-first / 50-questions-before-code discipline).
@@ -328,6 +357,14 @@ Compare our 3-surface model (/plan, /lfg, /evolve) + agents against these. Where
 Present a structured comparison:
 ```markdown
 ### Plugin Comparison: PSD vs Every
+
+**CE changes since last compare (`last_compare` date)**
+
+| Version / Entry | CE Change | Relevant to PSD? |
+|----------------|-----------|------------------|
+| ...            | ...       | Yes/No           |
+
+**Overall Snapshot**
 
 | Dimension | PSD | Every | Gap |
 |-----------|-----|-------|-----|
