@@ -54,16 +54,35 @@ echo "FreshService env vars: present"
 Query the software-dev workspace for tickets in Open or Pending status:
 
 ```bash
-# Software development workspace tickets, open + pending, sorted oldest first
-curl -s -u "${FRESHSERVICE_API_KEY}:X" \
-  -H "Content-Type: application/json" \
-  "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/tickets?workspace_id=13&filter=new_and_my_open&per_page=50&order_by=created_at&order_type=asc" \
-  -o /tmp/fs-open-tickets.json
+# Software development workspace tickets — DO NOT combine workspace_id with
+# filter=new_and_my_open: that predefined filter silently IGNORES workspace_id
+# and returns tickets from the agent's default/other workspace instead
+# (observed 2026-07-11 — it returned Maintenance-workspace tickets: ant bait
+# requests, water fountains, door locks — while the request claimed to be
+# scoped to workspace 13). Fetch by workspace_id alone, paginate, then filter
+# to Open(2)/Pending(3) client-side.
+rm -f /tmp/fs-open-tickets-raw.jsonl
+page=1
+while true; do
+  curl -s -u "${FRESHSERVICE_API_KEY}:X" \
+    -H "Content-Type: application/json" \
+    "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/tickets?workspace_id=13&per_page=100&page=${page}&order_by=created_at&order_type=asc" \
+    -o /tmp/fs-page-${page}.json
+  count=$(jq '.tickets | length' /tmp/fs-page-${page}.json)
+  if [ "$count" -eq 0 ]; then break; fi
+  jq -c '.tickets[]' /tmp/fs-page-${page}.json >> /tmp/fs-open-tickets-raw.jsonl
+  if [ "$count" -lt 100 ]; then break; fi
+  page=$((page+1))
+  if [ "$page" -gt 20 ]; then break; fi
+done
+jq -c 'select(.status==2 or .status==3)' /tmp/fs-open-tickets-raw.jsonl > /tmp/fs-open-tickets.jsonl
 ```
 
 (Workspace ID 13 = Software Development, confirmed 2026-05-12. If FreshService API returns no tickets and the workspace exists, re-verify with `/api/v2/workspaces`.)
 
-For each ticket in the response, fetch its conversations and look for an existing `[claude-routine-triaged]` marker in any private note. Skip any ticket that has the marker. Build a list of untriaged tickets, ordered by priority (Urgent → High → Medium → Low) then by created_at ascending.
+**Safety check — verify workspace scoping before trusting results**: spot-check at least one returned ticket's actual `workspace_id` field via `GET /api/v2/tickets/{id}` and confirm it equals `13`. Also eyeball a few subjects: software-bug shape (error messages, feature names, "not working", stack traces, page/UI references) versus a clearly different department's shape (rooms, doors, lights, keys, HVAC, HR forms). If the returned tickets don't look like software bugs, STOP — do not triage any of them — and re-verify workspace scoping via `/api/v2/workspaces` and a fresh single-ticket fetch before proceeding.
+
+For each ticket in the filtered response, fetch its conversations and look for an existing `[claude-routine-triaged]` marker in any private note. Skip any ticket that has the marker. Build a list of untriaged tickets, ordered by priority (Urgent → High → Medium → Low) then by created_at ascending.
 
 Take the first up to 5. For each one, run Steps 3–7 sequentially.
 
