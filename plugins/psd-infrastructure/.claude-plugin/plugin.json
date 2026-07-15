@@ -1,0 +1,48 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
+  "name": "psd-infrastructure",
+  "description": "PSD network and systems infrastructure tools — Aruba wireless, FortiAnalyzer log search, Freshservice tickets, and DocBot documentation, as MCP servers with companion skills. Server code auto-updates from psd401 GitHub repos on launch.",
+  "author": {
+    "name": "Reese Herber",
+    "email": "herberr@psd401.net",
+    "organization": "Peninsula School District"
+  },
+  "repository": "https://github.com/psd401/psd-claude-plugins",
+  "keywords": [
+    "infrastructure",
+    "networking",
+    "aruba",
+    "fortianalyzer",
+    "freshservice",
+    "documentation",
+    "psd",
+    "education"
+  ],
+  "license": "MIT",
+  "mcpServers": {
+    "aruba": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/run-server.sh", "aruba"],
+      "env": { "PSD_INFRA_HOME": "${CLAUDE_PLUGIN_DATA}" }
+    },
+    "fortianalyzer": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/run-server.sh", "fortianalyzer"],
+      "env": { "PSD_INFRA_HOME": "${CLAUDE_PLUGIN_DATA}" }
+    },
+    "freshservice": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/run-server.sh", "freshservice"],
+      "env": { "PSD_INFRA_HOME": "${CLAUDE_PLUGIN_DATA}" }
+    },
+    "docbot": {
+      "type": "stdio",
+      "command": "bash",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/run-server.sh", "docbot"],
+      "env": { "PSD_INFRA_HOME": "${CLAUDE_PLUGIN_DATA}" }
+    }
+  }
+}

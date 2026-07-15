@@ -7,10 +7,26 @@
   },
   "metadata": {
     "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
-    "version": "2.22.1",
+    "version": "2.23.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
+    {
+      "name": "psd-infrastructure",
+      "source": "./plugins/psd-infrastructure",
+      "description": "PSD network and systems infrastructure — Aruba wireless, FortiAnalyzer log search, Freshservice tickets, and DocBot documentation as MCP servers with companion skills; server code auto-updates from psd401 repos on launch",
+      "category": "infrastructure",
+      "keywords": [
+        "infrastructure",
+        "networking",
+        "aruba",
+        "fortianalyzer",
+        "freshservice",
+        "documentation",
+        "psd",
+        "education"
+      ]
+    },
     {
       "name": "psd-coding-system",
       "source": "./plugins/psd-coding-system",
