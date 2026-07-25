@@ -2,8 +2,8 @@
 name: lfg
 description: Autonomous build-to-done — implement, verify the full Definition of Done (build/lint/typecheck/full suite/Playwright + screenshots), open a PR with visual evidence, then watch CI and the AI reviewers and fix every round until 100% clean. Does not stop until done.
 argument-hint: "[issue number OR description of work]"
-model: claude-opus-4-8
-effort: xhigh
+model: claude-opus-5
+effort: medium
 context: fork
 agent: general-purpose
 allowed-tools:
@@ -29,9 +29,9 @@ This skill absorbs the old `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`
 
 Contracts: `docs/patterns/definition-of-done.md`, `docs/patterns/issue-contract.md`.
 
-## ANTI-DEFERRAL MANDATE
+## No deferral
 
-**Fix everything now.** If a test fails, fix it. If lint warns, fix it. If a reviewer flags it, fix it. No deferral, no TODOs, no follow-up issues. The only exception: a fix genuinely blocked by an external constraint (an API you don't control, a separate deploy pipeline) — then stop and use AskUserQuestion. Never suppress with `eslint-disable` / `# noqa` / `@ts-ignore`.
+Fix everything now. A failing test, a lint warning, a reviewer finding — each gets fixed in this session, not deferred to a TODO or follow-up issue, and never suppressed with `eslint-disable` / `# noqa` / `@ts-ignore`. Finish the whole task, not just the easy part of it — report completion only when the DoD is fully green. The one exception: a fix genuinely blocked by an external constraint (an API you don't control, a separate deploy pipeline) — surface that with AskUserQuestion instead of working around it.
 
 ## Phase 1: Work type + Definition of Done
 
@@ -131,7 +131,7 @@ Before opening the PR, run the internal reviewers configured in `.psd/verify.jso
 - **Language reviewers** for the changed-file extensions (typescript/python/swift/sql).
 - **Context-triggered** by changed-file patterns: migrations/schema → data-migration-expert, schema-drift-detector, deployment-verification-agent; PII/data → data-integrity-guardian; config/version files → configuration-validator; deletions → breaking-change-validator; data pipelines/metrics → telemetry-data-specialist; extraction/encoding → document-validator; agents/skills/prompts → agent-native-reviewer; UI → ux-specialist; perf-sensitive → performance-optimizer.
 
-Dispatch the applicable agents in parallel via Task. Fix **all** findings (P1/P2/P3), commit, then re-run Phase 5 so the gate is green again after fixes. (Work-validator already runs the language/deployment subset + runtime-verifier; this phase is the broader self-review.)
+Dispatch the applicable agents in parallel via Task, once — the configured reviewers plus the Phase 5 gate are the whole verification surface, so don't spawn additional ad-hoc review or double-check subagents beyond them. Fix **all** findings (P1/P2/P3), commit, then re-run Phase 5 so the gate is green again after fixes. (Work-validator already runs the language/deployment subset + runtime-verifier; this phase is the broader self-review.)
 
 ## Phase 7: Open PR with visual evidence
 

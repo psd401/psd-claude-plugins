@@ -2,7 +2,7 @@
 name: runtime-verifier
 description: Actually RUNS the Definition-of-Done gate (build, zero-warning lint, typecheck, FULL test suite, Playwright E2E) and captures visual evidence — returns PASS/FAIL with the exact failing steps and screenshot paths. The only verifier that executes the app instead of reading it.
 tools: Bash, Read, Edit, Write, Grep, Glob
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 memory: project
 extended-thinking: true

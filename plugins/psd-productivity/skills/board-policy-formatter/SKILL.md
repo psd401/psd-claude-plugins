@@ -2,7 +2,7 @@
 name: board-policy-formatter
 description: "Reformat a Google Doc, PDF, or Word document into the official PSD school board policy/procedure template with zero text modification. Use when publishing board-approved policies or procedures. Triggers on: board policy, format policy, policy template, procedure template, school board document, reformat policy."
 argument-hint: "[source file path or Google Doc URL]"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 extended-thinking: true
 allowed-tools:

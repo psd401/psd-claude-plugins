@@ -2,7 +2,7 @@
 name: n8n-manager
 description: "Build, deploy, and manage n8n workflow automations on PSD's internal server. Use when: creating workflows, checking n8n status, managing executions, building automations, connecting PSD systems (Freshservice, PowerSchool, Google Workspace, Red Rover) via n8n. Triggers on: n8n, workflow automation, webhook, n8n build, n8n status, n8n workflows, n8n form."
 argument-hint: "[command] [args...] — e.g., 'build ...', 'list', 'status', 'show 42', 'activate 42'"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 paths:
   - scripts/

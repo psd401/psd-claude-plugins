@@ -17,6 +17,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.23.0] - 2026-07-24
+
+### Changed
+- **Claude 5 model migration (both plugins)** — every model-pinned skill and agent moves to the Claude 5 family:
+  - **`/plan` → `claude-fable-5`** (`effort: xhigh` kept) — the deep-design surface gets Anthropic's most capable model (always-on thinking, 1M context; 2× Opus pricing accepted for planning depth).
+  - **`/lfg` → `claude-opus-5` at `effort: medium`** (was opus-4-8/xhigh) — on Opus 5, medium effort is the cost/latency sweet spot with near-xhigh quality; Opus 5 is a drop-in upgrade at Opus 4.8 pricing.
+  - **All other `model: claude-opus-4-8` frontmatter → `claude-opus-5`**, effort values unchanged: 5 psd-coding-system skills (evolve xhigh; bump-version, psd-sign, setup, worktree high), 4 heavy agents (architect-specialist, runtime-verifier, plan-validator high; meta-reviewer xhigh), and all 13 model-pinned psd-productivity skills (high).
+  - The 41 `claude-sonnet-5` agents were already current (migrated in 2.21.x) — untouched. `evolve`'s Task-dispatch `model: opus` alias untouched (the Agent tool takes bare aliases only; `opus` now resolves to Opus 5 at runtime).
+- **Context-engineering adaptation of `/plan` and `/lfg`** per Anthropic's "New Rules of Context Engineering for Claude 5 Generation Models" (remove over-constrained guidance; trust model judgment):
+  - `/plan`: added an intent-first framing line (Fable performs better given the *why*, worse with step enumeration); dropped the "2–5 minutes each" task-sizing prescription in favor of "small, independently verifiable tasks"; kept the researcher-agent dispatch list and optional plan-validator (fresh-context verifier subagents remain Anthropic-recommended).
+  - `/lfg`: "ANTI-DEFERRAL MANDATE" softened to "No deferral" — same bar, plain language (Claude 5 models follow instructions literally; aggressive phrasing overtriggers), plus the finish-the-whole-task clause from Anthropic's Opus 5 guidance; Phase 6 gains delegation discipline (Opus 5 reaches for subagents more readily than 4.8 — dispatch the configured reviewer set once, no ad-hoc verification subagents). The DoD verify-gate machinery is untouched — that's machine verification, not prompt scaffolding.
+- **Policy docs refreshed to the Claude 5 standard**: CLAUDE.md "Model Selection Strategy"/"Rules" sections rewritten (also fixes stale `/architect`//`/product-manager` skill names and the obsolete Sonnet 4.6 effort-blocker history); `configuration-validator` body now enforces `claude-sonnet-5` (agents) / `claude-opus-5` (skills) / `claude-fable-5` (/plan) with `claude-opus-4-8` as the old-ID example; `agent-native-reviewer` valid-ID checklist updated.
+- **psd-productivity body-text updates**: `assistant-architect` AI Studio model tables `claude-3-5-sonnet`/`claude-3-opus`/`claude-3-haiku` → `claude-sonnet-5`/`claude-opus-5`/`claude-haiku-4-5` (AI Studio registry confirmed to carry Claude 5); `skill-creator` benchmark schema example `claude-sonnet-4-20250514` → `claude-sonnet-5`.
+- Versions: **psd-coding-system 3.4.1 → 3.5.0**, **psd-productivity 2.15.3 → 2.16.0**, **marketplace 2.22.1 → 2.23.0**.
+
+Out of scope, deliberately untouched: historical CHANGELOG entries, `docs/learnings/**`, `meta/implementation-fixes.md`, vendored Playwright agents in `pptx/node_modules`, non-Anthropic model configs (multi-model-research, research, image-gen, external agents), and the pptx demo slides.
+
 ## [2.22.1] - 2026-07-10
 
 ### Changed

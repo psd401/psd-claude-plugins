@@ -42,7 +42,7 @@ Validate YAML frontmatter consistency across agents:
 - [ ] `name`: Matches filename (kebab-case)
 - [ ] `description`: Clear, actionable description
 - [ ] `tools`: Valid tool list (Bash, Read, Edit, Write, Grep, Glob, Task, WebSearch, WebFetch)
-- [ ] `model`: Valid model ID (claude-sonnet-5, claude-opus-4-8)
+- [ ] `model`: Valid model ID (claude-sonnet-5, claude-opus-5, claude-fable-5)
 - [ ] `extended-thinking`: Boolean (true recommended)
 - [ ] `color`: Valid color for UI display
 

@@ -2,7 +2,7 @@
 name: class-intercom
 description: "Query Peninsula School District's Class Intercom data and draft social posts via a self-contained CLI. Pull the content/activity feed, social channels, the social feed, libraries, moderation queue, reports, tasks, holidays, and filter configs; create unsent draft posts (never publishes or schedules). Use when: looking up Class Intercom content/activities, social channels, the moderation queue, reports/tasks, or drafting a Class Intercom social post. Triggers on: class intercom, classintercom, social channels, social feed, content feed, moderation queue, class intercom draft, classintercom draft, draft social post."
 argument-hint: "[command] [args...] — e.g. 'channels', 'content list-content', 'create-draft --channel <uuid> --message \"...\"'"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 extended-thinking: true
 allowed-tools:

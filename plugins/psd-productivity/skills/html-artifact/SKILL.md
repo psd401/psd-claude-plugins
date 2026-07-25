@@ -2,7 +2,7 @@
 name: html-artifact
 description: "Generate beautiful, self-contained single-page HTML artifacts with impeccable, anti-slop design taste — documents, reports, specs, code-review explainers, research explainers, design explorations, and throwaway interactive editors. Shareable and openable in any browser. Optional PSD branding. Use when: making an HTML file or artifact or page, turning a spec/plan/report into readable HTML, building an interactive editor or prototype, or exploring multiple design directions side by side. Triggers on: html artifact, make html, beautiful html, html page, html report, html explainer, design in html, interactive html, html mockup, html one pager."
 argument-hint: "[what to build] — e.g., 'turn this spec into an HTML page', 'code-review explainer for this PR', '6 landing directions in a grid'"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 extended-thinking: true
 allowed-tools:

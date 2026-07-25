@@ -152,7 +152,7 @@ Based on requirements, determine:
 | Decision | Options |
 |----------|---------|
 | Execution pattern | Sequential (default) / Parallel / Multi-level |
-| Model selection | `gpt-4o` (complex) / `gpt-4o-mini` (simple) / `claude-3-5-sonnet` |
+| Model selection | `gpt-4o` (complex) / `gpt-4o-mini` (simple) / `claude-sonnet-5` |
 | Input fields | `short_text`, `long_text`, `select`, `multi_select`, `file_upload` |
 | Timeouts | Default null, max 900 seconds |
 
@@ -314,7 +314,7 @@ Before writing the file, verify:
 |----------|-------|
 | Complex analysis | `gpt-4o` |
 | Simple tasks | `gpt-4o-mini` |
-| Long context | `claude-3-5-sonnet` |
+| Long context | `claude-sonnet-5` |
 | Fast responses | `gemini-1.5-flash` |
 
 ---

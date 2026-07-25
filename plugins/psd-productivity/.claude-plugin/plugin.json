@@ -1,7 +1,7 @@
 {
   "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
   "name": "psd-productivity",
-  "version": "2.15.3",
+  "version": "2.16.0",
   "description": "36 productivity workflows + 1 agent for Peninsula School District — ParentSquare district data CLI, beautiful HTML artifact generation (incl. self-contained data dashboards & charts), board policy formatting, DocuSign migration/export, PDF Builder, P223 enrollment automation, n8n workflow management, Documenso document signing, Google Workspace CLI, document generation, research, TTS, and district operations",
   "author": {
     "name": "Kris Hagel",

@@ -2,7 +2,7 @@
 name: parentsquare
 description: "Query Peninsula School District's ParentSquare data and draft posts via a self-contained CLI. Pull student/staff rosters, school directories, class lists, calendars, user search, attendance contacts, data-health/sync/totals, and notification-activity stats (per school/staff/recipient, with drill-in); create unsent draft posts (never notifies). Use when: looking up ParentSquare rosters/directories, notification analytics, district data-health, or drafting a ParentSquare post. Triggers on: parentsquare, parent square, district roster, school directory, class roster, notification activity, notification analytics, parentsquare draft, parentsquare data."
 argument-hint: "[command] [args...] — e.g. 'schools get-directory 11671', 'notification-activity 998 --section school-usage'"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 extended-thinking: true
 allowed-tools:

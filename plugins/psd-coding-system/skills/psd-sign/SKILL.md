@@ -2,7 +2,7 @@
 name: psd-sign
 description: Sign, notarize, and package a macOS .app into a .pkg for PSD Jamf Self Service deployment — full Apple Developer ID pipeline (sign → notarize → staple → pkgbuild → notarize pkg → verify). Triggers on "sign app", "notarize app", "package for jamf", "build pkg".
 argument-hint: "[path/to/App.app]"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 context: fork
 agent: general-purpose

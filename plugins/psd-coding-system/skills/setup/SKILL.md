@@ -2,7 +2,7 @@
 name: setup
 description: Configure this project's verification gate and review agents — writes .psd/verify.json (build/lint/test/typecheck/e2e commands, E2E flows, strictness, AI-reviewer logins, learnings, active review agents)
 argument-hint: "[show|reset]"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 context: fork
 agent: general-purpose

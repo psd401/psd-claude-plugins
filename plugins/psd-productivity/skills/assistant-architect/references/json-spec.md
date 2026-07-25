@@ -181,9 +181,9 @@
 | `gpt-4o` | OpenAI GPT-4o |
 | `gpt-4o-mini` | OpenAI GPT-4o Mini |
 | `gpt-4-turbo` | OpenAI GPT-4 Turbo |
-| `claude-3-5-sonnet` | Anthropic Claude 3.5 Sonnet |
-| `claude-3-opus` | Anthropic Claude 3 Opus |
-| `claude-3-haiku` | Anthropic Claude 3 Haiku |
+| `claude-sonnet-5` | Anthropic Claude Sonnet 5 |
+| `claude-opus-5` | Anthropic Claude Opus 5 |
+| `claude-haiku-4-5` | Anthropic Claude Haiku 4.5 |
 | `gemini-1.5-pro` | Google Gemini 1.5 Pro |
 | `gemini-1.5-flash` | Google Gemini 1.5 Flash |
 

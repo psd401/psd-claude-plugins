@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.22.1
+**Version**: 2.23.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -404,34 +404,36 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - PreCompact hook preserves branch/task context during compaction
 
 ### Model Selection Strategy
-- **sonnet-5**: Default for agents and lightweight coding tasks
-- **opus-4-8**: All skills that specify `model:` in frontmatter
+- **claude-sonnet-5**: Default for agents and lightweight coding tasks
+- **claude-opus-5**: Default for all skills that specify `model:` in frontmatter
+- **claude-fable-5**: `/plan` only — the deep-design surface gets the most capable model
 - **effort: high**: Default for most skills/agents
-- **effort: xhigh**: Heavy-lifting skills: `/architect`, `/product-manager`, `/lfg`, `/evolve`, meta-reviewer agent (v2.1.111)
+- **effort: xhigh**: `/plan`, `/evolve`, and the meta-reviewer agent
+- **effort: medium**: `/lfg` — Opus 5 stays strong at medium, the cost/latency sweet spot for the build loop
 - **extended-thinking: true**: Enabled on all skills/agents
 - **memory: project**: Enabled on 5 key agents
 
 ### Model Selection Rules for Skills
 
-**Rule**: If a skill specifies `model:` in frontmatter, use `claude-opus-4-8` with `effort: high` (or `xhigh` for heavy-lifting skills). Skills default to Opus 4.8; agents run on `claude-sonnet-5`.
+**Rule**: Skills that specify `model:` use `claude-opus-5` with `effort: high` (`xhigh` for /evolve). Exceptions: `/plan` runs `claude-fable-5` at `xhigh`; `/lfg` runs `claude-opus-5` at `medium`. Agents run `claude-sonnet-5` (the four heavy agents — architect-specialist, meta-reviewer, runtime-verifier, plan-validator — run `claude-opus-5`).
 
-**Why**: Claude Code v2.1.68+ unconditionally sends the effort parameter to all model invocations. **Sonnet 5 supports effort** (`low`/`medium`/`high`/`xhigh`/`max`), so the old Sonnet 4.6 blocker (GitHub issue #30795 — Sonnet 4.6 rejected `effort`) no longer applies. Agents were moved to `claude-sonnet-5` for this reason. Skills still default to `claude-opus-4-8` for consistency.
+**Why**: `claude-opus-5` is a drop-in upgrade at Opus 4.8 pricing with a higher ceiling; on Opus 5, `medium` effort delivers near-`xhigh` quality at a fraction of the tokens, which is why `/lfg` runs there. `claude-fable-5` (2× Opus pricing, always-on thinking) is reserved for `/plan`, where design depth pays for itself. All three Claude 5 models support the full effort ladder (`low`/`medium`/`high`/`xhigh`/`max`). Use bare aliases only — never date-suffixed IDs.
 
-**Lightweight skills** (changelog, triage, bump-version, etc.) that don't specify a model inherit the default (currently Opus 4.8) and are safe.
+**Skills without `model:`** inherit the session default and are safe.
 
-**If you want to use Sonnet in a skill**: `claude-sonnet-5` is safe (it supports `effort`), but the project default remains `claude-opus-4-8` — either set `model: claude-sonnet-5` explicitly or omit `model:` to inherit the Opus default.
+**If you want Sonnet in a skill**: set `model: claude-sonnet-5` explicitly; the project default for model-pinned skills remains `claude-opus-5`.
 
 ### Adopted Claude Code Features
 
 | Feature | Version | Adopted On | Scope |
 |---------|---------|------------|-------|
-| `effort:` frontmatter | v2.1.68 | All skills/agents | `high` default, `xhigh` on 5 heavy-lifters |
+| `effort:` frontmatter | v2.1.68 | All skills/agents | `high` default, `xhigh` on plan/evolve/meta-reviewer, `medium` on lfg |
 | `initialPrompt:` agent auto-submit | v2.1.83 | 4 agents | learning-writer, work-researcher, meta-reviewer, work-validator |
 | `paths:` file access scoping | v2.1.84 | 5 skills | enrollment, pdf-builder, documenso, docusign, n8n |
 | `if` hook conditionals | v2.1.85 | PostToolUse hook | Only fires for .py/.json files (ts/tsx dropped in v3.3.1, issue #77) |
 | `keep-coding-instructions:` | v2.1.94 | 10 skills/agents | 7 skills + work-researcher, learning-writer, test-specialist |
 | `PreCompact` hook | v2.1.105 | hooks.json | Preserves branch, commits, active issue before compaction |
-| `effort: xhigh` | v2.1.111 | 5 skills/agents | architect, product-manager, lfg, evolve, meta-reviewer |
+| `effort: xhigh` | v2.1.111 | 3 skills/agents | plan, evolve, meta-reviewer (lfg moved to `medium` on Opus 5 in v2.23.0) |
 | Agent `mcpServers` frontmatter | v2.1.117 | 3 agents | framework-docs-researcher, best-practices-researcher, repo-research-analyst |
 | `claude plugin tag` | v2.1.118 | **Reverted in 2.21.2** | CLI now creates per-plugin `{name}--v{version}` tags from a plugin path — incompatible with the repo's marketplace-wide `vX.Y.Z` tags. Release workflow uses `claude plugin validate` + plain `git tag -a` |
 | `$schema` in plugin.json | v2.1.120 | Both plugins | Enables `claude plugin validate` |

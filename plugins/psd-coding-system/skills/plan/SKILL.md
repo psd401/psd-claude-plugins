@@ -2,7 +2,7 @@
 name: plan
 description: Clarify intent, research in parallel, design the approach, and emit a task breakdown + a machine-checkable Definition of Done — optionally filing contract-compliant GitHub issues that /lfg can pick up and drive to done.
 argument-hint: "[idea, feature, problem, or issue number to refine]"
-model: claude-opus-4-8
+model: claude-fable-5
 effort: xhigh
 context: fork
 agent: general-purpose
@@ -19,6 +19,8 @@ extended-thinking: true
 # PLAN — clarify, research, design, define done
 
 The single planning surface. It scales from a quick fix to a full feature. It absorbs the old `/architect`, `/brainstorm`, `/scope`, `/product-manager`, `/deepen-plan`, and `/issue`. Its output is always the same shape: a task breakdown plus a **machine-checkable Definition of Done** — the exact contract `/lfg` drives to.
+
+Capture the intent behind the request, not just the request — who the work is for and what it unblocks shapes the design more than any checklist. The phases below are the shape of the output; scale your depth within them to the problem.
 
 **Target:** $ARGUMENTS
 
@@ -53,7 +55,7 @@ Synthesize into a short brief. Reuse what exists — do not propose new code whe
 
 Produce the plan:
 - **Approach** — the recommended design (one approach, not a survey), naming the files/functions to change and the existing utilities to reuse.
-- **Task breakdown** — bite-sized tasks (roughly 2–5 minutes each), each with the exact file path and a verification step.
+- **Task breakdown** — small, independently verifiable tasks, each with the exact file path and a verification step.
 - **Definition of Done** — binary, testable items mapping to the verify gate (full suite green, zero lint warnings, typecheck clean, named E2E flows). Mark human-only items `(manual)`.
 - **Named E2E flows** — the journeys Playwright must exercise + screenshot.
 - **Out of scope / risks / rollback.**

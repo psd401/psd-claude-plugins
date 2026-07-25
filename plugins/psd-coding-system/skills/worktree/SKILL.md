@@ -2,7 +2,7 @@
 name: worktree
 description: Parallel development with git worktrees — create/list/remove worktrees, plus `clean` for post-merge hygiene (prune worktrees, delete merged local+remote branches, close orphaned issues)
 argument-hint: "[issue-number | branch-name | list | clean | prune | remove <branch>]"
-model: claude-opus-4-8
+model: claude-opus-5
 effort: high
 context: fork
 agent: general-purpose
