@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.23.0-green)]()
+[![Version](https://img.shields.io/badge/Version-2.24.0-green)]()
 
 ## Overview
 
 **Two independently installable plugins** — one for software development workflows, one for general productivity.
 
-**Version**: 2.23.0
+**Version**: 2.24.0
 
 ---
 
@@ -52,7 +52,7 @@ AI-assisted development system with 21 skills, 44 specialized agents, memory-bas
 
 ### psd-productivity
 
-32 productivity workflows for district operations, document generation, research, and media. Works in both Claude Code and Claude Cowork.
+37 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -65,7 +65,7 @@ AI-assisted development system with 21 skills, 44 specialized agents, memory-bas
 | **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
 | **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
 | **Planning** (2) | `/seven-advisors` · `/skill-creator` |
-| **PSD-Specific** (3) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` |
+| **PSD-Specific** (4) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` · `/psd-atrium` |
 | **Operations** (2) | `/enrollment` · `/chief-of-staff` |
 
 [Full documentation →](./plugins/psd-productivity/README.md)

@@ -16,9 +16,29 @@ Some skills require API keys to work. This guide explains how to set them up saf
 | `/freshservice-manager` | `FRESHSERVICE_API_KEY`, `FRESHSERVICE_DOMAIN` |
 | `/redrover-manager` | `RED_ROVER_API_KEY` |
 | `/legislative-tracker` | None (uses public SOAP API) |
+| `/psd-atrium` | `ATRIUM_API_KEY` (+ optional `ATRIUM_HOST`, defaults to `aistudio.psd401.ai`) |
 | `/strategic-planning-manager` | `OPENAI_API_KEY`, `GEMINI_API_KEY` |
 
 Skills not listed above do not require API keys.
+
+### Where to get the Atrium key
+
+`ATRIUM_API_KEY` is issued by AI Studio itself, not by a third party: sign in at
+`https://aistudio.psd401.ai` → **Settings → API Keys** → create a key. The raw key
+(`sk-…`) is displayed **once** — copy it immediately.
+
+Grant these scopes, or the matching commands return exit 11:
+
+| Scope | Needed for |
+|-------|-----------|
+| `content:read` | `status`, `find`, `read`, `read-source`, `collections` |
+| `content:create` | `create-document`, `create-artifact` |
+| `content:update` | `edit`, `archive`, `set-visibility`, image uploads |
+| `content:publish_internal` | `publish`, `unpublish` |
+
+`content:publish_public` is withheld from staff/admin defaults by design. Publishing
+to a public destination without it is not an error — it returns a queued-for-approval
+result that an admin must approve.
 
 ---
 

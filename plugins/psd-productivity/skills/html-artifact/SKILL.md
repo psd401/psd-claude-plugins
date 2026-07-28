@@ -133,6 +133,14 @@ Open it for the user: `bash scripts/open.sh <path>`. Give them the absolute path
 note for sharing: upload to any static host / S3 / Drive for a link. Mention the one
 real tradeoff if relevant: HTML diffs are noisier than Markdown in version control.
 
+**Sharing inside PSD:** the `/psd-atrium` skill publishes this file into Atrium (AI
+Studio's content workspace) as an interactive artifact with a real intranet URL —
+`create-artifact --code-file <path>` then `publish --id <id>`. Offer it when the user
+wants a link to send colleagues rather than a file to email. Two constraints worth
+stating up front: pass the file with `--code-file` (an inline argument over 128 KiB
+fails to spawn), and published artifacts run under `connect-src 'none'`, so anything
+that fetches data at runtime will silently do nothing — inline the data instead.
+
 ## Hard "do not" list (full reasoning + fixes in references)
 
 - Never `Inter`/`Roboto`/`Arial` by reflex; never `Fraunces`/`Instrument Serif` display serifs.

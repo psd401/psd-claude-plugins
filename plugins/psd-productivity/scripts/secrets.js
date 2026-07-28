@@ -124,6 +124,16 @@ const SECRETS = {
     };
   },
 
+  // AI Studio Atrium. The host defaults to production because AI Studio ships no
+  // prod/dev switch of its own — the origin is pinned in every first-party client
+  // — so ATRIUM_HOST exists only to point the skill at dev.aistudio.psd401.ai.
+  get atrium() {
+    return {
+      host: getSecret('ATRIUM_HOST') || 'aistudio.psd401.ai',
+      apiKey: requireSecret('ATRIUM_API_KEY'),
+    };
+  },
+
   get openai() {
     return { apiKey: requireSecret('OPENAI_API_KEY') };
   },
@@ -176,6 +186,7 @@ if (require.main === module) {
     'RED_ROVER_USERNAME', 'RED_ROVER_PASSWORD', 'RED_ROVER_API_KEY',
     'N8N_HOST', 'N8N_API_KEY', 'N8N_MCP_TOKEN',
     'DOCUMENSO_HOST', 'DOCUMENSO_API_KEY',
+    'ATRIUM_HOST', 'ATRIUM_API_KEY',
     'DOCUSIGN_INTEGRATION_KEY', 'DOCUSIGN_USER_ID', 'DOCUSIGN_ACCOUNT_ID',
     'DOCUSIGN_RSA_KEY_PATH', 'DOCUSIGN_ENVIRONMENT',
   ];

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.23.0
+**Version**: 2.24.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -14,105 +14,22 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 7 | 44 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 36 | 1 |
-
-### Key Changes in v2.0.0
-
-- **Marketplace rebranded** from `psd-claude-coding-system` to `psd-claude-plugins`
-- **Coding plugin renamed** from `psd-claude-coding-system` to `psd-coding-system`
-- **New plugin** `psd-productivity` scaffolded with `/enrollment` and `/chief-of-staff` placeholder skills
-- **All `subagent_type` references** updated from `psd-claude-coding-system:` to `psd-coding-system:`
-- **Multi-plugin architecture** — plugins are independently installable
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 37 | 1 |
 
 ## Architecture
 
 ### Multi-Plugin Marketplace Structure
 
 ```
-psd-claude-plugins/                           # repo root
-  .claude-plugin/
-    marketplace.json                          # lists both plugins
+psd-claude-plugins/
+  .claude-plugin/marketplace.json   # lists both plugins — see CRITICAL RULES below
   plugins/
-    psd-coding-system/                        # development workflows
-      .claude-plugin/
-        plugin.json                           # name: "psd-coding-system"
-      skills/                                 # 21 user-invocable skills
-      agents/                                 # 44 specialized agents
-        review/                               # 16 code review specialists
-        domain/                               # 7 domain specialists
-        quality/                              # 3 quality assurance
-        research/                             # 6 research agents
-        workflow/                             # 4 workflow agents
-        external/                             # 2 external AI providers
-        meta/                                 # 1 meta-reviewer
-        validation/                           # 5 validators
-      hooks/
-      scripts/
-      docs/
-        learnings/                            # project learnings (gitignored)
-        patterns/                             # universal patterns
-    psd-productivity/                         # productivity workflows (Cowork-friendly)
-      .claude-plugin/
-        plugin.json                           # name: "psd-productivity"
-      skills/                                 # 34 user-invocable skills
-        freshservice-manager/                 # Freshservice ticket management
-        redrover-manager/                     # Red Rover absence data
-        legislative-tracker/                  # WA State K-12 legislation
-        writer/                               # Content generation
-        docx/                                 # Document creation/editing
-        pptx/                                 # Presentation creation/editing
-        pdf/                                  # PDF manipulation
-        pdf-builder/                          # Branded PDF generation with Documenso field mapping
-        pdf-to-markdown/                      # PDF to Markdown conversion
-        xlsx/                                 # Spreadsheet creation/editing
-        presentation-master/                  # World-class presentations
-        browser-control/                      # Browser automation (Chrome DevTools MCP)
-        assistant-architect/                  # AI Studio assistant JSON
-        sop-creator/                          # PSD SOP generation
-        research/                             # Multi-LLM research
-        multi-model-research/                 # LLM Council research
-        strategic-planning-manager/           # K-12 strategic planning
-        elevenlabs-tts/                       # ElevenLabs text-to-speech
-        local-tts/                            # Local MLX text-to-speech
-        image-gen/                            # Image generation
-        seven-advisors/                       # Decision council
-        skill-creator/                        # Skill creation/benchmarking
-        psd-athletics/                        # GHHS/PHS athletics schedules
-        psd-brand-guidelines/                 # PSD brand assets
-        psd-instructional-vision/             # PSD instructional framework
-        enrollment/                           # PSD enrollment workflow
-        slides-to-site/                       # Google Slides → psd401.ai pages
-        google-workspace-cli/                  # Google Workspace CLI (Drive, Sheets, Gmail, Calendar)
-        n8n-manager/                          # n8n workflow automation management
-        docusign-manager/                     # DocuSign migration and export
-        documenso-manager/                    # Document signing (Documenso)
-        board-policy-formatter/               # Reformat docs into PSD board policy/procedure template
-        html-artifact/                        # Beautiful anti-slop single-page HTML artifacts
-        chief-of-staff/                       # Executive support
-        parentsquare/                         # ParentSquare district data CLI (vendored Go source; binary via GitHub Release)
-        class-intercom/                       # Class Intercom social CLI (vendored Go source; binary via GitHub Release; create-draft only)
-      agents/                                 # workflow-specific agents
-        powerschool-navigator.md              # Chrome DevTools MCP PS report automation
-        enrollment-validator.md               # P223 data validation checks
-  CLAUDE.md                                   # THIS FILE
-  CHANGELOG.md
-  README.md
+    psd-coding-system/              # skills/ (7), agents/ (44 in 8 category dirs), hooks/, scripts/, docs/patterns/
+    psd-productivity/               # skills/ (37), agents/ (enrollment-validator)
+  docs/learnings/                   # canonical learnings location (see Learning Data below)
 ```
 
-### Skills vs Agents Pattern (Claude Code 2.1.x)
-
-**Skills** are user-facing workflows invoked with `/skill-name`:
-- Located in `skills/<name>/SKILL.md` directory structure
-- Contain YAML frontmatter: name, description, argument-hint, model, context, agent, allowed-tools, extended-thinking
-- Include bash scripts and structured workflows
-- May invoke agents via the Task tool for specialized work
-- Support hot-reload (changes apply without session restart)
-
-**Agents** are specialized AI assistants invoked by skills or other Claude Code instances:
-- Located in `agents/<category>/<name>.md`
-- Contain YAML frontmatter: name, description, tools, model, extended-thinking, color, memory
-- `memory: project` gives agents persistent cross-session knowledge
-- Run autonomously with specific tool access
+Explore with `ls` — the tree is not duplicated here.
 
 ### Plugin Independence
 
@@ -139,106 +56,17 @@ psd-claude-plugins/                           # repo root
 
 ### psd-coding-system Agents (44 total)
 
-See `plugins/psd-coding-system/docs/agent-manifest.md` for the full skill→agent dispatch map.
+Categories under `agents/`: review (15), domain (7), quality (4), research (6), workflow (4), external (2), meta (1), validation (5). See `plugins/psd-coding-system/docs/agent-manifest.md` for the full skill→agent dispatch map, or `ls` the category dirs.
 
-**Review Agents** (15) — `agents/review/`:
-- **Security**: security-reviewer (merged from security-analyst + security-analyst-specialist in v3.0.0)
-- **Deployment**: deployment-verification-agent, data-migration-expert
-- **Architecture**: agent-native-reviewer, architecture-strategist
-- **Code Quality**: code-simplicity-reviewer, pattern-recognition-specialist
-- **Correctness**: correctness-reviewer, adversarial-reviewer
-- **Schema & Data**: schema-drift-detector, data-integrity-guardian
-- **Language-Specific**: typescript-reviewer, python-reviewer, swift-reviewer, sql-reviewer
+Non-derivable notes: **runtime-verifier is the only agent that executes the app** (build/lint/typecheck/full-suite/Playwright + screenshot evidence); six agents carry `memory: project` for cross-session knowledge (runtime-verifier, test-specialist, learnings-researcher, work-researcher, learning-writer, meta-reviewer — the canonical list is their frontmatter); security-reviewer is the v3.0.0 merge of the two former security agents.
 
-**Domain Specialists** (7) — `agents/domain/`:
-- backend-specialist, frontend-specialist, database-specialist, llm-specialist
-- ux-specialist, architect-specialist, shell-devops-specialist
+### psd-productivity Skills (37 total)
 
-**Quality Agents** (4) — `agents/quality/`:
-- runtime-verifier (`memory: project`; runs build/lint/typecheck/full-suite/Playwright + captures screenshot evidence — the only agent that executes the app), test-specialist (`memory: project`), performance-optimizer, documentation-writer
-
-**Research Agents** (6) — `agents/research/`:
-- learnings-researcher (`memory: project`), spec-flow-analyzer, best-practices-researcher
-- framework-docs-researcher, git-history-analyzer, repo-research-analyst
-
-**Workflow Agents** (4) — `agents/workflow/`:
-- bug-reproduction-validator, work-researcher (`memory: project`)
-- work-validator, learning-writer (`memory: project`)
-
-**External AI** (2) — `agents/external/`:
-- gpt-5-codex (GPT-5.3-Codex), gemini-3-pro (Gemini 3.1 Pro)
-
-**Meta Agent** (1) — `agents/meta/`:
-- meta-reviewer (`memory: project`)
-
-**Validator Agents** (5) — `agents/validation/`:
-- plan-validator, document-validator, configuration-validator
-- breaking-change-validator, telemetry-data-specialist
-
-### psd-productivity Skills (36 total)
-
-| Skill | Description |
-|-------|-------------|
-| `/freshservice-manager` | Manage Freshservice tickets, approvals, and team performance reports |
-| `/redrover-manager` | Red Rover absence management data for PSD staff attendance |
-| `/legislative-tracker` | Track WA State K-12 education legislation via SOAP API |
-| `/writer` | Generate content in your authentic voice — emails, blogs, social, reports |
-| `/docx` | Document creation, editing, tracked changes, comments |
-| `/pptx` | Presentation creation, editing, layouts, speaker notes |
-| `/pdf` | PDF manipulation — extract, create, merge/split, fill forms |
-| `/pdf-builder` | Branded PSD PDF generation with Documenso field coordinate mapping |
-| `/pdf-to-markdown` | Convert PDF to clean Markdown |
-| `/xlsx` | Spreadsheet creation, editing, formulas, data analysis |
-| `/presentation-master` | World-class presentations (Reynolds, Duarte, Kawasaki, TED) |
-| `/assistant-architect` | Create AI Studio Assistant Architect JSON import files |
-| `/sop-creator` | Generate PSD Standard Operating Procedures |
-| `/research` | Multi-LLM parallel research with query decomposition |
-| `/multi-model-research` | Orchestrate frontier LLMs with peer review and synthesis |
-| `/strategic-planning-manager` | K-12 strategic planning (research-backed 4-stage process) |
-| `/elevenlabs-tts` | High-quality audio generation via Eleven Labs API |
-| `/local-tts` | Local text-to-speech using MLX and Kokoro |
-| `/image-gen` | Image generation using Gemini 3.1 Flash Image |
-| `/seven-advisors` | Multi-perspective decision council |
-| `/skill-creator` | Create, modify, and benchmark skills |
-| `/psd-athletics` | GHHS and PHS athletics schedules |
-| `/psd-brand-guidelines` | Official PSD brand colors, typography, logos |
-| `/psd-instructional-vision` | PSD instructional framework and pedagogical beliefs |
-| `/enrollment` | P223 monthly enrollment automation — reports, FTE validation, reconciliation |
-| `/google-workspace` | Google Drive, Sheets, Gmail, Calendar via gws CLI |
-| `/browser-control` | Browser automation for authenticated web apps via Chrome DevTools MCP |
-| `/slides-to-site` | Convert Google Slides to psd401.ai presentation pages |
-| `/n8n` | Build, deploy, and manage n8n workflow automations — CRUD, executions, credentials, PSD integrations |
-| `/docusign` | DocuSign migration and export — bulk envelope download, template export, PowerForm inventory |
-| `/documenso` | Document signing — create envelopes, manage recipients/fields, distribute, download signed PDFs, templates |
-| `/html-artifact` | Generate beautiful, self-contained single-page HTML artifacts with anti-slop design taste — documents, reports, code-review explainers, design explorations, interactive editors, and self-contained data dashboards / charts / data-story pages (inline-SVG charts, inline JSON data); optional PSD branding |
-| `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
-| `/chief-of-staff` | Daily briefings and priority management |
-| `/parentsquare` | Query ParentSquare district data — student/staff rosters, school directories, class lists, calendars, user search, data-health/sync/totals, notification-activity stats (per school/staff/recipient + drill-in); create unsent draft posts (never notifies). Self-contained Go CLI; binary auto-fetched from GitHub Release |
-| `/class-intercom` | Query Class Intercom data — content/activity feed, social channels, social feed, libraries, moderation queue, reports, tasks, holidays; create unsent draft social posts (state forced to save_draft — never publishes/schedules). Self-contained Go CLI; binary auto-fetched from GitHub Release |
+Each skill's `SKILL.md` frontmatter description is the source of truth — the session skill listing carries them all; `ls plugins/psd-productivity/skills/` for the roster. Two carry vendored Go CLIs whose binaries are **not committed** (fetched per-platform from a GitHub Release by `scripts/ensure-binary.sh`): `parentsquare` and `class-intercom` — both create only unsent drafts, never publish/notify.
 
 ### Memory-Based Learning System
 
-**Architecture**: Implement → Detect patterns → Capture learnings → Review → Improve
-
-1. **Automatic Learning Capture** — `/work`, `/test`, `/review-pr`, `/lfg`, `/debug` always invoke learning-writer agent
-2. **Cross-Session Memory** — 5 agents have `memory: project` for persistent knowledge
-3. **On-Demand Analysis** — `/evolve` auto-picks highest-value action
-
-**Data Flow**:
-```
-/work, /test, /review-pr, /lfg, /debug (always-run)
-  └── learning-writer agent
-        ├── Deduplicates against docs/learnings/
-        └── Writes docs/learnings/{category}/{date}-{slug}.md
-
-/evolve (on-demand, zero-argument auto-decision)
-  ├── Priority 1: ≥8 unanalyzed learnings → meta-reviewer agent (opus)
-  ├── Priority 2: Release check stale → fetch Claude Code changelog
-  ├── Priority 3: Universal learnings not contributed → offer PR
-  ├── Priority 4: Plugin comparison stale → compare vs Every's plugin
-  ├── Priority 5: No recent learnings → extract automation concepts
-  └── Priority 6: Everything current → show health dashboard
-```
+`/lfg` always dispatches the learning-writer agent (dedupes against `docs/learnings/`, writes `docs/learnings/{category}/{date}-{slug}.md`). Six agents carry `memory: project` for cross-session knowledge. `/evolve` is the on-demand compounding surface — zero-argument, auto-picks its highest-value action (see `skills/evolve/SKILL.md` for the priority ladder).
 
 ### Context7 MCP Server
 
@@ -311,7 +139,7 @@ Hook definitions must be wrapped in a `"hooks"` array inside each event entry. T
 /plugin list
 
 # Verify command availability
-/work 1
+/plan
 /enrollment
 
 # Check hooks installed
@@ -372,23 +200,7 @@ git push origin main
 
 Each plugin version tracks breaking changes for users of *that specific plugin* independently. Do not copy the marketplace version into a plugin's version field.
 
-**Version bumping locations per release:**
-1. `.claude-plugin/marketplace.json` — `metadata.version` — **always**
-2. `CLAUDE.md` — `**Version**: X.Y.Z` — **always** (marketplace version)
-3. `README.md` — badge + `**Version**: X.Y.Z` — **always** (marketplace version)
-4. `CHANGELOG.md` — Add new version section at top — **always**
-5. `plugins/psd-coding-system/.claude-plugin/plugin.json` — **only if coding system changed**
-6. `marketplace.json` → `plugins[name=psd-coding-system].version` — **only if coding system changed**
-7. `plugins/psd-coding-system/README.md` — `Version:` — **only if coding system changed**
-8. Same 3 files for psd-productivity — **only if productivity plugin changed**
-
-**Complete release workflow:**
-1. Update all applicable version locations (ask which plugins changed)
-2. Add CHANGELOG.md entry
-3. Commit: `git commit -m "chore: Bump version to X.Y.Z ([reason])"`
-4. Push: `git push origin main`
-5. Validate + tag: `claude plugin validate .` then `git tag -a vX.Y.Z -m "Release vX.Y.Z — [summary]"` (do **not** use `claude plugin tag` — the CLI takes a plugin *path* and creates per-plugin `{name}--v{version}` tags, which doesn't match this repo's marketplace-wide `vX.Y.Z` convention)
-6. Push tag: `git push origin vX.Y.Z`
+**The full location list and release workflow live in the `/bump-version` skill — run it rather than enumerating locations by hand.** Two non-negotiables regardless of path: always `claude plugin validate .` before tagging, and tag with plain `git tag -a vX.Y.Z` — **never** `claude plugin tag` (it creates per-plugin `{name}--v{version}` tags from a plugin path, which doesn't match this repo's marketplace-wide `vX.Y.Z` convention).
 
 ### Git Workflow
 - Branch from `dev`, not `main`
