@@ -20,11 +20,15 @@ const {
   parseArgs,
   parseList,
   parseGrants,
+  parseBoolean,
+  parseNonNegativeInt,
+  parseCollectionGrants,
   sha256Base64Url,
   detectImageContentType,
   presignedPutHeaders,
   idempotencyKey,
 } = require('./common.js');
+const { COMMANDS } = require('./run.js');
 
 describe('encodeContentBody / withEncodedBody', () => {
   test('round-trips utf-8 through base64', () => {
@@ -161,6 +165,34 @@ describe('parseList / parseGrants', () => {
     expect(parseGrants('group:district:leadership')).toEqual([
       { kind: 'group', value: 'district:leadership' },
     ]);
+  });
+});
+
+describe('collection CLI parsers', () => {
+  test('parses explicit booleans and non-negative positions', () => {
+    expect(parseBoolean('true', 'inherit-grants')).toBe(true);
+    expect(parseBoolean('false', 'inherit-grants')).toBe(false);
+    expect(parseBoolean(undefined, 'inherit-grants')).toBeUndefined();
+    expect(parseNonNegativeInt('0', 'position')).toBe(0);
+    expect(parseNonNegativeInt('12', 'position')).toBe(12);
+  });
+
+  test('parses collection grants with access, kind, and colon-bearing values', () => {
+    expect(
+      parseCollectionGrants(
+        'view:role:staff,create:group:curriculum:leads',
+        'grants'
+      )
+    ).toEqual([
+      { access: 'view', kind: 'role', value: 'staff' },
+      { access: 'create', kind: 'group', value: 'curriculum:leads' },
+    ]);
+  });
+
+  test('wires collection management commands into the CLI', () => {
+    expect(COMMANDS['create-collection']).toBeFunction();
+    expect(COMMANDS['update-collection']).toBeFunction();
+    expect(COMMANDS['move-content']).toBeFunction();
   });
 });
 

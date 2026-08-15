@@ -140,6 +140,56 @@ function parseGrants(value, label = 'grants') {
   return grants.length > 0 ? grants : undefined;
 }
 
+/** Parse an explicit true/false CLI flag. A bare flag is rejected. */
+function parseBoolean(value, label) {
+  if (value === undefined) return undefined;
+  if (value === true || value === '') fail(`--${label} requires true or false`);
+  if (value === 'true') return true;
+  if (value === 'false') return false;
+  fail(`--${label} must be true or false`);
+}
+
+/** Parse a non-negative integer CLI flag without accepting partial numbers. */
+function parseNonNegativeInt(value, label) {
+  if (value === undefined) return undefined;
+  if (value === true || !/^\d+$/.test(String(value))) {
+    fail(`--${label} must be a non-negative integer`);
+  }
+  return Number(value);
+}
+
+/**
+ * Parse collection grants as access:kind:value entries.
+ * Example: view:role:staff,create:group:curriculum-leads@psd401.net
+ */
+function parseCollectionGrants(value, label = 'grants') {
+  if (value === undefined) return undefined;
+  if (value === true) fail(`--${label} requires a value`);
+  const VALID_ACCESS = ['view', 'create', 'approve'];
+  const VALID_KINDS = ['role', 'building', 'department', 'grade', 'user', 'group'];
+  const grants = [];
+  for (const raw of String(value).split(',')) {
+    const entry = raw.trim();
+    if (!entry) continue;
+    const parts = entry.split(':');
+    if (parts.length < 3) {
+      fail(`--${label} entry must be access:kind:value, got "${entry}"`);
+    }
+    const access = parts.shift().trim();
+    const kind = parts.shift().trim();
+    const val = parts.join(':').trim();
+    if (!VALID_ACCESS.includes(access)) {
+      fail(`--${label} access must be one of ${VALID_ACCESS.join('|')}, got "${access}"`);
+    }
+    if (!VALID_KINDS.includes(kind)) {
+      fail(`--${label} kind must be one of ${VALID_KINDS.join('|')}, got "${kind}"`);
+    }
+    if (!val) fail(`--${label} entry "${entry}" has an empty value`);
+    grants.push({ access, kind, value: val });
+  }
+  return grants.length > 0 ? grants : undefined;
+}
+
 /**
  * The base64url SHA-256 digest the Atrium asset API expects on both initiate and
  * complete. NOT hex and NOT padded base64 — the server validates
@@ -387,6 +437,9 @@ module.exports = {
   parseArgs,
   parseList,
   parseGrants,
+  parseBoolean,
+  parseNonNegativeInt,
+  parseCollectionGrants,
   restFetch,
   interpret,
   encodeContentBody,

@@ -1,7 +1,7 @@
 ---
 name: psd-atrium
-description: "Publish and manage content in Atrium — PSD AI Studio's collaborative content workspace. Create native Atrium documents (markdown) and interactive HTML/JSX artifacts, embed images, edit, set visibility, and publish to the internal intranet reader. Artifacts fully support real HTML, CSS, and JavaScript including <script> and <style>. Use when: publishing a doc/report/spec into Atrium, turning an HTML artifact into a shareable Atrium page, finding or reading existing Atrium content, or publishing/unpublishing internally. Triggers on: atrium, publish to atrium, ai studio content, atrium doc, atrium artifact, publish internally, intranet reader, psd401.ai content."
-argument-hint: "[command] [args...] — e.g. 'status', 'collections', 'create-document --title \"X\" --markdown-file doc.md', 'create-artifact --title \"Y\" --code-file page.html', 'publish --id <id>'"
+description: "Publish and manage content in Atrium — PSD AI Studio's collaborative content workspace. Create native Atrium documents (markdown) and interactive HTML/JSX artifacts, embed images, edit, create and organize nested district/private collections, move content between collections, set visibility, and publish to the internal intranet reader. Artifacts fully support real HTML, CSS, and JavaScript including <script> and <style>. Use when: publishing a doc/report/spec into Atrium, organizing Atrium sections or private collections, turning an HTML artifact into a shareable Atrium page, finding or reading existing Atrium content, or publishing/unpublishing internally. Triggers on: atrium, publish to atrium, ai studio content, atrium doc, atrium artifact, atrium collection, subcollection, publish internally, intranet reader, psd401.ai content."
+argument-hint: "[command] [args...] — e.g. 'status', 'collections --shape tree', 'create-collection --name \"X\" --scope private', 'move-content --id <id> --collection <id>', 'create-document --title \"X\" --markdown-file doc.md', 'publish --id <id>'"
 model: claude-opus-5
 effort: high
 extended-thinking: true
@@ -59,6 +59,36 @@ All commands: `bun scripts/run.js <subcommand> [flags]` from this skill director
 |---|---|
 | `status` | Verify the key; show host + how many collections you can create into |
 | `collections` | List collections; only `selectableForCreate: true` may be used as `--collection` |
+
+Use `collections --shape tree` when hierarchy or parentage matters.
+
+### Collection management
+
+```bash
+# District/admin hierarchy
+bun scripts/run.js create-collection --name "Business Office" --scope district \
+  --parent <parent-collection-uuid> --position 10 --visibility internal
+
+# Owner-bound private hierarchy (available to Atrium authors)
+bun scripts/run.js create-collection --name "My Research" --scope private
+
+bun scripts/run.js update-collection --id <collection-uuid> \
+  --parent <new-parent-uuid> --position 20
+
+# Pin a document as a section's landing page
+bun scripts/run.js update-collection --id <collection-uuid> \
+  --landing-object <object-uuid>
+
+# Move a document/artifact; use `none` to remove it from all collections
+bun scripts/run.js move-content --id <object-id-or-slug> \
+  --collection <collection-slug-or-uuid>
+```
+
+Collection create/update honors the key owner's authority. District hierarchy
+changes require an administrator; every Atrium author may manage their own
+`private` hierarchy. `--parent` on collection commands requires a UUID. Use
+comma-separated `access:kind:value` entries for collection grants, for example
+`view:role:staff,create:group:curriculum-leads@psd401.net`.
 
 ### Read
 

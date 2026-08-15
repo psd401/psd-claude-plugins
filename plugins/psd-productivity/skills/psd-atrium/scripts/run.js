@@ -33,6 +33,9 @@ const {
   parseArgs,
   parseList,
   parseGrants,
+  parseBoolean,
+  parseNonNegativeInt,
+  parseCollectionGrants,
   restFetch,
   withEncodedBody,
   sha256Base64Url,
@@ -49,6 +52,8 @@ const ASSET_MAX_BYTES = 20 * 1024 * 1024;
 const KINDS = ['document', 'artifact'];
 const STATUSES = ['draft', 'published', 'archived'];
 const LEVELS = ['private', 'group', 'internal', 'public'];
+const COLLECTION_SCOPES = ['district', 'private'];
+const COLLECTION_SHAPES = ['flat', 'tree'];
 const BODY_FORMATS = ['markdown', 'html', 'jsx'];
 const ARTIFACT_FORMATS = ['html', 'jsx'];
 const PUBLISH_DESTINATIONS = ['intranet', 'public_web', 'schoology', 'google', 'okf'];
@@ -61,7 +66,7 @@ function usage() {
       '',
       'Setup:',
       '  status                          verify the API key and show the host + scopes in use',
-      '  collections                     list collections you may create into',
+      '  collections [--shape flat|tree] list visible collections; marks creatable targets',
       '',
       'Read (version-based — returns the last SAVED version):',
       '  find [--kind document|artifact] [--collection <slug|id>] [--tag <t>]',
@@ -74,6 +79,17 @@ function usage() {
       '  upload-asset --id <id> --file <png|jpeg|webp> [--alt <text>] [--filename <name>]',
       '               [--purpose document_image|capture_step]',
       '  get-asset --asset-id <assetId> --out <path>',
+      '',
+      'Collections:',
+      '  create-collection --name <name> --scope district|private',
+      '                    [--parent <uuid>] [--position <n>] [--visibility <level>]',
+      '                    [--inherit-grants true|false] [--grants access:kind:value,...]',
+      '  update-collection --id <uuid> [--name <name>] [--parent <uuid|none>]',
+      '                    [--position <n>] [--visibility <level>]',
+      '                    [--inherit-grants true|false] [--grants access:kind:value,...]',
+      '                    [--description <text|none>] [--landing-object <uuid|none>]',
+      '                    [--requires-approval true|false] [--archived true|false]',
+      '  move-content --id <idOrSlug> --collection <slug|uuid|none>',
       '',
       'Write (creates a new version; content starts PRIVATE + DRAFT):',
       '  create-document --title <t> [--markdown <md> | --markdown-file <path>]',
@@ -226,13 +242,82 @@ async function status() {
 
 async function listCollections(args) {
   const { payload } = await restFetch('GET', '/collections', {
-    query: { shape: optStr(args, 'shape', 'shape') || 'flat' },
+    query: { shape: optEnum(args, 'shape', 'shape', COLLECTION_SHAPES) || 'flat' },
   });
   const collections = Array.isArray(payload) ? payload : [];
   emit({
     collections,
     creatable: collections.filter((c) => c.selectableForCreate).length,
     note: 'Only collections with selectableForCreate: true may be passed as --collection.',
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Collection management
+// ---------------------------------------------------------------------------
+
+function optionalNullable(args, key, label) {
+  const value = optStr(args, key, label);
+  if (value === undefined) return undefined;
+  return value === 'none' || value === 'null' ? null : value;
+}
+
+async function createCollection(args) {
+  const scope = optEnum(args, 'scope', 'scope', COLLECTION_SCOPES);
+  if (!scope) fail('--scope district|private is required');
+  const body = {
+    name: requireStr(args, 'name', 'name'),
+    scope,
+    parentId: optionalNullable(args, 'parent', 'parent'),
+    position: parseNonNegativeInt(args.position, 'position'),
+    defaultVisibilityLevel: optEnum(args, 'visibility', 'visibility', LEVELS),
+    inheritGrants: parseBoolean(args.inherit_grants, 'inherit-grants'),
+    grants: parseCollectionGrants(args.grants, 'grants'),
+  };
+  const { payload } = await restFetch('POST', '/collections', { body });
+  emit(payload);
+}
+
+async function updateCollection(args) {
+  const id = requireStr(args, 'id', 'id');
+  const body = {
+    name: optStr(args, 'name', 'name'),
+    parentId: optionalNullable(args, 'parent', 'parent'),
+    position: parseNonNegativeInt(args.position, 'position'),
+    defaultVisibilityLevel: optEnum(args, 'visibility', 'visibility', LEVELS),
+    inheritGrants: parseBoolean(args.inherit_grants, 'inherit-grants'),
+    grants: parseCollectionGrants(args.grants, 'grants'),
+    description: optionalNullable(args, 'description', 'description'),
+    landingObjectId: optionalNullable(args, 'landing_object', 'landing-object'),
+    requiresApproval: parseBoolean(args.requires_approval, 'requires-approval'),
+    archived: parseBoolean(args.archived, 'archived'),
+  };
+  for (const key of Object.keys(body)) {
+    if (body[key] === undefined) delete body[key];
+  }
+  if (Object.keys(body).length === 0) fail('at least one collection field is required');
+  const { payload } = await restFetch(
+    'PATCH',
+    `/collections/${encodeURIComponent(id)}`,
+    { body }
+  );
+  emit(payload);
+}
+
+async function moveContent(args) {
+  const id = requireStr(args, 'id', 'id');
+  const collectionId = optionalNullable(args, 'collection', 'collection');
+  if (collectionId === undefined) fail('--collection <slug|uuid|none> is required');
+  const { payload } = await restFetch('PATCH', `/${encodeURIComponent(id)}`, {
+    body: { collectionId },
+  });
+  emit({
+    ...payload,
+    moved: true,
+    note:
+      collectionId === null
+        ? 'Content removed from its collection.'
+        : `Content moved to collection ${payload.collectionId}.`,
   });
 }
 
@@ -583,6 +668,10 @@ async function unpublishObject(args) {
 const COMMANDS = {
   status,
   collections: listCollections,
+  'create-collection': createCollection,
+  'update-collection': updateCollection,
+  'move-content': moveContent,
+  move: moveContent,
   find: findObjects,
   list: findObjects,
   read: readObject,
