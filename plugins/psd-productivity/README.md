@@ -1,8 +1,8 @@
 # PSD Productivity
 
-**36 productivity workflows + 1 agent for Peninsula School District**
+**38 productivity workflows + 1 agent for Peninsula School District**
 
-Version: 2.17.0
+Version: 2.18.0
 
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -20,7 +20,7 @@ Author: Kris Hagel (hagelk@psd401.net)
 
 ---
 
-## Skills (37)
+## Skills (38)
 
 ### Productivity (3)
 
@@ -30,10 +30,11 @@ Author: Kris Hagel (hagelk@psd401.net)
 | `/redrover-manager` | Red Rover absence management data for PSD staff attendance |
 | `/legislative-tracker` | Track WA State K-12 education legislation via SOAP API |
 
-### Content & Document Generation (12)
+### Content & Document Generation (13)
 
 | Skill | Description |
 |-------|-------------|
+| `/tech-writing` | Write, edit, and review developer docs in Google developer-documentation style — distilled from the complete Google style guide, including the 598-entry word list |
 | `/psd-atrium` | Publish and manage content in Atrium (AI Studio's collaborative content workspace) — create native markdown documents and interactive HTML/JSX artifacts, embed images, set visibility, and publish to the internal intranet reader |
 | `/html-artifact` | Beautiful, self-contained single-page HTML — docs, reports, code-review explainers, design explorations, interactive editors, and data dashboards / charts / data-story pages (inline-SVG charts, inline JSON); anti-slop taste, optional PSD branding |
 | `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
@@ -133,6 +134,7 @@ psd-productivity/
     html-artifact/
     board-policy-formatter/
     chief-of-staff/
+    tech-writing/
   agents/                    # Created as needed per workflow
   README.md
 ```

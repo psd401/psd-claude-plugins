@@ -1,0 +1,1742 @@
+# Word list (A-Z usage rulings)
+
+All 598 entries from https://developers.google.com/style/word-list.
+**[avoid]** = the guide marks the term avoid/don't-use. Italic *Recommended:* /
+*Not recommended:* lines are the guide's own examples (trimmed to 300 chars).
+An entry with no note is self-explanatory: the headword shows the correct forms
+(for example, *failover (noun or adjective), fail over (verb)*).
+
+## Numbers & Symbols
+
+- **+**
+  - OK to use *+* with numbers in text, such as *customer records with 300+ demographic attributes*, except in formal contexts.
+- **& (ampersand)** **[avoid]**
+  - Don't use *&* instead of *and* in headings, text, navigation, or tables of contents.
+  - It's OK to use *&* when referencing UI elements that use *&*, or in table headings and diagram labels where space constraints require abbreviation.
+  - It's OK to use `&` for technical purposes in code.
+- **2-Step Verification**
+  - When referring to Google's 2-Step Verification, use initial caps.
+  - When referring to generic 2-step verification, use lowercase.
+
+## A
+
+- **a and an**
+  - Use *a* when the next word starts with a consonant *sound*, regardless of what letter it starts with. For more information, see Articles (a, an, the).
+- **A/B testing**
+  - Capitalize and use slash notation for *A/B*.
+- **abnormal** **[avoid]**
+  - Don't use to refer to a person.
+  - OK to use to refer to a condition of a computer system.
+- **abort** **[avoid]**
+  - Avoid in general usage. Instead, use words like *stop*, *exit*, *cancel*, or *end*. In Linux, *abort* refers to a type of signal that terminates an abnormal process.
+- **about versus on**
+  - When a cross-reference includes information that describes what the cross-reference links to, use *about* instead of *on*.
+  - _Recommended: For more information about indexes, see Managing indexes._
+  - _Not recommended: For more information on indexes, see Managing indexes._
+- **above** **[avoid]**
+  - Don't use for a range of version numbers. Instead, use *later*.
+  - Don't use to refer to a position in a document. Instead, use *earlier* or *preceding*.
+  - Don't use to refer to a position in the UI. Instead, write instructions that avoid directional language. For more information, see Writing accessible documentation.
+  - It's OK to use *above* in a non-directional way, such as when describing a hierarchy.
+- **access (verb)** **[avoid]**
+  - Avoid when you can. Instead, use friendlier words like *see*, *edit*, *find*, *use*, or *view*.
+- **access token**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **account name** **[avoid]**
+  - Don't use. Instead, use *username*.
+- **actionable** **[avoid]**
+  - Avoid unless it's the clearest and simplest phrasing for your audience. Instead, leave it out or replace it with a phrase like *that you can act on* or *useful*.
+  - Don't use *actionable* in the legal sense without consulting a lawyer.
+- **action bar** **[avoid]**
+  - In Android documentation, don't use. Instead, use *app bar*.
+- **ad tech**
+  - Write out on first mention: *advertising technology (ad tech)*.
+  - Don't use *adtech* or *ad-tech*.
+- **address bar**
+  - Use to refer to the URL bar or the combined URL bar and search box in a browser.
+  - Don't use *omnibox*.
+- **ad hoc**
+  - OK to use in database and analytics contexts to mean "free-form" or "user-written" (for example, *ad hoc queries* or *an ad hoc chart*). For other contexts, try to find a more specific English equivalent.
+  - Don't hyphenate or italicize the term.
+- **admin** **[avoid]**
+  - Write out *administrator* unless it's the name of a UI label or other element.
+  - It's OK to use *admin* in Android documentation.
+- **administrator** **[avoid]**
+  - In Android documentation, don't use. Instead, use *admin*.
+- **advertised route priority**
+  - OK to also use *base advertised route priority* when discussing region-to-region costs.
+  - Don't shorten or use variations of these terms.
+- **agnostic** **[avoid]**
+  - Don't use. Instead, use a more precise term like *platform-independent*.
+- **AI**
+  - In general, you can use *AI* without spelling out *artificial intelligence*.
+  - Most readers are familiar with the abbreviation *AI*. If you think your audience isn't familiar with the term, spell it out on first use.
+- **aka** **[avoid]**
+  - Don't use. Instead, write out *also known as*, or present an alternative term using parentheses or the word *or*. You can also write out a definition.
+  - _Recommended: Geographic data, also known as geospatial data, is ..._
+  - _Recommended: Geographic data (geospatial data) is ..._
+  - _Recommended: Geographic data, or geospatial data, is ..._
+- **all apps screen**
+  - In Android documentation: Lowercase except at the beginning of a sentence, heading, or list item.
+- **allowlist (verb), allowlisted, allowlisting** **[avoid]**
+  - Don't use as a verb. Instead, rewrite to improve clarity.
+  - OK to use *allowlist* as a noun.
+  - For more information, see blacklist.
+- **allows you to** **[avoid]**
+  - Don't use. Instead, use *lets you*. For more information, see enable.
+- **alpha**
+  - Lowercase except when part of a product name.
+  - _Recommended: `PRODUCT_NAME` Alpha_
+  - _Recommended: `PRODUCT_NAME` is in alpha._
+- **America, American** **[avoid]**
+  - Use only to refer to the *Americas* or the *American continent*.
+  - Don't use to refer to the United States. Instead, use a more precise term like *the US* or *the United States*, and *people in the US*. For more information, see US.
+- **among**
+  - See between versus among.
+- **AM, PM**
+  - To be consistent with Material Design, use all caps, no periods, and a space before.
+  - _Recommended: 9:00 AM_
+  - _Recommended: 10:30 PM_
+- **and/or** **[avoid]**
+  - Don't use unless space is limited, such as in a table. For more information, see Slashes.
+- **Android**
+  - When referring to the operating system, capitalize *Android*.
+- **Android-powered device**
+  - Not *Android device*.
+- **and so on** **[avoid]**
+  - Avoid using *and so on* whenever possible. For more information, see etc.
+- **anti***
+  - See guidance about hyphens with prefixes.
+- **anti-pattern** **[avoid]**
+  - Avoid using *anti-pattern*, particularly as a standalone heading. Instead, consider using a more specific and broadly understood term.
+  - _Recommended: Avoid these five SQL errors._
+  - _Recommended: Avoid these five programming practices that make SQL queries inefficient._
+  - _Not recommended: Avoid these five SQL anti-patterns._
+- **API**
+  - Use *API* to refer to either a web API or a language-specific API.
+  - Don't use *API* when referring to a method or a class. For example, don't write *This resource has one API* to mean "This resource has one method."
+- **API Console, APIs console, developer console, dev console, or Google API Console** **[avoid]**
+  - Don't use. Instead, refer to the *Google APIs Explorer* or to the *Google Cloud console*. For more information, see console.
+- **API Console key**
+  - In most contexts, use *API key* instead of *API Console key*.
+  - In Apps admin APIs, it's OK to use *API Console key* to distinguish from other API keys.
+- **API key**
+  - Not *developer key* or *dev key*.
+- **APIs Explorer**
+  - Not *API explorer* or other variants.
+- **app**
+  - In general, use *app* instead of *application* when referring to programs for end users, especially in the context of mobile or web software.
+  - In some contexts, such as enterprise software, it's OK to use *application* to convey a sense of greater complexity.
+  - Use *application* in standard phrases such as *application programming interface*.
+- **app bar**
+  - In Android contexts, formerly *action bar*.
+- **appendix**
+  - Use the plural *appendixes*, not *appendices*.
+- **application**
+  - See app.
+- **as**
+  - If you mean *because*, then use *because* instead of *as*. *As* is ambiguous; it can refer to the passage of time. *Because* refers to causation or the reason for something.
+- **as of this writing** **[avoid]**
+  - Avoid because this phrase is implied. The phrase can also prematurely disclose product or feature strategy or inappropriately imply that a product or feature might change.
+  - See also currently and presently.
+  - _Recommended: BigQuery doesn't support that function._
+  - _Not recommended: As of this writing, BigQuery doesn't support that function._
+  - For more information, see Timeless documentation.
+- **authentication and authorization**
+  - In general, use the word *authenticated* only to refer to users, and use *authorized* only to refer to requests that are sent by a client app on behalf of an authenticated user. A user *authenticates* their identity by entering their password (or giving some other proof of identity). The *authenticated user* then *authorizes* the client app to send an *authorized request* to the server on the user's behalf.
+  - When you want to use a preposition with *authenticate*, use *against*.
+- **authN, authZ** **[avoid]**
+  - Don't use. Instead, use *authentication* or *authorization*.
+- **auto***
+  - See guidance about hyphens with prefixes.
+- **autohealing**
+  - Not *auto-healing*.
+- **auto mode VPC network**
+  - Not *auto mode network*.
+- **autopopulate**
+  - Not *auto populate* or *auto-populate*.
+- **autoscaling**
+  - Not *auto-scaling*.
+- **autotagging**
+  - Not *auto-tagging*.
+- **autoupdate** **[avoid]**
+  - Don't use. Instead, use *automatically update*.
+- **-aware** **[avoid]**
+  - Avoid using as a compound modifier, as in *healthcare-aware*.
+  - OK to use when it's part of a product name, such as *Identity-Aware Proxy*.
+
+## B
+
+- **backend**
+  - Not *back-end* or *back end*.
+- **bar** **[avoid]**
+  - Avoid when possible. For more information, see foo.
+- **bare metal**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+  - Hyphenate when used as a compound modifier, such as *bare-metal server*.
+- **base64**
+  - Lowercase except at the beginning of a sentence, heading, or list item. Otherwise, capitalize *Base64* only if it's part of a formal name.
+  - Write *base64* in code font *only* if it's a string literal or otherwise quoted from code.
+- **baz** **[avoid]**
+  - Avoid when possible. For more information, see foo.
+- **below** **[avoid]**
+  - Don't use for a range of version numbers. Instead, use *earlier*.
+  - Don't use to refer to a position in a document. Instead, use *later* or *following*.
+  - Don't use to refer to a position in the UI. Instead, write instructions that avoid directional language. For more information, see Writing accessible documentation.
+  - It's OK to use *below* in set phrases such as *below (the) average*, *below the mean*, *below zero*.
+  - It's OK to use *below* in a non-directional way, such as when describing a hierarchy.
+- **best effort** **[avoid]**
+  - Avoid where possible. Instead, use more specific wording. After providing a description, you can add a phrase like "sometimes referred to as *best effort*."
+- **beta**
+  - Lowercase except when part of a product name.
+  - _Recommended: `PRODUCT_NAME` Beta_
+  - _Recommended: `PRODUCT_NAME` is currently in beta._
+- **between versus among**
+  - It's fine to use *between* when talking about more than two things; however, *between* isn't interchangeable with *among*.
+  - Use *between* when you're talking about two or more distinct things:
+  - _Recommended: JavaScript introduces dependencies between the DOM, the CSSOM, and JavaScript execution._
+  - Use *among* when you're talking about things that are part of a group or things that aren't distinct:
+  - _Recommended: ... a conventional SQL database that can be shared among multiple apps._
+  - More examples:
+  - _Recommended: Because screen dimensions vary widely among devices (for example, between phones and tablets, and even among different phones), you should configure the viewport so that your pages render correctly on many different devices._
+  - _Not recommended: Because screen dimensions vary widely between devices (for example, between phones and tablets, and even between different phones), you should configure the viewport so that your pages render correctly on many different devices._
+  - _Recommended: You can share services among multiple clients._
+  - _Not recommended: You can share services between multiple clients._
+  - See also Grammar Girl's discussion of *between* and *among*.
+- **big-endian**
+  - Hyphenate. Lowercase except at the beginning of a sentence, heading, or list item.
+  - _Recommended: The codebase assumes big-endian byte ordering._
+  - _Not recommended: The codebase assumes Big Endian byte ordering._
+  - _Not recommended: The codebase assumes Big-endian byte ordering._
+  - _Not recommended: The codebase assumes big endian byte ordering._
+- **billing charges** **[avoid]**
+  - Don't use *billing charges* to mean charges that appear on a bill. Instead, use *billed charges*.
+  - Use *billing charges* to describe the cost of creating the bill.
+- **black-box** **[avoid]**
+  - Avoid using *black-box*, *blackbox*, or *black box* to describe monitoring and testing. Consider using a more precise term for clarity.
+    - For monitoring, use *synthetic monitoring*.
+    - For testing, use *opaque-box testing*.
+- **Black Friday** **[avoid]**
+  - Avoid unless explicitly referring to an event in the US. Instead use *peak scale event*.
+- **blackhat, black hat, black-hat** **[avoid]**
+  - Don't use. Instead, use precise terms for the kind of violation or practice, such as *illegal*, *unethical*, or *in violation of rules*.
+- **blackhole (verb), blackholed (adjective)** **[avoid]**
+  - Don't use. Instead, use a more descriptive term or phrase, such as *dropped without notification*.
+- **blacklist, black list, black-list** **[avoid]**
+  - Don't use *blacklist*, *whitelist*, and *graylist*. Instead, use more precise terms that are appropriate for your domain.
+    - For the noun *blacklist*, consider using a replacement such as *denylist*, *excludelist*, or *blocklist*.
+    - For the noun *whitelist*, consider using a replacement such as *allowlist*, *trustlist*, or *safelist*.
+    - For the noun *graylist* (*greylist*), consider using a replacement such as *provisional list*.
+  - In all of these cases, consider that there might not actually be a list involved. When replacing problematic terms, be sure to be technically accurate for the specific context.
+  - For the verb forms of these words, a simple word-for-word replacement typically isn't the best solution. Instead, replace verbs such as *blacklisted* with phrases that accurately convey the relevant action. For example:
+  - _Recommended: To deny requests from an IP address, add it to the `dos.yaml` file._
+  - _Not recommended: To denylist an IP address, add it to the `dos.yaml` file._
+  - _Don't use: To blacklist an IP address, add it to the `dos.yaml` file._
+  - If the command or code that you're documenting uses one of these words, then use the words only in direct reference to the code items (formatted as code), and make it clear what you're referring to.
+  - _Recommended: Add a user to the allowlist (`whitelist`) by entering the following: `whitelist adduser `EMAIL_ADDRESS``._
+  - _Not recommended: Add a user to the whitelist by entering the following: `whitelist adduser `EMAIL_ADDRESS``._
+  - For more information, see the inclusive documentation page.
+- **blacklisted, black listed, black-listed** **[avoid]**
+  - Don't use. See blacklist.
+- **blacklisting, black listing, black-listing** **[avoid]**
+  - Don't use. See blacklist.
+- **blast radius** **[avoid]**
+  - Don't use. Instead, use a more precise term like *affected area* or *spatial impact*.
+- **blind** **[avoid]**
+  - Avoid using *blind to* or *blind eye to*. Instead, use more precise terms like *ignore*, *unaware of*, *disregard*, *avoid*, or *reject*.
+  - Avoid using *blind writes*. Instead, use a more precise phrase, such as *a write operation without a read operation*.
+  - Avoid using *blind change* or *change blindly*. Instead, use a more precise phrase such as *change without first confirming the value*.
+  - When referring to people, use terms like *person who is blind*, *screen reader user* (if applicable), *person who is visually impaired*, *person who is low-vision*, *magnification user* (if applicable).
+- **blue-green**
+  - Not *blue/green* or *blue green*.
+- **boolean**
+  - In most contexts, *boolean* refers to a specific data type in a specific programming language. In such cases, use code font and the exact spelling and capitalization of the programming keyword.
+  - When referring to the abstract data type, use lowercase.
+  - If you refer to *Boolean mathematics* or *Boolean logic*, use uppercase.
+- **branding information**
+  - In the Google Cloud console, the phrase *branding information* refers to the information that Google shows to users when the client asks them to authorize access: specifically, the project's name and logo, and the developer's Google Account. This information is set in the **Consent screen** page.
+- **break-glass** **[avoid]**
+  - Don't use. Instead, use a more precise term depending on context:
+    - To describe a general emergency or procedure that grants emergency access, use *emergency access*.
+    - To describe a fallback procedure, use *manual fallback* or *preplanned procedure*.
+- **brown bag, brown-bag** **[avoid]**
+  - Don't use. Instead, use a more precise term like *learning session*, *lunch and learn*, *lunchtime learning session*, *casual training*, or *informal training*.
+- **build cop, build sheriff** **[avoid]**
+  - Don't use. Instead, use a more precise term like *build monitor*.
+- **button**
+  - In a UI, a link isn't the same as a button; don't use the term *button* to refer to a link.
+  - Use *button* to refer to mechanical buttons (like the volume control buttons on the side of a phone) and capacitive touch buttons on a phone (like the Home button). You *press* mechanical buttons, and *tap* capacitive and on-screen buttons.
+
+## C
+
+- **can**
+  - Use *can* in the following ways:
+    - To convey permission or ability (for example, "You can access the server").
+    - To refer to an optional action (for example, "You can also view logs with the Log Viewer").
+    - To describe a possible outcome (for example, "The process can take 30 minutes").
+  - See also could, may, might, must, should, and would.
+  - For information about clarifying who's performing an action, see Active voice.
+- **canary** **[avoid]**
+  - Don't use *canary* as a verb, and don't use *canarying*.
+  - When possible, avoid jargon like *canary* and *canary testing*. If you use one of these phrases, define it on first use or provide a link to the definition, and use it consistently throughout the document.
+- **cell phone, cellphone** **[avoid]**
+  - Don't use. Instead, use *mobile phone*, or if you're talking about more than phones, then use *mobile device*.
+  - It's OK to use *phone* (without *mobile*) when the context is clear.
+- **cellular data** **[avoid]**
+  - Don't use. Instead, use *mobile data*.
+- **cellular network** **[avoid]**
+  - Don't use. Instead, use *mobile network*.
+- **chapter**
+  - When referring to documentation that isn't in the form of a book, don't use the term *chapter*. Instead, refer to documents, pages, or sections.
+- **check** **[avoid]**
+  - Don't use to refer to marking a checkbox. Instead, use *select*.
+  - _Recommended: Select **Automatically check for updates**._
+  - _Not recommended: Check **Automatically check for updates**._
+- **checkbox**
+  - Not *check box*.
+- **choose**
+  - *Choose* is fine to use for generic contexts. For UI elements, use select.
+- **chubby** **[avoid]**
+  - Don't use. Instead, use a word that clearly explains what you mean, such as *unused* or *overextended*.
+- **clear**
+  - Use (as a verb) to refer to clearing a check mark from a checkbox.
+  - _Recommended: Clear **Automatically check for updates**._
+  - _Not recommended: Uncheck **Automatically check for updates**._
+  - _Not recommended: Deselect **Automatically check for updates**._
+- **CLI** **[avoid]**
+  - Don't use *CLI* generically to refer to a command-line interface. Instead, refer to the specific command-line interface, such as the Google Cloud CLI.
+- **click**
+  - When the environment is a desktop with a mouse, use *click* for most targets, such as buttons, links, list items, and radio buttons. Don't use *click on*.
+  - _Recommended: Click **OK**._
+  - _Not recommended: Click on **OK**._
+  - Hyphenate *right-click*, *left-click*, and *double-click*.
+  - When a click or tap action reveals a collapsed list, you can write *click to expand* or simply *expand*.
+  - It's OK to write *click in* when referring to a region that needs focus (for example: *click in the window*), but not when referring to a control or a link.
+  - For Android apps, don't use *click*. Instead, use tap.
+- **click here** **[avoid]**
+  - Don't use. For information and alternatives, see Avoid vague link text.
+- **clickthrough (noun), click through (verb)**
+- **client**
+  - In REST and RPC API documentation, *client* is short for *client app*—that is, the app that the developer is writing.
+  - Don't use *client* as an abbreviation for *client library*; instead, use *library*.
+- **client ID**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **client secret**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **Cloud** **[avoid]**
+  - Don't use as short for *Google Cloud*.
+  - For generic references such as *the cloud* or *hybrid cloud*, use lowercase.
+- **Cloud console** **[avoid]**
+  - Don't use. Instead, refer to the full name *Google Cloud console*.
+  - If you aren't discussing any other console (such as the Google Admin console), you can abbreviate to *the console* after first mention.
+  - Use *the* before the tool name. For more information, see console.
+- **Cloud SDK**
+  - Not *Google Cloud SDK*.
+- **co***
+  - See guidance about hyphens with prefixes.
+- **codebase**
+  - Not *code base*.
+- **codelab**
+  - Not *code lab* or *code-lab*. For more information, see documentation.
+- **cold**
+  - When possible, avoid jargon like *cold failover*, *cold standby*, and *cold spare*. If you use one of these phrases, define it on first use and use it consistently throughout the document.
+- **colocate**
+  - Not *co-locate* or *colo*.
+- **compliant, compliance** **[avoid]**
+  - Use with caution. A claim that a product or its output is *compliant* with a standard is a strong statement.
+- **comprise** **[avoid]**
+  - Don't use. Instead, use *consist of*, *contain*, or *include*.
+- **config** **[avoid]**
+  - Avoid when possible. Instead, spell out the full word when it's used in a non-code sense: *configuration* or *configuring*. Use the verbatim code item name when referring to, for example, a data structure or a file with that name.
+- **confidential**
+  - *Confidential* data is data that is protected to prevent unauthorized access. See sensitive.
+- **cons** **[avoid]**
+  - Don't use. Instead, use a more precise term, such as *disadvantages*.
+- **console** **[avoid]**
+  - Don't use in isolation. Instead, use the name of the specific console, such as the Google Cloud console or the Google Admin console.
+  - Use *the* before the name of a console.
+  - After giving the full name of a console, you can use a shortened version of the name, such as the *Admin console*.
+  - If you're only discussing the Google Cloud console, after giving the full name you can refer to *the console*.
+  - To refer to a sub-page of a console, use the term *page*.
+  - If a specific term for a browser-based interface is unavailable, use *web interface*.
+- **content type** **[avoid]**
+  - Be as specific as possible when writing about a content type, and use the term only when applicable. For example, you can use this term if you're referring to the value of the `Content-Type` HTTP header. Also see media type.
+- **Control+S, Command+S, and other keyboard commands**
+  - To refer to a `Control` character, use `Control`+`CHARACTER`.
+  - Don't use *Ctl-S*, *Cmd-S*, or *Cloverleaf-S*.
+  - In most cases, use an uppercase letter for `CHARACTER`.
+  - In macOS, many keyboard commands use the `Command` key instead of the `Control` key, and there's an `Option` key instead of an `Alt` key. If your audience includes macOS users and Windows or Linux users, then mention both keyboard commands.
+  - _Recommended: `Control+S` (`Command+S` on macOS)_
+- **Copy and paste** **[avoid]**
+  - Avoid using. Instead, explain what to enter into a field and not how.
+  - _Recommended: In the **Query** field, enter the output from the previous step._
+  - _Not recommended: Copy the output from the previous step and paste into the **Query** field._
+- **could** **[avoid]**
+  - Avoid using. Instead, use *can* where possible.
+  - See also can, may, might, must, should and would.
+  - For information about clarifying who's performing an action, see Active voice.
+  - For information about tenses, see Present tense.
+- **CPU**
+  - All caps. No need to expand the abbreviation on first mention.
+- **crazy, bonkers, mad, lunatic, insane, loony** **[avoid]**
+  - Don't use. Instead, use *complicated*, *complex*, *baffling*, *strange*, or *unexpected*, and only for inanimate objects.
+- **Create a new ...** **[avoid]**
+  - Avoid using unless you need to distinguish the item from another recently created item. Instead, use *Create a ...*
+  - _Recommended: Create a project._
+  - _Not recommended: Create a new project._
+- **cripple** **[avoid]**
+  - Don't use. Instead, use more precise language. For example, instead of *it crippled the server*, write *it slowed the server down*.
+  - When referring to people, use terms that specifically describe a physical impairment, such as *person with a motor disability*; *person with a mobility impairment* (refers to walking or moving about); *person with dexterity impairment* (refers to using a standard mouse or keyboard); *person who uses a wheelchair, walker, or cane*; *wheelchair user*; *person with restricted or limited mobility*.
+- **cross-site request forgery**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **curated roles** **[avoid]**
+  - Don't use. Instead, use *predefined roles*.
+- **currently** **[avoid]**
+  - Avoid because this word is implied. The word can also prematurely disclose product or feature strategy or inappropriately imply that a product or feature might change.
+  - See also as of this writing and presently.
+  - _Recommended: Windows isn't supported._
+  - _Not recommended: Windows isn't currently supported._
+  - For more information, see Timeless documentation.
+- **custom mode VPC network**
+  - Not *custom mode network*.
+- **curl**
+  - Not *cURL*.
+  - For information about when to use code format, see Items that are sometimes in code font.
+- **Cyber Monday**
+  - Avoid unless explicitly referring to an event in the US. Instead use *peak scale event*.
+
+## D
+
+- **dash**
+  - A dash (`—`) isn't the same character as a hyphen (`-`). The characters are used for different purposes. Therefore, don't use the word *dash* to refer to a hyphen.
+- **dashboard** **[avoid]**
+  - Don't use to refer to the Google Cloud console. For more information, see console.
+  - Use *dashboard* not *Dashboard* unless it's officially part of a product name.
+- **data**
+  - Use *data* as singular, not plural; *the data is*, not *the data are*.
+  - Use data as a mass noun, not a count noun; *less data*, not *fewer data*.
+- **data center**
+  - Not *datacenter*.
+- **data center campus**
+  - Use when referring to an entire physical location, which can encompass one or more data centers.
+- **data cleaning**
+  - Not *data cleansing*.
+- **data flow (noun); dataflow (noun)**
+  - If it's possible to replace with the phrase *flow of data*, then use two words: *data flow*.
+  - If that replacement doesn't work, such as when referring to something like stream processing or reactive programming, then use one word: *dataflow*.
+- **data source**
+  - Not *datasource*.
+- **datastore**
+  - Not *data store*.
+- **data type**
+  - Not *datatype*.
+- **dead-letter queue, dead letter**
+  - Define on first use, for example *dead-letter queue (unprocessed messages queue)*.
+- **deep linking**
+  - Not *deep-linking*. However, if you can replace with *linking*, then do so.
+- **deficient** **[avoid]**
+  - Don't use to refer to a person.
+  - OK to use to refer to a condition of a computer system.
+- **deformed** **[avoid]**
+  - Don't use to refer to a person.
+  - OK to use to refer to a condition of a computer system or inanimate object.
+- **demilitarized zone (DMZ)** **[avoid]**
+  - Don't use. Instead, use a more precise term like *perimeter network*.
+- **denigrate** **[avoid]**
+  - Don't use. Instead, use *disparage*.
+- **denylist (verb), denylisted, denylisting** **[avoid]**
+  - Don't use as a verb. Instead, rewrite to improve clarity.
+  - OK to use *denylist* as a noun.
+  - For more information, see blacklist.
+- **deprecate**
+  - To *deprecate* an item is to recommend against the item's use, typically as a warning that the item will soon be unavailable or unsupported. Don't use *deprecated* to mean *removed*, *deleted*, *shut down*, or *turned down*.
+- **deselect** **[avoid]**
+  - Don't use to refer to clearing a check mark from a checkbox. Instead, use *clear*.
+  - _Recommended: Clear **Automatically check for updates**._
+  - _Not recommended: Deselect **Automatically check for updates**._
+  - _Not recommended: Uncheck **Automatically check for updates**._
+- **desire, desired** **[avoid]**
+  - Don't use. Instead, use a word like *want* or *need*.
+  - _Recommended: Set the value to the size that you want._
+  - _Not recommended: Set the value to the size that you desire._
+  - _Not recommended: Set the value to the desired size._
+- **Developers Console** **[avoid]**
+  - Don't use. For more information, see console.
+- **DevOps**
+  - Short for *development operations*. No need to spell out on first mention unless the audience requires it. For more information, see DevOps.
+- **dialog**
+  - Use *dialog* for the UI element sometimes called a dialog box.
+  - Use *dialogue* only for verbal interaction between people.
+- **directory, folder**
+  - If the context that you're documenting (such as an IDE's GUI) uses one term or the other, use that term. If not, then use *directory* in a command-line context, and *folder* in a GUI context. When in doubt, default to *directory*.
+- **disable** **[avoid]**
+  - Don't use *disable* or *disabled* to describe something that's broken.
+  - When describing a user action or the state of a UI element, use a more precise term where possible. You can use *inactive*, *unavailable*, *deactivate*, *turn off*, or *deselect*, depending on the context. Use the same term consistently throughout your document. See also enable.
+- **disclosure triangle, disclosure widget** **[avoid]**
+  - Don't use. Instead, use *expander arrow*.
+- **display (verb)**
+  - Don't use as an intransitive verb. *Display* is a transitive verb; therefore, it requires an object. It is often misused in technical documentation, as demonstrated by the following example:
+  - _Recommended: The Output Directories area appears._
+  - _Recommended: The Output Directories area is displayed._
+  - _Not recommended: The Output Directories area displays._
+  - The following example demonstrates correct usage of the verb *display* but means something quite different from the preceding examples.
+  - _Recommended: The Output Directories area displays the vector image._
+- **distributed denial-of-service (DDoS)**
+  - Hyphenate as shown. On subsequent mention, use *DDoS*.
+- **DNS server policy**
+  - Lowercase *server policy*.
+- **DNSKEY**
+  - One word, all capital letters.
+- **documentation or document or documents**
+  - To refer specifically to the text on a page that explains a product, feature, or service, use *this document*, and not *this article*, *this topic*, *this doc*, or *this page*. It's OK to use *this tutorial*, *this quickstart*, or *this codelab* for those specific documentation types. Always spell out *documentation* except in cases where space is limited, such as in tabs and URLs. See also page.
+  - _Recommended: You can find many examples in this document._
+  - _Not recommended: You can find many examples in this article._
+  - _Recommended: This document provides guidance about creating tables._
+  - _Not recommended: This page provides guidance about creating tables._
+- **documentation set**
+  - Not *doc set* or *docset*.
+- **does not yet** **[avoid]**
+  - Avoid in timeless documentation because this phrase can become outdated. The phrase can also prematurely disclose product or feature strategy or inappropriately imply that a product or feature might change.
+  - _Recommended: The Google Cloud console doesn't support this IAM role._
+  - _Not recommended: The Google Cloud console does not yet support this IAM role._
+  - For more information, see Timeless documentation.
+- **dojo** **[avoid]**
+  - Don't use. Instead, use a precise term that is accurate for the context, such as *training* or *workshop*.
+- **domain name registrar**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **Domain Name System Security Extensions (DNSSEC)**
+  - Write out and capitalize each word on first use. OK to abbreviate as *DNSSEC* after first use.
+- **double-tap**
+  - Hyphenate. Lowercase except at the beginning of a sentence, heading, or list item.
+- **downscope** **[avoid]**
+  - Consider using a more descriptive term like *constrain scope* or *reduce scope*. Because *downscope* might not be broadly understood, if you use the term, make sure to define it on first use. Don't use *down scope* or *down-scope*
+  - _Recommended: Reducing the scope of a token helps you follow the principle of least privilege._
+  - _Recommended (first use): The IAM recommender helps you *downscope* (reduce) the permissions that are available to your users._
+- **drag**
+  - Use *drag*, not *click and drag* and not *drag and drop*.
+  - OK to use *drag-and-drop* as an adjective.
+  - _Recommended: Drag the `USER` to the **Authorized** box._
+- **drop-down** **[avoid]**
+  - In most cases, you can omit *drop-down* from phrases like *drop-down list* or *drop-down menu*, and just use *list* or *menu*. Include *drop-down* as a modifier only if the omission would cause ambiguity. Don't use *drop-down* as a standalone noun.
+- **dumb down** **[avoid]**
+  - Don't use. Instead, use a word or phrase what's happening, such as *simplify* or *remove technical jargon*.
+- **dummy variable** **[avoid]**
+  - Don't use to refer to placeholders. Instead, use *placeholder*.
+  - Also don't use if referring to the concept in statistics known as a dummy variable. Instead, use alternate terms such as *indicator variable*, *design variable*, *one-hot encoding*, *Boolean indicator*, *binary variable*, or *qualitative variable*.
+
+## E
+
+- **each**
+  - *Each* refers to every individual item taken individually, not to a group of items taken collectively. In other words, *each* isn't a synonym for *all*. For example, *a list of each item* is ambiguous; *a list of all the items* or *a list of the items* is generally clearer.
+- **earlier**
+  - Use for a range of version numbers, not *lower*.
+  - _Recommended: Use version 2.2 or earlier._
+  - _Not recommended: Use version 2.2 or lower._
+  - In Android documentation, don't use *earlier* for a range of version numbers. Instead, use *lower*.
+  - When referring to a position in a document, use *earlier* or *preceding*, not *higher*.
+- **easy, easily** **[avoid]**
+  - What might be easy for you might not be easy for others. Try eliminating this word from the sentence because usually the same meaning can be conveyed without it.
+- **ecommerce**
+  - Not *e-commerce*.
+- **edge availability domain**
+  - Don't use *edge availability zone*, *metro availability domain*, or *metro availability zone*. Don't shorten to *EAD*.
+- **e.g.** **[avoid]**
+  - Don't use. Instead, use phrases like *for example* or *such as*. Many people confuse *e.g.* and *i.e.*
+- **egress**
+  - When referring to the networking term, use lowercase.
+- **either**
+  - When using *either*, use parallel syntax.
+  - _Recommended: Do either option 1 or option 2*._
+  - _Recommended: Either do option 1 or do option 2._
+  - _Not recommended: Either do option 1 or option 2._
+  - In general, use *either* only for a choice between two things, not for a choice among multiple things. Writing *either A or B or C* will distract some readers, but if it's the best phrasing for your situation, then use it.
+- **element**
+  - In HTML and XML, a tag is a component of an element that indicates the start or end of the element. (For example, the `<i>` start tag indicates the beginning of the `<i>example</i>` element.) In general, don't use the term *tag* to refer to an entire element.
+- **email**
+  - Not *e-mail*, *Email*, or *E-mail*.
+  - Don't use as a verb.
+  - Use a specific verb in front of the word. For example, *send email*. This construction is better for translation and a global audience.
+- **emoji**
+  - Use *emoji* for both singular and plural forms. See Don't know the difference between emoji and emoticons? Let me explain and What's the Plural of Emoji?
+- **enable**
+  - In procedures, use the appropriate label and action for the UI element that the user interacts with. When describing a user action or the state of a UI element, use a more precise term where possible. It's OK to use *enable* when not referring to a person.
+  - For turning on or activating an option or feature, use *enable* or *turn on* consistently:
+    - Use the same term in introductory text as described in the procedure.
+    - Use the same term throughout the document unless there's a difference in the UI elements for different procedures.
+  - _Recommended: To enable the API, click the toggle._
+  - _Recommended: Enable the API for your project._
+  - For making it feasible to do something, use *lets you*.
+  - _Recommended: The API lets you detect features in images._
+  - _Not recommended: The API enables you to detect features in images._
+  - _Not recommended: The API allows you to detect features in images._
+  - In Google Workspace documentation, if possible, use *turn on* or *on* instead. If referring to the state of a UI element, use *available*.
+- **endpoint**
+  - Not *end point*.
+- **enter**
+  - Use *enter* to refer to the user entering text. If it's important to not press `Enter`, explicitly say so. See also *type*.
+  - _Recommended: In the **Owner** box, enter your name._
+  - _Recommended: In the **Size** box, type a font size._
+- **ephemeral external IP address**
+  - Don't use *ephemeral IP address* or *external IP address* to refer to ephemeral external IP addresses.
+- **error-prone (adjective)**
+  - Hyphenate. Lowercase except at the beginning of a sentence, heading, or list item.
+- **etc.** **[avoid]**
+  - Avoid using *etc.*, *and so forth*, and *and so on* wherever possible. If you really need to use one, use *etc.* Always include the period, even if a comma follows immediately after.
+  - _Recommended: Your app might experience problems such as instability or high latency._
+  - _Recommended: Your app might experience problems, including instability or high latency._
+  - _Not recommended: Your app might experience instability, high latency, and so on._
+  - _Not recommended: Your app might experience instability, high latency, etc._
+  - _Not recommended: If your app experiences instability, high latency, etc., follow these steps:_
+- **eventually** **[avoid]**
+  - Avoid in timeless documentation because this word can become outdated. The word can also prematurely disclose product or feature strategy or inappropriately imply that a product or feature might change.
+  - See also future and soon.
+  - _Recommended: This version of the SDK is deprecated._
+  - _Not recommended: This version of the SDK is deprecated and eventually will be no longer supported._
+  - For more information, see Timeless documentation.
+- **execute**
+  - Verb commonly used to refer to function calls, SQL queries, and other processes. When the meaning is the same, use the simpler word *run* instead. If you need to use a more precise term for your context, use that term.
+- **expander arrow**
+  - The UI element used to expand or collapse a section of navigation or content. If you describe this element, use the terms *expander arrow* and *expandable section*
+  - Don't use terms like *expando* or *zippy*.
+- **exploit**
+  - Don't use *exploit* to mean "use."
+  - Only use *exploit* in the negative sense, such as to describe *exploiting a security vulnerability*.
+- **external VPN gateway**
+  - Write *external* and *gateway* all lowercase except at the beginning of a sentence, heading or list item.
+- **extract**
+  - Use instead of *unarchive*, *uncompress*, *untar*, or *unzip*.
+
+## F
+
+- **fail over (verb), failover (noun, adjective)**
+- **fat** **[avoid]**
+  - Don't use. Instead, use a precise modifier that conveys the appropriate meaning. For example, use *high-capacity network connection* instead of *fat connection* or *full-featured client* instead of *fat client*.
+  - Instead of using fat in a negative sense, such as *trim the fat*, refer in a more concrete manner to the *removal of unused items*.
+  - OK to use as an acronym when referring to file allocation table (FAT).
+- **female adapter** **[avoid]**
+  - Don't use. Instead, use a genderless word like *socket*.
+- **Fast Healthcare Interoperability Resources (FHIR)**
+  - Refer to *a FHIR* (pronounced "a fire," as in "a FHIR store"), not *an FHIR*. For more information, see Indefinite articles before abbreviations.
+- **filename**
+  - Not *file name*
+- **file system**
+  - Not *filesystem*.
+- **fill in; fill out**
+  - Use *fill in* when referring to entering information in individual fields.
+  - Use *fill out* when referring to completing an entire form. Recommended: Fill out the questionnaire. Be sure to fill in the required fields.
+- **final solution** **[avoid]**
+  - Don't use. Instead, use *solution* as a standalone term or, depending on the context, *definitive*, *optimal*, *best*, or *last solution*.
+- **fintech**
+  - Write out on first mention: *financial technology (fintech)*. Don't use *FinTech* or *fin-tech*.
+- **firewalls**
+  - Don't use in Compute Engine or networking documentation. Instead, use *firewall rules*.
+  - Exception: If you're explaining how firewall rules work, you can explain that every network has an implied virtual distributed firewall.
+  - Outside of Compute Engine or networking documentation, the term *firewalls* is acceptable.
+- **first class, first-class, first-class citizen** **[avoid]**
+  - Don't use *first class* or *first-class citizen*. Instead, use another term that's appropriate for the context, such as *higher-order*, *anonymous*, or *nested*, or loosely describe the specific characteristics or features of the entity, resource, language, or framework.
+  - _Recommended: These widgets have full access to the event system and lifecycle hooks._
+  - _Not recommended: The widgets are first-class components in the UI framework._
+  - _Recommended: Virtual machines are higher-order resources that can participate in resource groups and are integrated in a variety of identity, networking, and storage services._
+  - _Not recommended: Virtual machines are treated as first-class resources across the identity, networking, and storage services._
+  - For more information, see Write inclusive documentation.
+- **following**
+  - It's not necessary to use a noun after *following* unless it helps provide clarity and enables accessibility. See Tables.
+  - _Recommended: ... in the following code sample ..._
+  - _Recommended: ... in the following table ..._
+  - _Recommended: ... do the following: ..._
+- **foo** **[avoid]**
+  - Avoid when possible even though it's a common term in the developer community. Instead, use a clearer and more meaningful placeholder name.
+- **for example**
+  - When you introduce an example using the phrase *for example*, follow the phrase by a comma. For clarity, when introducing an example, separate the example using dashes, commas, or parentheses from the rest of the sentence as appropriate, or introduce the example in a separate sentence.
+  - _Recommended: Enter a name for the instance—for example, `my-instance-99`._
+  - _Recommended: Enter a six-digit hex number (for example, `228B22`), and then click **OK**._
+  - _Recommended: Enter a six-digit hex number, and then click **OK**. For example, if you want the color forest green, enter `228B22`._
+  - For more information, see Format examples.
+- **for instance** **[avoid]**
+  - Don't use the phrase *for instance* to introduce examples to avoid confusion with the noun *instance*. Instead, use *for example*, *like*, or *such as*. For more information, see for example.
+- **frontend**
+  - Not *front-end* or *front end*.
+- **functionality** **[avoid]**
+  - Use with caution. With respect to hardware or software, *functionality* refers to a set of associated functions or capabilities and how they work. However, the word is sometimes overused, especially when the intended meaning is *capabilities* or *features*.
+- **future, in the future** **[avoid]**
+  - Avoid in timeless documentation because this word or phrase can become outdated.
+  - See also eventually and soon. For more information, see Timeless documentation.
+
+## G
+
+- **GBps**
+  - Short for *gigabytes per second*. By convention, we don't use *GB/s*. For more information, see Units of measurement.
+- **Gbps**
+  - Short for *gigabits per second*. By convention, we don't use *Gb/s*. For more information, see Units of measurement.
+- **`gcloud` CLI**
+  - Use the full name *Google Cloud CLI* the first time that you mention the product on a page.
+- **gender-neutral he, him, or his (or she or her)** **[avoid]**
+  - Don't use. Instead, use the singular *they* (see Jane Austen and other famous authors violate what everyone learned in their English class). Don't use *he/she* or *(s)he* or other such punctuational approaches. For more information, see Pronouns.
+- **generative AI**
+  - Spell out *generative*. Use sentence case.
+  - Don't use *gen AI* or *Gen AI*.
+  - Don't hyphenate *generative AI* as an adjective unless you must do so for clarity. See also AI.
+- **ghetto** **[avoid]**
+  - Don't use. Instead use more precise terms like *clumsy*, *workaround*, or *inelegant* to refer to code that isn't in a production-ready state.
+- **gimp, gimpy** **[avoid]**
+  - Don't use. Instead, use precise, non-figurative language to refer to a deficiency in a component.
+  - OK to use in reference to companies, tools, software packages, and other entities that use the term in their names.
+- **GKE node**
+  - Use when first introducing GKE nodes on a given page. For subsequent mentions, you can use *node*. A GKE node is a worker machine that runs containerized applications and other workloads. The machine is a Compute Engine VM that GKE creates during cluster creation. See also virtual machine (VM) instance.
+- **Google, Googling** **[avoid]**
+  - Don't use as a verb or gerund. Instead, use *search with Google*.
+- **Google Account, Google Accounts**
+  - Capitalize *Account*.
+- **Google API Client Library for `LANGUAGE` (Java, .NET, etc.)**
+  - On second and subsequent use, you can abbreviate to *`LANGUAGE` client library*.
+- **Google API Console, Google APIs Console** **[avoid]**
+  - Don't use. For more information, see console.
+- **Google Cloud**
+  - Not *GCP*, *Cloud Platform*, or *Cloud*.
+- **Google Cloud console**
+  - If you're only discussing the Google Cloud console, it's OK to shorten to *the console* after first use on a given page.
+  - Use *the* before the console name. For more information, see console.
+- **Google Cloud project ID**
+  - Not *Cloud project ID* or *GCP project ID*. You can also shorten to *project ID*, but be aware that that term is ambiguous in some contexts.
+- **Google Developers Console** **[avoid]**
+  - Don't use. For more information, see console.
+- **Google I/O**
+  - Not *I-O* or *IO*.
+- **Google Play services**
+  - Write *services* in lowercase.
+- **Google Play services SDK**
+  - Write *services* in lowercase.
+- **grandfather clause, grand-father clause, grand father clause** **[avoid]**
+  - Don't use. See grandfathered.
+- **grandfathered** **[avoid]**
+  - Don't use to refer to something that is allowed to violate a rule because it predates the rule. Instead, use an adjective like *legacy* or *exempt* or a verb like *made an exception*.
+  - _Recommended: The app is exempt because it was released before the new requirements were announced._
+  - _Not recommended: The app is grandfathered in because it was released before the new requirements were announced._
+- **gray-box, grey-box** **[avoid]**
+  - Avoid using *gray-box*, *graybox*, or *gray box* to describe testing.
+  - To refer to testing that's a combination of clear and opaque testing methods, describe exactly what it's doing.
+  - If you need to refer to this type of testing after you describe it, consider using a more precise term for clarity, such as *translucent-box testing*.
+- **grayed-out, greyed-out, gray out, grey out** **[avoid]**
+  - Don't use. Instead, use *unavailable*.
+- **grayhat, greyhat, gray hat, grey hat** **[avoid]**
+  - Don't use. Follow the guidance for black hat when referring to someone violating rules or laws.
+- **graylist, greylist, gray list, grey list, gray-list, grey-list** **[avoid]**
+  - Don't use. See blacklist.
+- **graylisted, greylisted, gray listed, grey listed, gray-listed, grey-listed** **[avoid]**
+  - Don't use. See blacklist.
+- **graylisting, greylisting, gray listing, grey listing, gray-listing, grey-listing** **[avoid]**
+  - Don't use. See blacklist.
+- **`gsutil`**
+  - In the Google Cloud context, use code font for both the name of the command-line utility and the command.
+- **guru** **[avoid]**
+  - If possible, use a more precise term. For example, if you mean *expert* or *teacher*, use those terms.
+- **guys, you guys** **[avoid]**
+  - When referring to a group of people use non-gendered language, such as *everyone* or *folks*.
+- **gypsy** **[avoid]**
+  - Don't use. To refer to the people, use *Romani*, *Roma*, or *Traveller*, as appropriate for the specific group you're referring to. In place of metaphorical uses of the term, use more precise phrases.
+
+## H
+
+- **hamburger, hamburger menu** **[avoid]**
+  - Don't use. Instead use the `aria-label` for that particular icon. For example, **Menu**. For more information, see Buttons and icons.
+- **hands off, hands-off** **[avoid]**
+  - Use a less figurative phrase, such as *automated*. If you're referring to a group that doesn't do anything during a process, write a description.
+- **hands on, hands-on** **[avoid]**
+  - Use a less figurative phrase, such as *customizable*, or write a description of the activity.
+- **hang, hung** **[avoid]**
+  - Don't use to refer to a computer or system that is not responding. Instead, use *stop responding* or *not responding*. For more information, see Avoid figurative language.
+- **happiness and satisfaction**
+  - Use *happiness* when referring to a customer's perception of a site's reliability. Use *satisfaction* when referring to whether the site meets the customer's needs.
+  - Site reliability engineering (SRE) content generally refers to measuring *customer happiness* instead of *customer satisfaction*. The two phrases are not equivalent.
+  - The distinction the SRE documentation makes is between satisfying a need (a dispassionate act) and establishing an emotional response (creating happiness). Although it is difficult to measure happiness precisely, SRE uses service level indicators (SLIs) to quantify user perception. For example, a customer might feel a "need" to watch a show on TV. If the show is available, the customer's need is satisfied. But if playback is slow or choppy, the customer might not be happy.
+  - For more information about SRE and measuring reliability, see The Happiness Test.
+- **hardcode (verb), hardcoded (adjective)**
+  - Don't hyphenate.
+- **he, him, his** **[avoid]**
+  - Don't use a gendered pronoun except for a specific individual of known gender. Use *they* and *their* for the general singular pronoun.
+- **healthcare**
+  - Not *health care* or *health-care*.
+- **health check** **[avoid]**
+  - Use with caution. When describing an action taken for a computer system, only use the term *health check* if this is the term that appears in the interface. Be certain to remove any ambiguity regarding whether the term refers to health in the medical sense.
+  - Use detailed, non-figurative language as much as possible, such as referring to a node *being responsive* instead of referring to a node being healthy.
+- **healthy** **[avoid]**
+  - Don't use. See health check.
+- **high availability (noun), high-availability (adjective)**
+  - Spell as *high availability* when used as a noun and as *high-availability* when used as an adjective. See also load balancing (noun), load-balancing (adjective).
+  - Lowercase except when part of a product name, but OK to abbreviate as *HA* after first use.
+- **higher**
+  - Don't use for a range of version numbers. Instead, use *later*.
+  - Don't use to refer to a position in a document. Use *earlier* or *preceding*.
+  - Don't use to refer to a position in the UI. Instead, write instructions that avoid directional language. For more information, see Writing accessible documentation.
+  - In Android documentation, use *higher* for a range of version numbers, not *later*.
+  - A release with the highest version number might not be the latest version. For example, if version 2.0 of an operating system receives a bug-fix update after version 3.0 has been released, then version 2.0.1 might be the latest version, even though its version number is lower than 3.0.
+- **high performance computing (HPC)**
+  - Don't hyphenate. Lowercase except at the beginning of a sentence, heading, or list item.
+- **hit** **[avoid]**
+  - Don't use as a synonym for *click*, *press*, or *type*.
+- **hold the pointer over**
+  - Only use this verb phrase in the following cases:
+    - When the user needs to hold their mouse over a UI element, but not click the UI element. This action involves waiting for the UI to react—for example, waiting for a tooltip to open or waiting for a submenu to open.
+    - When the duration of time is important. The phrase *point to* is more common.
+  - See also point to.
+  - _Recommended: In the **Admin** menu, hold the pointer over **File**, and then click **New**._
+  - _Not recommended: In the **Admin** menu, hover over **File**, and then click **New**._
+- **holiday, the holidays** **[avoid]**
+  - Don't use to refer to the end of the year. Instead, refer to specific quarters or months.
+- **home screen**
+  - Two words in Android contexts; not *homescreen* or *home-screen*.
+- **hostname**
+  - Not *host name*.
+- **hot**
+  - When possible, avoid jargon like *hot failover*, *hot standby*, and *hot spare*. If you use one of these phrases, define it on first use and use it consistently throughout the document. However, see hotspot.
+- **hotspot**
+  - In databases, *hotspots* occur when a small number of nearby rows are accessed frequently in a short period of time, causing CPU spikes and affecting performance. Use *hotspot* and *hotspots* as nouns. Don't use verb and gerund forms such as *hotspotting*, because they translate less consistently.
+  - When you use *hotspot*, define it the first time that you use it on a page as you normally do with jargon.
+  - _Recommended: Hotspots in one table can affect the performance of other tables._
+  - _Not recommended: Hotspotting in one table can affect the performance of other tables._
+- **housekeeping, house keeping, house-keeping** **[avoid]**
+  - Don't use. Instead, use less figurative and more precise terms, such as *maintenance* and *cleanup*.
+- **hover** **[avoid]**
+  - Don't use. Instead use *hold the pointer over*.
+- **HTTPS**
+  - Not *HTTPs*.
+
+## I
+
+- **IaaS**
+  - Write out on first mention: *infrastructure as a service (IaaS)*.
+- **IAM**
+  - When referring to the Google Cloud product, spell it out on first use: *Identity and Access Management (IAM)*.
+  - When referring to UI text, write this term the way it's written in the UI.
+  - When referring to the general practice of identity and access management, spell it out in lowercase on first use and include a parenthetical comment:
+  - _Recommended: Identity and access management (generally referred to as *IAM*) is the practice of granting the right individuals access to the right resources for the right reasons._
+- **ID**
+  - Not *Id* or *id,* except in string literals or enums.
+  - In some contexts, it's best to spell out as *identifier* or *identification*.
+- **i.e.** **[avoid]**
+  - Don't use. Instead, use phrases like *that is*. Many people confuse *e.g.* and *i.e.*
+- **if**
+  - Wondering whether to use *if* or *whether*? See whether.
+  - Although it is common in casual usage to omit the word *then* in *if...then* statements, you should include helper words like *then* in technical documentation. For more information, see Use clear, precise, and unambiguous language.
+- **image**
+  - *Image* by itself doesn't localize well because of its many meanings. Consider adding context—for example, *disk image* or *container image*.
+- **impact** **[avoid]**
+  - Use only as a noun. Instead of writing that something *has an impact*, use the word *affect*.
+  - _Recommended: This issue affects user experience._
+  - _Acceptable: This issue has an impact on user experience._
+  - _Not recommended: This issue impacts user experience._
+- **index**
+  - Use the plural *indexes* unless there is a domain-specific reason (for example, a mathematical or financial context) to use *indices*.
+- **ingest**
+  - Use *import*, *load*, or *copy* when referring to simple movement of data. Use *ingest* only when referring to such operations that also involve significant processing of the data.
+- **ingress**
+  - When referring to the networking term, use lowercase. When referring to the GKE term or API, capitalize *Ingress*.
+- **in order to** **[avoid]**
+  - Avoid *in order to*; instead, use *to*.
+  - Use *in order to* when needed to clarify meaning or to make something easier to read.
+  - _Recommended: You can use monitoring to help identify issues._
+  - _Not recommended: You can use monitoring in order to help identify issues._
+  - _Recommended: The infrastructure is required in order to support search._
+  - _Not recommended: The infrastructure is required to support search._
+- **inline**
+  - One word as an adjective, *inline*, not *in line* or *in-line*.
+- **instance group**
+  - Don't abbreviate to *IG*. See also managed instance group.
+- **intercluster**
+  - Use unhyphenated *intercluster*, not *inter-cluster*.
+- **interconnectAttachment**
+  - Use when referring to the API. Otherwise, use *VLAN attachment*.
+- **Interconnect connection**
+  - Only use *Interconnect connection* relative to a product as follows:
+    - CDN Interconnect connection
+    - Cloud Interconnect connection
+    - Dedicated Interconnect connection
+    - Partner Interconnect connection OK to use *connection* on subsequent mentions.
+  - When you're referring to a Google Cloud product, always specify the product name. Don't use *Interconnect* or *interconnect* as standalone terms, and don't use generic terms like *cloud interconnect connection* or *cross-connect*.
+- **Interconnect connection location**
+  - Only refer to an *Interconnect connection location* in context of a specific product, for example *CDN Interconnect*.
+  - OK to also use *colocation facility*.
+- **interconnect type** **[avoid]**
+  - Don't use. Instead, use *connection type*. Examples of connection types are a *dedicated connection* or a *connection provided by a service provider*.
+- **interface**
+  - OK to use as a noun.
+  - Don't use as a verb. Instead, use *interact*, *talk*, *speak*, *communicate*, or other similar terms.
+- **internal DNS**
+  - Write *internal* all lowercase except at the beginning of a sentence, heading, or list item.
+- **Internationalized Domain Name (IDN)**
+  - Write out and capitalize each word on first use. OK to abbreviate as *IDN* after first use.
+- **internet**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **Internet Key Exchange (IKE)**
+  - Write out and capitalize each word on first use. OK to abbreviate *IKE* after first use.
+- **I/O (see also Google I/O)**
+  - Not *I-O* or *IO*.
+- **IoT**
+  - OK to use as an abbreviation for *Internet of Things*. Note the lowercase *o*.
+- **IPsec**
+  - Not *IPSec* or *IPSECShort*.
+  - Short for *Internet Protocol Security*. No need to spell out on first mention.
+
+## J
+
+- **jank, janky** **[avoid]**
+  - Use only to refer to a glitch or problem with graphics that is caused by a loss of data or inadequate refresh rate. Don't use otherwise. Use a less figurative term to refer to something of poor or unreliable quality.
+- **just** **[avoid]**
+  - Avoid. Usually, *just* is a filler word that you can delete without affecting your meaning.
+  - _Recommended: BigQuery skips the row._
+  - _Not recommended: BigQuery just skips the row._
+  - If your meaning is unclear without *just*, then use a more specific term such as *only*, *instead*, or *previously*, or revise your language to be more specific. (Even if one of these replacement terms fits, you often don't need it.)
+  - _Recommended: You can run DML statements in the same way that you'd run a `SELECT` statement._
+  - _Not recommended: You can run DML statements just as you'd run a `SELECT` statement._
+  - _Recommended: Let a user query only the table without full dataset access._
+  - _Recommended: Let a user query the table without full dataset access._
+  - _Not recommended: Let a user query just the table without full dataset access._
+  - Sometimes, *just* is useful for conveying that one approach is simpler than another. In those cases, use *just* instead of *simply*.
+  - _Recommended: Use the namespace ID `namespace:example-kind` or just `example-kind`._
+
+## K
+
+- **k8s** **[avoid]**
+  - Don't use. Instead, use *Kubernetes*.
+- **KBps**
+  - Short for *kilobytes per second*. By convention, we don't use *KB/s*. For more information, see Units of measurement.
+- **Kbps**
+  - Short for *kilobits per second*. By convention, we don't use *Kb/s*. For more information, see Units of measurement.
+- **kebab, kabob, kebab menu, kabob menu** **[avoid]**
+  - Don't use. Instead use the `aria-label` for that particular icon. For example, **More**. For more information, see Buttons and icons.
+- **kebab case, kabob case, kebab-case, kabob-case** **[avoid]**
+  - Don't use. Instead, use *dash-case*.
+- **key**
+  - Don't use as an adjective in the sense of *crucial* or *important*.
+  - If you use *key* as a noun, specify which kind of key you're referring to on first mention, because there are many kinds of keys in technical contexts.
+- **key pair**
+  - A pair of keys, such as a public key and a private key. Contrast with *key-value pair*, which refers to a pairing that specifies a value for a variable (as in configuration files).
+- **key ring**
+  - Use instead of *keyring* (without the space) when referring to a grouping of Cloud KMS keys.
+- **key-value pair**
+  - Use instead of *key/value pair* or *key value pair*.
+- **kill** **[avoid]**
+  - Avoid when possible. Instead, use words like *stop*, *exit*, *cancel*, or *end*. For exceptions to this rule, see Documenting command-line syntax.
+
+## L
+
+- **lame** **[avoid]**
+  - Don't use. Instead, use precise, non-figurative language to refer to a deficiency in a component.
+- **later**
+  - Use for a range of version numbers, not *higher*.
+  - _Recommended: Use version 2.2 or later._
+  - _Not recommended: Use version 2.2 or higher._
+  - _Not recommended: Use version 2.2+._
+  - A release with the highest version number might not be the latest version. For example, if version 2.0 of an operating system receives a bug-fix update after version 3.0 has been released, then version 2.0.1 might be the latest version, even though its version number is lower than 3.0.
+  - In Android documentation, don't use *later* for a range of version numbers. Instead, use *higher*.
+  - When referring to a position in a document, use *later* or *following*, not *below*.
+- **latest** **[avoid]**
+  - Avoid in timeless documentation because this word can become outdated.
+  - If you must use *latest*, give the reader a reference point—for example, a version number or release date.
+  - _Recommended: To help keep your system secure, install the latest version of the tools._
+  - _Recommended: The June 2021 release includes the latest tools that help secure your system._
+  - _Not recommended: The product includes the latest tools that help secure your system._
+  - For more information, see Timeless documentation.
+- **learnings** **[avoid]**
+  - Don't use. Instead, refer to *knowledge* or *things that you learned*.
+- **left-nav, right-nav** **[avoid]**
+  - Don't use directional language. For more information, see Writing accessible documentation.
+  - If referring to applications, use * navigation menu*.
+  - If referring to navigational elements for documentation, use *content navigation menu*.
+- **legacy**
+  - If possible, use a more precise term. If you do use *legacy*, include or point to a definition to clarify what you mean in the current context. Don't use *legacy* with any sort of pejorative connotation.
+- **let's (as a contraction of *let us*)** **[avoid]**
+  - Don't use if at all possible.
+  - _Not recommended: Let's click the **OK** button now._
+- **Letter of Authorization and Connecting Facility Assignment (LOA-CFA)**
+  - Write out and capitalize each word on first use. OK to abbreviate as *LOA-CFA* after first use.
+- **leverage** **[avoid]**
+  - Avoid using if you mean *use*. If possible, use a more precise term. For example, *use*, *build on*, or *take advantage of*.
+- **lifecycle**
+  - Not *life cycle* or *life-cycle*.
+- **lift and shift**
+  - See rehost.
+- **like**
+  - It's OK to use *like* for either drawing comparisons (in the sense of *similar to*) or introducing examples (in the sense of *such as*).
+  - _Recommended: Common I/O operations, like reading files or making network requests, can be asynchronous._
+  - _Recommended: The new compression algorithm works like a dictionary encoder, replacing repeated strings with shorter codes._
+  - See also such as. For more information, see Format examples.
+- **limits**
+  - In an API context, *limit* often refers to usage limits (number of queries allowed per second or per day). Where possible, specify the kind of limit that you mean, such as *usage limit* or *service limit*; the word *limit* can refer to many different kinds of limits, including rules about acceptable use. See also quota.
+- **lint**
+  - Write both command-line tool name and command in lowercase. Use code font except where inappropriate.
+- **little-endian**
+  - Hyphenate. Lowercase except at the beginning of a sentence, heading, or list item.
+  - _Recommended: The codebase assumes little-endian byte ordering._
+  - _Not recommended: The codebase assumes Little Endian byte ordering._
+  - _Not recommended: The codebase assumes Little-endian byte ordering._
+  - _Not recommended: The codebase assumes little endian byte ordering._
+- **livestream**
+  - Not *live stream*.
+- **load balancing (noun), load-balancing (adjective)**
+  - Spell as *load balancing* when used as a noun and as *load-balancing* when used as an adjective. See also high availability (noun), high-availability (adjective).
+- **lock screen**
+  - Two words in Android contexts; not *lockscreen* or *lock-screen*.
+- **login (noun or adjective), log in (verb)**
+  - For the verb form, *sign in* is generally better.
+  - If you're documenting a tool that uses the term *log in*, then use that term.
+- **long press** **[avoid]**
+  - In Android documentation, don't use. Instead, use *touch & hold*. (Not *touch and hold*.)
+- **long-running operation**
+  - Not *long running operation*.
+  - OK to abbreviate as *LRO* after the first use.
+- **lower**
+  - Don't use for a range of version numbers. Instead, use *earlier*.
+  - Don't use to refer to a position in a document. Instead, use *later* or *following*.
+  - Don't use to refer to a position in the UI. Instead, write instructions that avoid directional language. For more information, see Writing accessible documentation.
+  - In Android documentation, use *lower* for a range of version numbers, not *earlier*.
+
+## M
+
+- **male adapter** **[avoid]**
+  - Don't use. Instead, use a genderless word like *plug*.
+- **man hours, manhours, man-hours** **[avoid]**
+  - Avoid using gendered terms. Instead use terms like *person hours*.
+- **man-in-the-middle (MITM)** **[avoid]**
+  - Avoid using gendered terms. Instead use terms like *on-path attacker* or *person-in-the-middle (PITM)*.
+- **managed instance group (MIG)**
+  - OK to abbreviate to *MIG* on subsequent mention. See also instance group.
+- **manmade, man made** **[avoid]**
+  - Avoid using gendered terms. Instead use a word like *artificial*, *manufactured*, or *synthetic*.
+- **manned** **[avoid]**
+  - Avoid using gendered terms. Instead use terms like *staffed* or *crewed*.
+- **manpower, man power, man-power** **[avoid]**
+  - Avoid using gendered terms. Instead use terms like *staff* or *workforce*.
+- **Markdown**
+  - Always capitalized, even when you're referring to a nonstandard version.
+- **master** **[avoid]**
+  - Use with caution. Never use in conjunction with *slave*. Where possible, replace *master* with a specific term that is accurate for the context, such as *primary*, *main*, *original*, *parent*, *initiator*, *driver*, *controller*, *manager*, *mixer*, *aggregator*, *publisher*, *leader*, or *active*. Guidance Recommended Not recommended Don't use *master* in conjunction with *slave* in any context. Cloud SQL primary/replica Cloud SQL master/slave Avoid using *master* where possible.
+    - GKE control plane
+    - Jenkins controller
+    - root key (in security)
+    - primary key (in databases)
+    - GKE master plane
+    - Jenkins master
+    - master key (in security)
+    - master key (in databases)
+  - If the command or code that you're documenting uses the literal word *master*, then use this word only in direct reference to the code item (formatted as code), make it clear what you're referring to, and use the new term thereafter.
+  - See also *slave*.
+- **Material Design**
+  - Capitalize each word in *Material Design*.
+- **matrix**
+  - Use the plural *matrixes* unless there is a domain-specific reason (for example, a mathematical context) to use *matrices*.
+- **may**
+  - In general, reserve for official policy or legal considerations.
+  - To convey *possibility*, use *can* or *might* instead.
+  - To convey *permission*, use *can* instead.
+  - See also can, could, might, must, should, and would.
+  - For information about clarifying who's performing an action, see Active voice.
+- **MBps**
+  - Short for *megabytes per second*. By convention, we don't use *MB/s*. For more information, see Units of measurement.
+- **Mbps**
+  - Short for *megabits per second*. By convention, we don't use *Mb/s*. For more information, see Units of measurement.
+- **media type**
+  - In general, use the term *media type*. In contexts where you need to refer to a *content type*—For example, if you mention the `Content-Type` HTTP header—it's okay to use *content type* instead, to avoid confusion. Don't use *MIME type*.
+- **meta***
+  - See guidance about hyphens with prefixes.
+- **metafeed**
+  - Not *meta-feed*.
+- **metageneration**
+  - Not *meta-generation*.
+- **method**
+  - In programming contexts where *method* refers to a member of a class (as in Java), avoid also using the word generically to mean "approach" or "manner."
+- **metropolitan area (metro)**
+  - In networking, a *metro* is a city where a colocation facility is located.
+- **microservices**
+  - Not *Microservices* or *micro-services*.
+- **might**
+  - Use to convey possibility or an uncertain outcome (for example, "You might be prompted to enter your credentials").
+  - See also can, could, may, must, should, and would.
+  - For information about clarifying who's performing an action, see Active voice.
+- **MIME type** **[avoid]**
+  - *MIME* stands for "Multipurpose Internet Mail Extensions," and was originally used to refer to email standards. Don't use *MIME* when you mean *media type*. If you feel that might be ambiguous to an audience familiar with the term *MIME*, then you can write *media (MIME) type* for clarity.
+- **mobile** **[avoid]**
+  - Don't use *mobile* as a standalone noun. Instead, specify *mobile phone*, or if you're talking about more than phones, then use *mobile device*.
+- **mobile data**
+  - Use instead of *cellular data*.
+- **mobile device**
+  - Use *mobile device* when you're referring to more than phones (for example, tablets and phones). It's OK to use *phone* (without *mobile*) when the context is clear.
+- **mobile network**
+  - Use instead of *cellular network*.
+- **mobile phone**
+  - If you're talking about more than phones, then use *mobile device*. It's OK to use *phone* (without *mobile*) when the context is clear.
+- **mom test** **[avoid]**
+  - Don't use *mom test*, *grandmother test*, *grandma test*, or *girlfriend test*. Instead, use terms like *beginner user test* or *novice user test*.
+- **monkey, monkey test** **[avoid]**
+  - Don't use *monkey* to refer to people. When referring to tests, refer to the specific function. For example: *automated, random tests*.
+- **multi***
+  - See guidance about hyphens with prefixes.
+- **multi-cluster**
+  - Hyphenate. We generally prefer to close prefixed words, but this is an exception because it's an established term.
+- **multi-region, multi-regional**
+  - Hyphenate when referring to a Google Cloud location that consists of more than one region.
+  - You can use *multi-regional* as an adjective in the context of multi-regions, but consider *multi-region* as an attributive noun instead, such as in "The dataset is in the EU multi-region location." Use *multiregional* in other contexts.
+- **multi-service**
+  - Hyphenate. We generally prefer to close prefixed words, but this is an exception because it's an established term.
+- **multi-tenancy**
+  - Hyphenate. We generally prefer to close prefixed words, but this is an exception because it's an established term.
+- **must**
+  - Use to describe a required action or state (for example, "You must have the Editor role"). You can also write *you need* in order to convey a requirement.
+  - See also can, could, may, might, should, and would.
+  - For information about clarifying who's performing an action, see Active voice.
+
+## N
+
+- **N/A**
+  - Not *NA*. Spell out as *not available* or *not applicable* on first reference.
+- **name server**
+  - Not *nameserver*.
+- **namespace**
+  - Not *name space*.
+- **native** **[avoid]**
+  - Avoid using *native* to refer to people.
+  - When referring to software products, try to use a more precise term—for example, use *built-in* to describe a feature that's part of a product.
+  - The term *native* isn't necessarily clear—for example, *cloud-native* could mean that something was written for the cloud, or that it's built in to a cloud platform, or that it currently exists in a cloud platform.
+  - Alternatives to a term like *cloud-native* could include: *modern cloud*, *born in the cloud*, *cloud first*, and *cloud-born*.
+- **navigation bar**
+  - Don't use to refer to a *navigation menu*. For more information, see Navigation menu.
+- **neither**
+  - Write *neither A nor B*, not *neither A or B*.
+- **network IP address** **[avoid]**
+  - Don't use. Instead, use *internal IP address*.
+- **new, newer** **[avoid]**
+  - Avoid in timeless documentation because this word can become outdated.
+  - *New* also implies that the reader knows the older product and that labeling something as *new* is therefore meaningful.
+  - If you must use *new*, give the reader a reference point—for example, a version number or release date.
+  - Don't use *newer* to refer to a specific version of a product. Instead, use *later*. Make sure that you provide a version number or release date by which to understand *later*. In Android documentation, use *higher* instead of *later*.
+  - _Recommended: The service's network analysis feature reports on network health._
+  - _Not recommended: Network analysis, a new feature in the service, reports on network health._
+  - For more information, see Timeless documentation.
+- **ninja** **[avoid]**
+  - Don't use to refer to a person. Instead, use a term such as *expert*. OK to use in reference to companies, tools, software packages, and other entities that use the term in their names.
+- **non***
+  - See guidance about hyphens with prefixes.
+- **nonce** **[avoid]**
+  - Use with caution: this term has a secondary slang meaning that can cause confusion for global readers. Always define the term on first use, and only use it in specific technical contexts such as authentication and blockchain.
+  - In end-user documentation and other contexts, use a more descriptive phrase, such as *a number that will be used only once*.
+- **non-key**
+  - An exception to our usual preference for closed forms.
+- **NoOps** **[avoid]**
+  - Don't use. Instead, use *fully managed*. If you must include the term, define it at first use with language such as *fully managed* or *no operations*, but not *non-operational*. Don't use *noops*.
+  - For an instruction that does nothing, use *no-op* or the specific instruction name for your context.
+- **NoSQL**
+  - Not *No-SQL* or *No SQL*.
+- **notification drawer**
+  - In Android contexts, don't hyphenate. Lowercase except at the beginning of a sentence, heading, or list item.
+- **now** **[avoid]**
+  - Avoid when describing features of products or services because this word is implied.
+  - If the intent of the text is a comparison between past and present, you can use *now*—for example, "In versions of the tool earlier than 1.10, you could use only the default value, but now you can assign a custom value."
+  - _Recommended: This feature lets you use combinations of user properties._
+  - _Not recommended: This feature now lets you use combinations of user properties._
+  - For more information, see Timeless documentation.
+- **nuke** **[avoid]**
+  - Don't use. Instead use *remove* or *attack*. For example, a *denial-of-service attack*.
+
+## O
+
+- **OAuth 2.0**
+  - Not *OAuth 2*, *OAuth2*, or *Oauth*.
+- **off-the-shelf, commercial off-the-shelf (COTS)** **[avoid]**
+  - Use more widely understood terms like *ready-made*, *prebuilt*, *standard*, or *default*.
+- **old, older** **[avoid]**
+  - Don't use to refer to a previous version of a product. Instead, use *earlier*.
+  - Make sure that you provide a version number by which to understand *earlier*.
+  - In Android documentation, use *lower* instead of *earlier*.
+  - _Recommended: This functionality doesn't work in versions earlier than 1.17.0._
+  - _Not recommended: This functionality doesn't work in older versions._
+  - For more information, see Timeless documentation.
+- **omnibox** **[avoid]**
+  - Don't use. Instead, use *address bar*.
+- **once**
+  - If you mean *after*, then use *after* instead of *once*.
+- **on-premises**
+  - Not *on prem*, *on premise*, or *on-premise*. Hyphenate when used as any part of speech.
+  - Use to refer to a customer's resources that they manage in their own facilities. Don't use *peer*.
+  - It can be acceptable to use *on-premises* as a noun when it would be awkward to repeatedly write out a full phrase like *an on-premises environment*. However, it's preferable to use the more complete phrase whenever possible.
+  - _Recommended: An on-premises database._
+  - _Recommended: The database runs on-premises._
+  - _OK: Moving data from on-premises to Google Cloud._
+- **OS**
+  - OK to use as a shortening of "operating system."
+- **outpost** **[avoid]**
+  - Don't use. Instead, use *channel*.
+  - _Recommended: social media channels_
+- **outside the box, out of the box, out-of-the-box** **[avoid]**
+  - Avoid using in a figurative way. OK to use literally.
+- **overview screen** **[avoid]**
+  - In Android documentation, don't use. Instead, use *recents screen*.
+
+## P
+
+- **PaaS**
+  - Write out on first mention: *platform as a service (PaaS)*.
+- **page**
+  - Use *page* to refer to the following:
+    - A whole web page, which can include text, images, links, banners, navigational panes, and other features.
+    - A sub-page of a console in particular. See also documentation or document or documents.
+  - _Recommended: To refresh the page, press `F5`._
+- **parameter**
+  - In our API documentation, *parameter* is usually short for *query parameter*; it's a ``NAME`=`VALUE`` pair that's appended to a URL in an HTTP `GET` request. In some contexts, however, the term can have other meanings.
+- **parent-child or parent/child**
+  - Not *parent – child* or *parent—child*.
+- **path**
+  - Avoid using *filepath*, *file path*, *pathname*, or *path name* if possible.
+- **peer gateway**
+  - Don't use *on-premises gateway* when you mean a *peer gateway*. A peer gateway can be an on-premises device or service or another cloud gateway.
+- **peer network**
+  - Don't use *on-premises network* when you mean a *peer network*. A peer network can be an on-premises network or another cloud network.
+- **peering zone**
+  - Not *peer zone*.
+- **per**
+  - To express a rate, use *per* instead of the division slash (/), unless space constraints require the use of the slash. For more information, see Units of measurement.
+  - Avoid *per* in contexts other than rate units.
+  - _Recommended: requests per day_
+  - _Recommended: create a policy for each Pod_
+  - _Recommended: according to the style guide_
+  - _Recommended: in response to your request_
+  - _Not recommended: requests/day_
+  - _Not recommended: create a policy per Pod_
+  - _Not recommended: per the style guide_
+  - _Not recommended: as per your request_
+- **performant** **[avoid]**
+  - Avoid where possible. Instead, use a more precise term.
+  - _Recommended: an accurate machine learning model_
+  - _Not recommended: a performant machine learning model_
+- **persist**
+  - Don't use as a transitive verb. It's best to avoid using as a verb at all, especially in passive voice.
+  - _Recommended: To make the token persistent ..._
+  - _OK: To make the token persist ..._
+  - _Not recommended: The token is persisted ..._
+  - _Not recommended: To persist the token ..._
+- **persistent disk**
+  - Not *PD*. Lowercase except at the start of a sentence.
+- **personally identifiable information (PII)**
+  - Some government agencies use the less common term *personally identifying information*; use this alternate term only in contexts where you're referring to a document that uses this term.
+- **pets versus cattle, pets vs. cattle, pets v. cattle** **[avoid]**
+  - Don't use. Instead, use more precise terms like *persistent versus dynamic* or *manually configured versus automated*. For more information, see Avoid figurative language.
+- **plain text**
+  - In most contexts, use *plain text*, but use *plaintext* in a cryptography context.
+- **please** **[avoid]**
+  - Don't use *please* in the normal course of explaining how to use a product, even if you're explaining a difficult task.
+  - Don't use the phrase *please note*.
+  - Use *please* only when you're asking for permission or forgiveness—for example, when what you're asking for benefits you, inconveniences a reader, or suggests a potential issue with a product.
+  - _Recommended: If the issue persists, please contact your account representative._
+  - For more information, see voice and tone.
+- **plugin (noun), plug-in (adjective), plug in (verb)**
+  - Use the noun form *plugin* when referring to the software component. Use the adjective form *plug-in* when referring to the action of installing a software component. Use the verb form *plug in* when you're describing the process of installing a software component.
+- **PM**
+  - See AM, PM.
+- **point to**
+  - Use to refer to the action of pointing the mouse pointer (focus). This action doesn't imply a length of time waiting for the UI to react to user action.
+  - This is similar to the action hold the pointer over (hover). In most cases, it's better to use the verb phrase *hold the pointer over* if you want the user to wait for the UI to react.
+- **POJO**
+  - If you're not actually writing about a Plain Old Java Object for a Java audience, use *simple object*. You can write *a simple object, similar to a POJO in Java* if that helps your audience.
+- **PoP**
+  - Acronym for *point of presence*.
+  - _Recommended: point of presence (PoP)_
+  - _Not recommended: point of presence (POP)_
+- **pop-up, popup**
+  - Don't use.
+  - To describe a window that appears and asks for, or presents, additional information, use *dialog*.
+  - To describe a menu that rises from an interface (such as a right-click context menu), use *menu*.
+- **populate**
+  - OK to use if you're writing about a process populating a table or other entity. If you're writing about a person, use *fill in*.
+  - _Recommended: The SQL command populates the table with sample data._
+  - _Recommended: When you have finished filling in the form ..._
+  - _Not recommended: When you have finished populating the form ..._
+- **port**
+  - Use *listen on* (not *to*).
+- **portal** **[avoid]**
+  - Don't use to refer to the Google Cloud console. For more information, see console.
+- **possible** **[avoid]**
+  - Don't use *possible* or *impossible* to mean *you can* or *you can't*.
+- **PostgreSQL**
+  - If the UI uses the name *Postgres*, it's OK to match the UI. Don't use *PostgreSQL*.
+- **postmortem** **[avoid]**
+  - Avoid in general usage. Instead, use *retrospective*.
+  - In disaster recovery (DR) and DevOps contexts, use *blameless postmortem*.
+- **practitioner**
+  - Avoid using without any supporting information to define the roles that you're referring to.
+  - _Recommended: The framework describes best practices for architects, developers, administrators, and other cloud practitioners._
+  - _Not recommended: The framework describes best practices for cloud practitioners._
+- **pre***
+  - See guidance about hyphens with prefixes.
+- **prebuilt**
+  - Not *pre-built*.
+- **precapture**
+  - Not *pre-capture*.
+- **preemptible**
+  - Not *pre-emptible* or *pre-emptive*.
+- **pre-existing**
+  - Not *preexisting*.
+- **preferred pronouns** **[avoid]**
+  - Don't use. Instead, use *pronouns*.
+- **prerecorded**
+  - Not *pre-recorded*.
+- **pre-shared key**
+  - Not *preshared key*.
+- **presently, at present** **[avoid]**
+  - Avoid because this word or phrase is implied. The word or phrase can also prematurely disclose product or feature strategy or inappropriately imply that a product or feature might change.
+  - See also as of this writing and currently.
+  - _Recommended: This setting is required._
+  - _Not recommended: At present, this setting is required._
+  - For more information, see Timeless documentation.
+- **press**
+  - Use when referring to pressing a key or a key combination to cause an action to occur. Also use for mechanical buttons.
+  - For on-screen and soft (capacitive) buttons, use *tap*.
+  - _Recommended: Press `Control+C` (or `Command+C` on macOS)._
+- **presubmit**
+  - Not *pre-submit*.
+- **primitive** **[avoid]**
+  - Use with caution. Don't use *primitive* in a disparaging sense.
+- **project**
+  - In Google Cloud documentation, use *Google Cloud project* on first mention and in any context in which there might be ambiguity about what kind of project you're referring to.
+- **pros** **[avoid]**
+  - Don't use. Instead, use a more precise term, such as *advantages*.
+
+## Q
+
+- **quick, quickly** **[avoid]**
+  - What might be quick for you might not be quick for others. Try eliminating this word from the sentence because usually the same meaning can be conveyed without it.
+- **quota**
+  - In API contexts, often refers to API usage limits. Where possible, it's best to use a more specific term, such as *usage limit*; the word *quota* means many different things to many different people.
+  - In some contexts, such as Google Cloud documentation, the standard term is *quota*, so use that term.
+
+## R
+
+- **RDP**
+  - Don't use as a verb. Instead, use *connect using RDP*. If it's clear from context that they're using RDP, it's OK to use *connect*.
+- **re***
+  - See guidance about hyphens with prefixes.
+- **read-only**
+  - Not *read only*. Always hyphenate *read-only*.
+- **recents screen**
+  - In Android contexts, use instead of *overview screen*.
+- **redline** **[avoid]**
+  - Don't use as a verb. Instead, use precise terms appropriate to the context.
+  - In the context of editing or providing a review, refer to those actions or to *tracking changes*.
+  - In the context of setting priorities and planning work, refer to those actions or to *priority lining*.
+- **regex** **[avoid]**
+  - Don't use. Instead, use *regular expression*.
+- **rehost**
+  - Use to describe the migration of an app or workload with no changes or minimal changes to that app or workload. Also known as *lift and shift*. For more information, see Rehost: lift and shift in the Cloud Architecture Center.
+  - On first mention, associate rehost with lift and shift. Okay to use *rehosting* as needed after first mention.
+  - _Recommended: You can use this reference architecture to efficiently rehost (lift and shift) on-premises applications to the cloud._
+  - _Recommended: The first step to modernization is to rehost your application in the cloud (also known as lift and shift)._
+  - Don't use *the forklift approach*.
+- **repo** **[avoid]**
+  - Don't use. Instead, use *repository*.
+- **Representational State Transfer** **[avoid]**
+  - Don't use. To people unfamiliar with REST, this acronym expansion is meaningless; it's better to refer to it as REST and not explain what it stands for.
+- **reservation, off the** **[avoid]**
+  - Don't use.
+- **resource record set**
+  - Not *resource recordset*.
+- **retarded** **[avoid]**
+  - Don't use. If you are referring to a system or component being slowed, use the word *slowed*.
+- **retriable, triable** **[avoid]**
+  - Don't use *retriable* or *triable*, unless a code item uses that spelling. Outside of code font, write around the term.
+- **retryable, tryable** **[avoid]**
+  - Where possible, write around *retryable* and *tryable*. For example, write out *you can try it again* or *can be tried again*.
+- **review**
+  - If you mean "read, potentially for the first time," then use *read* instead of *review*.
+  - If you mean "read critically, commenting on problems" (as in *code review*), then *review* is fine.
+  - Avoid using phrasing like "If you've never heard of OAuth, then review the OAuth documentation."
+- **RFC**
+  - When referencing an RFC specification, use a space between *RFC* and the number (for example, *RFC 2318*).
+- **roll out** **[avoid]**
+  - Don't use to mean a sudden or instantaneous launch. If you use *roll out*, define what you mean. When possible, use a more precise, non-figurative term like *gradual*, *in stages*, *phases*, or *progressive*.
+- **RTFM** **[avoid]**
+  - Don't use. Instead, use a more precise phrase like "For more information, see ...."
+- **runbook**
+  - Not *run book*.
+- **runtime, run time**
+  - Use the noun *runtime* when referring to the environment in which software runs, such as a Ruby or Java runtime.
+  - Use the noun phrase *run time* when referring to the time during program execution when something occurs, as contrasted with *compile time*, for example.
+  - _Recommended: The profiler collects data at run time, and the scheduler uses this data at compile time to improve performance for subsequent runs._
+  - _Recommended: The App Engine standard environment has two generations of runtime environments. The second-generation runtimes significantly improve the capabilities of App Engine._
+
+## S
+
+- **SaaS**
+  - Write out on first mention: *software as a service (SaaS)*.
+- **sane** **[avoid]**
+  - Don't use. Instead use a word like *valid* or *sensible*.
+- **sanity check** **[avoid]**
+  - Don't use. Instead, use a term like *quick check*, *confidence check*, *preliminary check* or *coherence check*.
+- **SAP**
+  - Pronounced as the individual letters *S*, *A*, *P*, so write *an SAP system*, not *a SAP system*. For more information, see Indefinite articles before abbreviations.
+- **scale**
+  - Don't use *scale* alone to say that something is large or increasing. Include supporting words to indicate magnitude or direction of change in magnitude, whether scaling up or down, such as when you change a machine type to add or remove CPUs or RAM, or scaling out or in, such as adding or removing instances from a group.
+  - _Recommended: The system performs better at a larger scale._
+  - _Not recommended: The system performs better at scale._
+  - _Recommended: The system scales up quickly, but it scales down more slowly._
+  - _Not recommended: The system scales quickly._
+- **screenshot (noun)**
+  - Not *screen shot* or *screensnap*.
+  - Don't use as a verb; instead, use *take a screenshot*.
+- **scroll**
+  - OK to use *scroll* as a verb, but if possible, instead use a term that isn't specific to implementation. For example, write *go to the section*, instead of *scroll to the section*.
+  - If you use *scroll*, don't use directional language like *scroll up*. For more information, see Accessibility.
+- **Search (as part of product name)**
+  - Capitalize *Search* when referring to a product like Google Search.
+- **Search Console**
+  - Capitalize each word in *Search Console*.
+- **see**
+  - OK as a general term and when referring to links and cross-references. Our research indicates that language relating to sight is OK for a wide range of readers. For more information, see Cross-references and linking.
+- **select**
+  - Use to describe choosing an item from among multiple options, selecting text, or marking a checkbox.
+  - _Recommended: Select **Automatically check for updates**._
+  - _Not recommended: Check **Automatically check for updates**._
+- **sensitive**
+  - *Sensitive* data is data for which the release might be harmful. See confidential.
+- **service**
+  - It's OK to refer to Google products, such as Google Kubernetes Engine or Compute Engine, as *services*. However, if the term *services* leads to ambiguity, then use the product names.
+- **service level agreement**
+  - Lowercase when referring to service level agreements in general.
+  - It's OK to use title case (*Service Level Agreement*) when referring to a specific document.
+  - OK to abbreviate as *SLA* after first use.
+- **service level indicator**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+  - OK to abbreviate as *SLI* after first use.
+- **service level objective**
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+  - OK to abbreviate as *SLO* after first use.
+- **setup (noun or adjective), set up (verb)**
+- **sexy** **[avoid]**
+  - Don't use. Instead, use precise, positive words, such as *fast*, *powerful*, or *elegant*.
+- **SHA-1**
+  - Not *SHA1*, except in string literals/enums and in hyphenated phrases such as *HSA-SHA1*.
+- **shall** **[avoid]**
+  - Avoid *shall* except under advice from a lawyer. For more information, see should.
+- **she, her, hers** **[avoid]**
+  - Don't use a gendered pronoun except for a specific individual of known gender. Use *they* and *their* for the general singular pronoun.
+- **sherpa** **[avoid]**
+  - If possible, use a more precise term. For example, if you mean *guide*, use that term.
+- **shift left** **[avoid]**
+  - In general, avoid using this term to mean moving something earlier in time. Instead, use a less figurative phrase, such as *shift earlier* or *move to an earlier phase*. This figurative term relies on the non-universal assumption that the natural flow is from left to right.
+  - It's OK to use *shift left* and *shift right* in the context of binary multiplication and division.
+- **should, should be** **[avoid]**
+  - Generally avoid.
+  - Because *should* is ambiguous by definition, it can be problematic. For more information and alternatives, see Word choice for recommendations and requirements.
+  - See also can, could, may, might, must, and would.
+- **sign-in (noun or adjective), sign in (verb)**
+  - Not *log in* or *signin*.
+- **sign into** **[avoid]**
+  - Don't use. Instead, use *sign in to*.
+- **sign-on, sign on** **[avoid]**
+  - Don't use either form on its own. Use the hyphenated version as part of *single sign-on*.
+- **sign-out (noun or adjective), sign out (verb)**
+  - Not *log out* or *signout*.
+- **simple, simply** **[avoid]**
+  - What might be simple for you might not be simple for others. Try eliminating this word from the sentence because usually the same meaning can be conveyed without it.
+- **since**
+  - If you mean *because*, then use *because* instead of *since*. *Since* is ambiguous; it can refer to the passage of time. *Because* refers to causation or the reason for something.
+- **single most**
+  - Not *singlemost*.
+- **single pane of glass**
+  - Avoid. This term is used to favorably compare a centralized control and monitoring interface against the alternative of several disparate interfaces. It can almost always be replaced by *single interface* or *unified interface*.
+- **single sign-on (noun or adjective)**
+- **slave** **[avoid]**
+  - Don't use. Instead, use alternative terms appropriate to your domain, such as *worker* or *replica*.
+  - If you're replacing the terms *master* and *slave* together, then consider such combinations as *primary*/*secondary*, *primary*/*replica*, *original*/*replica*, *controller*/*worker*, *initiator*/*responder*, *mixer*/*leaf*, *aggregator*/*collector*, *publisher*/*subscriber*, *leader*/*follower*, and *active*/*standby*.
+  - If the command or code that you're documenting uses the literal word *slave*, then use this word only in direct reference to the code item (formatted as code), make it clear what you're referring to, and use the new term thereafter. For example, "Invoke the secondary (`slave`) process directly when debugging issues between the primary and secondary processes."
+  - See also master.
+- **slice and dice** **[avoid]**
+  - Don't use the phrase *slice and dice*. Instead, use specific terms appropriate to the task that you're describing. Some possible options include: *segment data for analysis* or *break information into smaller parts*.
+- **smartphone, smart phone** **[avoid]**
+  - Don't use. Instead, use *mobile phone* or *phone*. If you're talking about more than phones, then use *mobile device*. It's OK to use *phone* (without *mobile*) when the context is clear.
+- **soon** **[avoid]**
+  - Avoid in timeless documentation because this word can become outdated. The word can also prematurely disclose product or feature strategy or inappropriately imply that a product or feature might change.
+  - See also eventually and future.
+  - _Recommended: This setting is optional._
+  - _Not recommended: This setting is optional for existing applications but will soon be required for all applications._
+  - For more information, see Timeless documentation.
+- **spin up** **[avoid]**
+  - As in *spin up an instance*. Avoid using *spin up* unless you're referring to a hard disk; instead, use a less colloquial term like *create* or *start*.
+- **SQL**
+  - Refer to *a SQL* (pronounced "a sequel"), not *an SQL*. For more information, see Indefinite articles before abbreviations.
+- **ssh and SSH**
+  - Don't use `ssh` or SSH as a verb. SSH is a secure communications protocol; `ssh` is a utility.
+  - _Recommended: To establish an SSH connection, use the `ssh` command._
+  - _Recommended: Connect to the instance by using SSH. Not recommended: `ssh` into your remote shell._
+- **ssh'ing** **[avoid]**
+  - Don't use. See also ssh and SSH.
+  - _Recommended: When you use `ssh` to log in ..._
+- **startup (noun or adjective), start up (verb)**
+- **static external IP address**
+  - Don't use *static IP address* or *external IP address* to refer to static external IP addresses.
+- **status bar**
+  - Not *statusbar* or *status-bar*.
+  - Lowercase except at the beginning of a sentence, heading, or list item.
+- **STONITH, STOMITH** **[avoid]**
+  - Avoid using graphic or metaphorical language. Instead, explain the relevant feature, such as *fence failed nodes*.
+- **style sheet**
+  - *Style sheet* and *stylesheet* are both acceptable spellings. However, be consistent with your choice throughout a given document.
+- **sub-command**
+  - Not *subcommand*.
+- **subnet**
+  - OK to use as a shortening of *subnetwork*. Use the same term consistently throughout your document. For more information, see Subnets vs. subnetworks.
+- **subtree**
+  - Not *sub-tree*.
+- **subzone**
+  - Not *sub-zone* or *sub zone*.
+- **such as**
+  - Use *such as* to introduce examples or draw comparisons. Note that *such as*, *like*, and *include* introduce non-exhaustive lists, so it's redundant to combine them with *etc.*, *so forth*, or *and more*. See also etc., like. For more information, see Format examples.
+- **surface**
+  - Avoid as a transitive verb; instead, use a more specific term, such as *make people aware of* or *expose*.
+  - _Recommended: To make the audit logs available, you must configure the monitoring system._
+  - _Not recommended: To surface audit logs, you must configure the monitoring system._
+
+## T
+
+- **tab**
+  - When referring to the sub-pages of a console, use *page* instead of *tab*.
+- **table name**
+  - Two words. Set specific table names in code font.
+- **tablet**
+  - *Tablet* is OK. If you don't know whether it's a tablet or a phone, use *device*.
+- **tag**
+  - See element.
+- **tap**
+  - In Android documentation, use for on-screen and soft (capacitive) buttons. Use instead of *click* when the environment is definitely a touch device.
+  - Use instead of *touch*. However, *touch & hold* (not *touch and hold*) is OK to use.
+  - For mechanical buttons, use *press*.
+- **tap & hold, tap and hold** **[avoid]**
+  - In Android documentation, don't use. Instead, use *touch & hold*. (Not *touch and hold*.)
+- **tarball** **[avoid]**
+  - Don't use. Instead, use *tar file*.
+- **target**
+  - Avoid using as a verb when possible, especially in reference to people. For some readers, *target* has aggressive connotations. Instead of "targeting" audiences, we try to attract them or appeal to them or make their lives easier.
+  - It's OK to use *target* as an adjective, as in *target audience*, but consider rephrasing for clarity. Alternatives include phrases such as *intended for*, *looking for*, *focused on*, and *interacting with*.
+- **terminate** **[avoid]**
+  - Avoid using as a synonym for *stop*. Instead, use words like *stop*, *exit*, *cancel*, or *end*.
+  - For a specific context where you can use *terminate* as a synonym for *stop*, see Documenting command-line syntax. In some contexts, such as telephony and networking, *terminate* has specific technical meanings that aren't synonyms for *stop*; in those contexts, you can use *terminate*.
+- **text box, textbox** **[avoid]**
+  - Don't use. Instead, use *box*. For more information, see Text box.
+  - In Google Cloud documentation, use *field* instead of *box*. For example, "In the **Instance** field, specify a value less than 64 characters long."
+  - In Google Workspace documentation, use *field* instead of *box*. For example, "In the **Instance** field, specify a value less than 64 characters long."
+- **their (singular)**
+  - See *they*.
+- **then**
+  - Although it is common in casual usage to omit the word *then* in *if...then* statements, you should include helper words like *then* in technical documentation. For more information, see Use clear, precise, and unambiguous language.
+- **they (singular)**
+  - This is our preferred gender-neutral pronoun. Whether used as singular or plural, it always takes the plural verb.
+  - _Recommended: A user enters their password, and then they insert their security key._
+  - See also gender-neutral he.
+- **third party (noun), third-party (adjective)**
+  - Spell as *third party* when used as a noun and as *third-party* when used as an adjective.
+  - Avoid abbreviating to *3rd party* or *3rd-party*. For more information, see Ordinal numbers.
+- **this, that**
+  - Where possible, put a noun after *this* or *that* for clarity. If doing so results in clunky prose, then don't do it; but even then, try thinking about what the noun would be. If you aren't sure what noun *this* or *that* refers to, then consider rephrasing—otherwise, your reader probably won't know what noun you're referring to, either.
+- **timeframe**
+  - Not *time frame*. Avoid where possible, or use an alternative such as *period*, *schedule*, *deadline*, or *when*. But if you do use it, then write it as one word.
+- **timeout (noun), time out (verb)**
+- **timestamp**
+  - Not *time stamp*.
+- **time to live**
+  - Not *time-to-live*. Abbreviate as *TTL* after first use.
+- **time zone (noun), time-zone (adjective)**
+  - Spell as *time zone* when used as a noun and as *time-zone* when used as an adjective. See also wake lock (noun), wake-lock (adjective).
+- **tl;dr** **[avoid]**
+  - Don't use. Instead, use something like *To summarize*, or revise the sentence.
+- **toolkit**
+  - Not *tool-kit* or *tool kit*.
+- **touch** **[avoid]**
+  - In Android documentation, don't use. Instead, use *tap*. However, *touch & hold* is OK to use.
+- **"touch & hold"**
+  - Not *touch and hold*.
+- **touchscreen**
+  - Not *touch screen*
+- **traditional** **[avoid]**
+  - If possible, use a more precise term.
+  - _Recommended: Conventionally, Python function names are lowercase, with words separated by underscores._
+  - _Not recommended: Traditionally, Python function names are lowercase, with words separated by underscores._
+  - _Recommended: This tutorial explains how to migrate from an on-premises data warehouse to BigQuery._
+  - _Not recommended: This tutorial explains how to migrate from a traditional data warehouse to BigQuery._
+- **transpile**
+  - Not *transcompile*.
+- **tribal knowledge, tribal wisdom** **[avoid]**
+  - Don't use. Instead, use a less figurative term to indicate knowledge held by a group of people.
+- **trojan**
+  - Lowercase when referring to malware.
+- **turn on** **[avoid]**
+  - In procedures, use the appropriate label and action for the UI element that the user interacts with.
+  - For turning on or activating an option or feature, use *turn on* or enable consistently. Use the same term consistently throughout your document.
+  - _Recommended: To turn on Magic Mode, follow these steps._
+  - _Recommended: In **Settings**, click the **Magic mode** toggle to the on position._
+- **tutorial**
+  - OK to use. See documentation.
+- **type** **[avoid]**
+  - In general, use enter instead of *type* because there is typically more than one way to enter text than typing (such as pasting text or speaking).
+- **typically**
+  - Use to describe what is usual or expected under normal circumstances.
+  - Don't use as the first word in a sentence, as doing so can leave the meaning open to misinterpretation.
+
+## U
+
+- **UI**
+  - Don't use generically to refer to a page or dashboard. Use a more specific term like *page* or *console*. If a specific term is unavailable, use *web interface*.
+  - _Recommended: In the Google Cloud console_
+  - _Recommended: On the **Cloud Tasks** page_
+  - _Recommended: In the Secure Source Manager web interface_
+  - _Not recommended: In the **Cloud Tasks** UI_
+- **unarchive** **[avoid]**
+  - Don't use. Instead, use *extract*.
+- **uncheck** **[avoid]**
+  - Don't use to refer to clearing a check mark from a checkbox. Instead, use *clear*.
+  - _Recommended: Clear **Automatically check for updates**._
+  - _Not recommended: Uncheck **Automatically check for updates**._
+  - _Not recommended: Deselect **Automatically check for updates**._
+- **uncompress** **[avoid]**
+  - Don't use. Instead, use *extract*.
+- **under** **[avoid]**
+  - Don't use for a range of version numbers. Instead, use *earlier*.
+  - Don't use to refer to a position in the UI.
+  - _Recommended: In the **Service account ID** field, enter a name._
+  - _Recommended: For **Service account ID**, enter a name._
+  - _Not recommended: Under **Service account ID**, enter a name._
+- **Unicode**
+  - Not *UNICODE*.
+- **Unix-like**
+  - Not *Unixlike* or *Unix like*.
+- **Unix epoch time**
+  - Use instead of *Unix time* or *epoch time* to refer to a point in time represented as a number of seconds since the Unix epoch (00:00:00 UTC on January 1, 1970), ignoring leap seconds.
+- **unselect** **[avoid]**
+  - Don't use. Instead, use *clear* for checkboxes, and *deselect* for other UI elements.
+- **unsighted** **[avoid]**
+  - Don't use. See blind.
+- **untar** **[avoid]**
+  - Don't use. Instead, use *extract*.
+- **unzip** **[avoid]**
+  - Don't use. Instead, use *extract*.
+- **US**
+  - OK to use as an abbreviation for *United States*. Don't use *U.S.* or *U.S.A.* For more information, see Periods with abbreviations.
+- **user**
+  - Use the word *user* only to refer to the user of the software that your reader is developing. Otherwise, address the reader as *you* and assume that they will complete the tasks that you're documenting. For more information, see Second person and first person.
+- **user base**
+  - Not *userbase*.
+- **using**
+  - Where *using* might have more than one interpretation, use *by using* to help clarify the logic of the sentence.
+  - _Recommended: You can filter for data with specific attributes by using custom filters._
+  - _Not recommended: You can filter for data with specific attributes using custom filters._
+- **UTF**
+  - Include the hyphen in the names of Unicode encodings, such as *UTF-8*, *UTF-16*, and *UTF-32*.
+- **utilize, utilization** **[avoid]**
+  - Use with caution. Don't use *utilize* when you mean *use*. It's OK to use *utilize* or *utilization* when referring to the quantity of a resource being used.
+  - _Recommended: When CPU utilization exceeds 75%, the autoscaler adds more CPU resources._
+  - _Recommended: To distribute network traffic, use a load balancer._
+  - _Not recommended: To distribute network traffic, utilize a load balancer._
+
+## V
+
+- **v (abbreviating *version*)**
+  - Use lowercase.
+- **via** **[avoid]**
+  - Don't use.
+- **vice versa** **[avoid]**
+  - Don't use. Write out the relationship explicitly. To emphasize the reciprocal or contrasting relationship, you can use a more precise term like *conversely*.
+  - _Not recommended: You can copy local files to the cloud and vice versa._
+  - _Recommended: You can upload local files to the cloud or download cloud files to your local environment._
+  - _Recommended: You can upload local files to the cloud. Conversely, you can download cloud files to your local environment._
+- **virtual machine (VM) instance**
+  - Use when first introducing virtual machines on a given page. For subsequent mentions, you can use *VM instance* or *VM*.
+  - For Google Cloud: on first mention of a Compute Engine VM, use *Compute Engine instance* and then use *compute instance* throughout the rest of the document. If you need to indicate other types of VMs, use *VM*, *VM instance*, or *bare metal instance*.
+  - See also GKE node.
+- **visually challenged** **[avoid]**
+  - See blind.
+- **VLAN attachment**
+  - Don't use the following: *interconnect attachment (VLAN)*, *Interconnect attachment*, *Cloud Interconnect attachment*, or any variation thereof. See also interconnectAttachment.
+- **voila** **[avoid]**
+  - Don't use.
+- **voodoo** **[avoid]**
+  - Don't use. Instead, use a term like *mysterious*, *complicated*, or *nondeterministic*.
+- **vs.** **[avoid]**
+  - Don't use *vs.* as an abbreviation for *versus*; instead, use the unabbreviated *versus*.
+
+## W
+
+- **wake lock (noun), wake-lock (adjective)**
+  - Spell as *wake lock* when used as a noun and as *wake-lock* when used as an adjective. See also time zone (noun), time-zone (adjective).
+- **walkthrough**
+  - Not *walk-through*.
+- **war room, warroom, war-room** **[avoid]**
+  - Don't use. Instead, use a more precise term to describe the activity or team. Depending on context, possible alternatives include *rapid response team*, *situation response team*, *situation room*, *incident-management team*, or *media monitoring room*.
+- **warm**
+  - When possible, avoid jargon like *warm failover*, *warm standby*, and *warm spare*. If you use one of these phrases, define it on first use and use it consistently throughout the document.
+- **we**
+  - Don't use *we* (or other first-person plural pronouns such as *our* or *us*) to address the reader who is performing the tasks that you're documenting. Instead, use *you*.
+  - It's OK to use *we* to refer to the organization that's represented as the author of the document as long as the antecedent is clear. For more information, see Second person and first person.
+- **web (lowercase)**
+- **WebAssembly, Wasm**
+  - Use the capitalization established in the WebAssembly specification.
+- **web application firewall (lowercase)**
+- **webmaster, web master** **[avoid]**
+  - Don't use. Instead, use a more precise term to describe the specific role, such as *website owner*, *website administrator*, *web content manager*, *owner of a site*.
+- **web server**
+  - Not *webserver*.
+- **whether**
+    - To decide whether it's more appropriate to use *if* or *whether*, see Grammar Girl's discussion of *if* and *whether*.
+    - To decide whether you need to add *or not* when using *whether*, see the New York Times's blog post about whether (or not).
+- **while**
+  - Don't use to indicate a contrast. Instead, use a more precise term, such as *although*.
+  - OK to use to refer to a period of time.
+- **white-box** **[avoid]**
+  - Avoid using *white-box*, *whitebox*, or *white box* to describe monitoring and testing. Consider using a more precise term for clarity.
+    - For monitoring, use *introspective monitoring*.
+    - For testing, use *clear-box testing*.
+- **white glove, white-glove, whiteglove** **[avoid]**
+  - Avoid using. Instead use terms like *high-touch*, *premium*, or *platinum-level*.
+- **whitehat, white hat, white-hat** **[avoid]**
+  - Don't use. Instead, use precise terms for the kind of compliance, such as *legal*, *ethical*, or *following the rules*.
+- **white label, whitelabel, white-label** **[avoid]**
+  - Don't use. Instead, use a more precise term for your context, such as *unbranded*, *unlabeled*, or *blank label*.
+- **whitelist, white list, white-list** **[avoid]**
+  - Don't use. See blacklist.
+- **whitelisted, white listed, white-listed** **[avoid]**
+  - Don't use. See blacklist.
+- **whitelisting, white listing, white-listing** **[avoid]**
+  - Don't use. See blacklist.
+- **whitepaper**
+  - Not *white paper*.
+  - When possible, use a more precise term. The term *whitepaper* has a variety of meanings in various contexts. If you must use the term *whitepaper*, also use descriptive terms to provide context.
+- **whitespace**
+  - Not *white space*.
+- **wildcard**
+  - Not *wild card*.
+- **will**
+  - Avoid. Applies equally to its past tense, *would*. See also Present tense and Documenting future features.
+- **wish** **[avoid]**
+  - Don't use. Instead, use a word like *want* or *need*.
+- **with**
+  - Don't use *with* when expressing ownership: Recommended: A handset that has 2 GB of RAM.
+  - _Not recommended: A handset with 2 GB of RAM._
+  - Don't use *with* when expressing use: Recommended: Use the debugging tool to debug.
+  - _Not recommended: Debug this tool with the debugging tool._
+- **workload**
+  - The term *workload* might refer to software, like an app or a service; to app resources, like data and infrastructure; or to physical components that work together.
+  - Where possible, use a more precise term to describe what you mean. If you use the term *workload*, define your meaning on first use as you normally would with jargon and other ambiguous terms.
+- **World Wide Web** **[avoid]**
+  - Don't use. Instead, use *web*.
+- **would** **[avoid]**
+  - Avoid using. Instead, use *can* where possible.
+  - See also can, could, may, might, must, and should.
+  - For information about clarifying who's performing an action, see Active voice.
+  - For information about tenses, see Present tense.
+
+## Y
+
+- **ymmv** **[avoid]**
+  - Don't use. Instead, use something like *Your results might vary*.
+- **you**
+  - Use *you* instead of *user* to address the reader of your document. For more information, see Second person and first person.
+
+## Z
+
+- **zippy** **[avoid]**
+  - Don't use to refer to expander arrows, unless you're specifically referring to the Zippy widget in Closure.

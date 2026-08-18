@@ -17,6 +17,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.25.0] - 2026-08-18
+
+### Added
+- **`/tech-writing` skill (psd-productivity)** — writing style guide distilled from the complete Google developer documentation style guide (~60 pages, all sections researched page-by-page). Lean SKILL.md carries the doc-type table (task/concept/reference verb forms), the core rules, a 5-pass review workflow, a runnable style-lint grep, and a word-swap table; 7 reference files (~4,400 lines) carry the depth — principles/voice/accessibility/inclusive language, grammar, punctuation, formatting, code & UI, names & example values, and the full 598-entry A–Z word list. Benchmarked with-skill 24/25 assertions vs 20/25 baseline across review/write/edit evals; 20/20 trigger-description accuracy.
+- **Atrium collection management commands (psd-productivity)** — manage Atrium collections from the `/psd-atrium` skill.
+
+### Changed
+- **CI** — migrated to org reusable workflows (#86).
+- Versions: **psd-productivity 2.17.0 → 2.18.0**, **marketplace 2.24.0 → 2.25.0**.
+
+## [2.24.0] - 2026-07-28
+
+_Backfilled entry — this release shipped without a changelog entry or a `v2.24.0` tag._
+
+### Added
+- **`/psd-atrium` skill (psd-productivity)** — publish documents and HTML artifacts into AI Studio Atrium: create native Atrium markdown documents and interactive HTML/JSX artifacts, embed images, edit, set visibility, and publish to the internal intranet reader.
+
+### Changed
+- Versions: **psd-productivity 2.16.0 → 2.17.0**, **marketplace 2.23.0 → 2.24.0**.
+
 ## [2.23.0] - 2026-07-24
 
 ### Changed
