@@ -22,6 +22,9 @@ __pycache__/
 # Node modules if added later
 node_modules/
 
+# Local HTML-artifact session outputs (working files, not plugin content)
+artifacts/
+
 # Logs
 *.log
 

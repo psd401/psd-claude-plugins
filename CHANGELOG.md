@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.25.1] - 2026-08-18
+
+### Security
+- **`/pptx` skill (psd-productivity)** — bumped `sharp` `^0.34.5` → `^0.35.3` (Dependabot alert #30: inherited libvips CVEs, patched in 0.35.0). Lockfile regenerated; playwright and pptxgenjs unchanged. The skill's `sharp` usage (SVG rasterization via `sharp(buffer).png()`) is unaffected by the 0.35 API.
+- **Dependabot alerts #31/#32 (`image-size` ≤ 2.0.2, infinite-loop DoS in ICNS/JXL/HEIF parsers) dismissed as tolerable risk** — no patched release exists (2.0.2 is the latest published version and is itself vulnerable); the dependency is transitive via `pptxgenjs@4.0.1` (already latest, requires `^1.2.1`); impact is limited to a local hang while parsing a malicious image during local slide generation. Revisit when image-size ships a fix or pptxgenjs updates.
+
+### Changed
+- **`.gitignore`** — ignore the local `artifacts/` directory (HTML-artifact session outputs, not plugin content).
+- Versions: **psd-productivity 2.18.0 → 2.18.1**, **marketplace 2.25.0 → 2.25.1**.
+
 ## [2.25.0] - 2026-08-18
 
 ### Added
