@@ -18,7 +18,7 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 ### psd-coding-system
 
-AI-assisted development system with 21 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
+AI-assisted development system with 7 skills, 44 specialized agents, memory-based learning, and Context7 framework docs.
 
 ```bash
 /plugin install psd-coding-system
@@ -26,33 +26,19 @@ AI-assisted development system with 21 skills, 44 specialized agents, memory-bas
 
 | Skill | Description |
 |-------|-------------|
-| `/work` | Implement solutions with auto reviews + learning capture |
-| `/lfg` | Autonomous end-to-end: implement → test → review → fix → learn |
-| `/debug` | Structured root-cause analysis: reproduce → hypothesize → test → verify → fix → learn |
-| `/architect` | System architecture design |
-| `/test` | Comprehensive testing with self-healing + learning capture |
-| `/review-pr` | Iterative PR feedback (rounds 2+ process only new comments) |
-| `/issue` | AI-validated GitHub issues |
-| `/product-manager` | Product specs to sub-issues |
-| `/security-audit` | Security analysis |
-| `/scope` | Scope classification + tiered planning |
-| `/evolve` | Auto-evolve: analyze learnings, check releases, compare plugins |
-| `/brainstorm` | Collaborative requirements exploration |
-| `/changelog` | Auto-generate changelog entries |
-| `/deepen-plan` | Parallel per-section plan research |
-| `/setup` | Per-project review agent configuration |
-| `/worktree` | Git worktree management |
-| `/swarm` | Parallel agent orchestration |
-| `/optimize` | Metric-driven iterative optimization loops |
-| `/bump-version` | Automate version bump ritual |
-| `/clean-branch` | Post-merge cleanup |
-| `/triage` | FreshService ticket triage |
+| `/plan` | Clarify → research (parallel) → design → emit tasks + a machine-checkable Definition of Done |
+| `/lfg` | Autonomous build-to-done: implement → verify the full DoD → open PR → watch CI + AI reviewers until 100% clean |
+| `/evolve` | Compound learnings into CLAUDE.md/patterns/agents then prune; release tracking; competitor compare |
+| `/setup` | Configure the per-project verification gate — writes `.psd/verify.json` |
+| `/worktree` | Git worktree management + `clean` post-merge hygiene |
+| `/bump-version` | Automate version bump ritual (three independent tracks) |
+| `/psd-sign` | Sign, notarize, and package a macOS .app into a .pkg for PSD Jamf Self Service |
 
 [Full documentation →](./plugins/psd-coding-system/README.md)
 
 ### psd-productivity
 
-37 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
+38 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -60,12 +46,15 @@ AI-assisted development system with 21 skills, 44 specialized agents, memory-bas
 
 | Category | Skills |
 |----------|--------|
-| **Productivity** (3) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` |
-| **Content & Docs** (10) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` |
+| **Productivity** (4) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` · `/google-workspace-cli` |
+| **Content & Docs** (15) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/psd-atrium` |
+| **Communications** (2) | `/parentsquare` · `/class-intercom` |
+| **E-Signature** (2) | `/documenso-manager` · `/docusign-manager` |
+| **Automation** (2) | `/n8n-manager` · `/browser-control` |
 | **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
 | **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
 | **Planning** (2) | `/seven-advisors` · `/skill-creator` |
-| **PSD-Specific** (4) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` · `/psd-atrium` |
+| **PSD-Specific** (3) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` |
 | **Operations** (2) | `/enrollment` · `/chief-of-staff` |
 
 [Full documentation →](./plugins/psd-productivity/README.md)
@@ -90,14 +79,14 @@ AI-assisted development system with 21 skills, 44 specialized agents, memory-bas
 
 ## AI Agents (44 total — psd-coding-system)
 
-### Review Specialists (16 agents)
-`security-analyst` · `security-analyst-specialist` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `correctness-reviewer` · `adversarial-reviewer` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
+### Review Specialists (15 agents)
+`security-reviewer` · `deployment-verification-agent` · `data-migration-expert` · `agent-native-reviewer` · `architecture-strategist` · `code-simplicity-reviewer` · `pattern-recognition-specialist` · `correctness-reviewer` · `adversarial-reviewer` · `schema-drift-detector` · `data-integrity-guardian` · `typescript-reviewer` · `python-reviewer` · `swift-reviewer` · `sql-reviewer`
 
 ### Domain Specialists (7 agents)
 `backend-specialist` · `frontend-specialist` · `database-specialist` · `llm-specialist` · `ux-specialist` · `architect-specialist` · `shell-devops-specialist`
 
-### Quality (3 agents)
-`test-specialist` · `performance-optimizer` · `documentation-writer`
+### Quality (4 agents)
+`test-specialist` · `performance-optimizer` · `documentation-writer` · `runtime-verifier`
 
 ### Research (6 agents)
 `learnings-researcher` · `spec-flow-analyzer` · `best-practices-researcher` · `framework-docs-researcher` · `git-history-analyzer` · `repo-research-analyst`
@@ -121,14 +110,14 @@ psd-claude-plugins/
 │   └── marketplace.json           # Lists both plugins
 ├── plugins/
 │   ├── psd-coding-system/         # Development workflows
-│   │   ├── skills/                # 21 user-invocable skills
+│   │   ├── skills/                # 7 user-invocable skills
 │   │   ├── agents/                # 44 specialized agents
 │   │   ├── hooks/                 # PostToolUse syntax validation
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
 │   └── psd-productivity/          # Productivity workflows
-│       ├── skills/                # 32 productivity skills
-│       └── agents/                # Workflow-specific agents (TBD)
+│       ├── skills/                # 38 productivity skills
+│       └── agents/                # enrollment-validator
 ├── CLAUDE.md
 ├── CHANGELOG.md
 └── README.md
