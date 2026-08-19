@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.26.0] - 2026-08-18
+
+### Added
+- **`/chad-review` skill (psd-coding-system)** — vendored third-party skill that strips the showing-off from an artifact. Chad (the artifact's intended audience, personality of the "Chad vs Virgin" meme, refuses to be impressed) reviews a **clone** and leaves blunt feedback comments ending with a bird's-eye comment; a defender who treats Chad as an asset addresses every comment — edits the clone or rejects it with a reason written to Chad — and the same Chad re-reviews for N rounds (default 3). Runs at two altitudes: the whole bundle first in reading order (catches cross-file duplication and contradictions), then each surviving file in parallel. Returns the comment table, the per-unit change summaries, and the unresolved tensions for the human to rule on. The original is never touched — apply by diffing the clone.
+  - **Provenance:** copied from [`nityeshaga/claude-code-essentials/plugins/chad-review`](https://github.com/nityeshaga/claude-code-essentials/tree/main/plugins/chad-review) at upstream **v0.5.0**. Upstream declares **no LICENSE**; vendored with attribution in both `SKILL.md` and the workflow header. Re-evaluate if upstream adds a license or objects.
+  - **Files:** `plugins/psd-coding-system/skills/chad-review/SKILL.md` (adapted) and `plugins/psd-coding-system/workflows/chad-review.js` (**byte-identical to upstream** below the attribution header — verified by diff). New `workflows/` directory in the plugin.
+  - **Adaptations from upstream:** frontmatter aligned to repo convention (`model: claude-opus-5`, `effort: high`, `extended-thinking: true`, `argument-hint`); attribution block added; upstream's "Sibling" section (pointing at the `elon-algorithm` plugin, which this marketplace does not ship) removed; a **PSD notes** section added covering the Workflow-tool opt-in rule, the agent-count blast radius, the `rm -rf "<path>-clone"` clone step, Claude-Code-only support, and how Chad relates to the existing `/lfg` verify gate and `agents/review/` reviewers.
+  - **Not vendored:** upstream's `README.md`, `.claude-plugin/plugin.json`, and `assets/*.png` (README decoration only; not referenced by the skill).
+  - **Security review before vendoring** (all 367 upstream lines read): no network calls, no credential access, no obfuscated or encoded payloads, no hooks, no dependencies, no prompt-injection-style instructions. One destructive command — the clone step runs `rm -rf "<path>-clone" && cp -R "<path>" "<path>-clone"` — bounded to a suffixed path but **unquoted against paths containing shell metacharacters**; documented in the skill's PSD notes.
+
+### Changed
+- Versions: **psd-coding-system 3.5.0 → 3.6.0**, **marketplace 2.25.1 → 2.26.0**.
+- Skill counts updated from 7 → 8 for psd-coding-system in `CLAUDE.md`, root `README.md`, and `plugins/psd-coding-system/README.md`.
+- `CLAUDE.md` repo tree now lists the plugin's new `workflows/` directory.
+
 ## [2.25.1] - 2026-08-18
 
 ### Security
