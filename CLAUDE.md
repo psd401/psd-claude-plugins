@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.26.0
+**Version**: 2.27.0
 **Status**: Production-Ready
 
 ### Plugins
 
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
-| `psd-coding-system` | AI-assisted development workflows | 8 | 44 |
+| `psd-coding-system` | AI-assisted development workflows | 9 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 38 | 1 |
 
 ## Architecture
@@ -24,7 +24,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 psd-claude-plugins/
   .claude-plugin/marketplace.json   # lists both plugins — see CRITICAL RULES below
   plugins/
-    psd-coding-system/              # skills/ (8), agents/ (44 in 8 category dirs), hooks/, scripts/, workflows/, docs/patterns/
+    psd-coding-system/              # skills/ (9), agents/ (44 in 8 category dirs), hooks/, scripts/, workflows/, docs/patterns/
     psd-productivity/               # skills/ (38), agents/ (enrollment-validator)
   docs/learnings/                   # canonical learnings location (see Learning Data below)
 ```
@@ -38,7 +38,7 @@ Explore with `ls` — the tree is not duplicated here.
 - Each plugin ships its own agents
 - `enabledPlugins` in `.claude/settings.json` allows selective enabling/disabling
 
-### psd-coding-system Skills (8 total)
+### psd-coding-system Skills (9 total)
 
 **v3.0.0 consolidated 21 overlapping skills into 3 disciplined surfaces + utilities.** "Done" is a machine-checkable Definition of Done (`docs/patterns/definition-of-done.md`), enforced by a verify gate + Stop hook, not agent goodwill.
 
@@ -52,6 +52,7 @@ Explore with `ls` — the tree is not duplicated here.
 | `/bump-version` | Version bump ritual (absorbs `/changelog`) — three independent tracks |
 | `/psd-sign` | Sign, notarize, and package a macOS `.app` into a `.pkg` for PSD Jamf Self Service — full Apple Developer ID pipeline (salvaged from PR #39 in v3.4.0) |
 | `/chad-review` | Strip the showing-off from an artifact (docs, prose, skills, landing pages) — Chad ↔ defender review loop on a **clone**, N rounds, unresolved tensions to the human. Vendored from [nityeshaga/claude-code-essentials](https://github.com/nityeshaga/claude-code-essentials/tree/main/plugins/chad-review) (v0.5.0, no upstream license) in v3.6.0. Workflow-tool path is agent-expensive — see the PSD notes in its SKILL.md |
+| `/hallmark` | Anti-AI-slop **visual design** surface — picks a macrostructure for the brief, dresses it in one of 21 OKLCH themes, runs 57 slop-test gates + a pre-emit self-critique. Four verbs: default (design) · `audit` (score, no edits) · `redesign` (keep copy/IA/brand, rebuild the visual layer) · `study` (extract a design's DNA from a screenshot/URL, never pixel-clones). Vendored from [nutlope/hallmark](https://github.com/nutlope/hallmark) (v1.1.0, **MIT** — `LICENSE.upstream` travels with it) in v3.7.0. Styles; does not ship — `/lfg` still owns the verify gate. Upstream `site/css/tokens.css` is vendored to `references/tokens.css` because 16 of the 21 themes live only there |
 
 **Removed/folded in v3.0.0:** work, test, debug, optimize, review-pr, security-audit, architect, brainstorm, scope, product-manager, deepen-plan, issue, changelog, clean-branch, swarm, triage (triage intake now lives only in the cloud routine). Contracts: `docs/patterns/{definition-of-done,issue-contract,worktrees-explained}.md`.
 

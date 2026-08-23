@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 3.6.0
+Version: 3.7.0
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -14,7 +14,7 @@ A unified Claude Code plugin that collapses development into a tight, contract-d
 
 **One plugin. Three superpowers.**
 
-1. **Workflow Automation** — 8 skills + 44 specialized agents
+1. **Workflow Automation** — 9 skills + 44 specialized agents
 2. **Verifiable Done** — a per-project Definition-of-Done gate that `/lfg` loops against and a Stop hook that refuses to finish while it's red
 3. **Knowledge Evolution** — `/lfg` captures and commits learnings; `/evolve` compounds them into durable docs/agents, then prunes them
 
@@ -58,6 +58,7 @@ Eight skills, each with a clear lane. The old 21 skills were absorbed — `/plan
 | `/bump-version` | The version-bump ritual across three independent tracks (absorbs `/changelog`). | `/bump-version minor` |
 | `/psd-sign` | Sign, notarize, and package a macOS `.app` into a `.pkg` for PSD Jamf Self Service — the full Apple Developer ID pipeline (sign → notarize → staple → pkgbuild → notarize pkg → verify). | `/psd-sign ~/Desktop/MyApp.app` |
 | `/chad-review` | Strip the showing-off from an artifact — Chad (the unimpressible intended audience) comments, a defender fixes or rejects each with a reason, repeat N rounds (default 3). Runs on a **clone**; hands back unresolved tensions + the comment table. Vendored from [nityeshaga/claude-code-essentials](https://github.com/nityeshaga/claude-code-essentials/tree/main/plugins/chad-review). **Agent-expensive on multi-file bundles** — read the PSD notes in its `SKILL.md` first. | `/chad-review README.md` |
+| `/hallmark` | Anti-AI-slop **visual design**: picks a macrostructure for the brief, dresses it in one of 21 OKLCH themes, and runs 57 slop-test gates + a pre-emit self-critique so two briefs come out as different sites, not colour-swaps. Verbs: default (design) · `audit` (punch list, no edits) · `redesign` · `study` (extract DNA from a screenshot/URL). Vendored MIT from [nutlope/hallmark](https://github.com/nutlope/hallmark). **Styles, doesn't ship** — run `/lfg` for the verify gate + PR. | `/hallmark "landing page for X"` · `/hallmark audit app/page.tsx` |
 
 > **Removed in v3.0.0:** `/work`, `/test`, `/debug`, `/optimize`, `/review-pr`, `/security-audit`, `/architect`, `/brainstorm`, `/scope`, `/product-manager`, `/deepen-plan`, `/issue`, `/changelog`, `/clean-branch`, `/swarm`, `/triage`. Their behavior is folded into the skills above. (FreshService-ticket intake now lives only in the cloud `triage` routine, not as a local skill.)
 

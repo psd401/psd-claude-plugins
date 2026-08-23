@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.27.0] - 2026-08-22
+
+### Added
+- **`/hallmark` skill vendored into `psd-coding-system`** (plugin 3.6.0 → 3.7.0, marketplace 2.26.0 → 2.27.0) — a ninth skill, and the plugin's first surface aimed at how something *looks* rather than whether it works.
+  - **Source:** [`nutlope/hallmark`](https://github.com/nutlope/hallmark) by Hassan El Mghari (`nutlope`), made by Together AI. Upstream **v1.1.0**, commit `13ac0ec` (2026-08-06). **MIT licensed** — unlike the `/chad-review` vendoring, this one has a real license, and the license text travels with the copy as `skills/hallmark/LICENSE.upstream` to satisfy the MIT attribution requirement.
+  - **Mechanism:** picks a macrostructure for the brief (21 documented macrostructures), dresses it in one of 21 OKLCH themes with a per-theme font stack, then runs 57 slop-test gates plus a pre-emit self-critique scored 1–5 on six axes (Philosophy, Hierarchy, Execution, Specificity, Restraint, Variety); anything under 3 triggers a revision pass. A diversification rule logged to `.hallmark/log.json` stops consecutive outputs from sharing a fingerprint. Four verbs: default (design), `audit` (score against the anti-patterns, punch list, **no edits**), `redesign` (keep copy + IA + brand, rebuild the visual structure), `study` (extract a design's DNA from a screenshot or URL — refuses pixel-clones and template-marketplace sources).
+  - **Component-scope branch:** a short brief naming a single element routes away from the page apparatus (no macrostructure, no nav/footer archetype, no hero enrichment) and into an 8-state discipline instead — default · hover · `:focus-visible` · `:active` · disabled · loading · error · success, all mandatory.
+
+### Fixed (vendoring adaptations)
+- **Vendored `site/css/tokens.css` → `skills/hallmark/references/tokens.css`.** This is a **functional** dependency, not a documentation link: only 5 of the 21 themes ship a `references/themes/*.md`; the other 16 exist *solely* as `[data-theme="..."]` token blocks in that file. Copying `skills/hallmark/` alone — the upstream install path — would have shipped a skill whose theme catalog points at a file that isn't there.
+- **Vendored `docs/recipes.md` and `docs/study-examples.md` → `references/`** (worked briefs and worked DNA-extractions the SKILL.md links for human readers).
+- **Repointed the remaining out-of-skill links at upstream GitHub** — `site/examples/*` canonical builds and `site/_tests/*` fixtures, which are full HTML builds not worth vendoring. All 109 markdown files were then link-checked: every relative link resolves.
+- **Frontmatter rewritten to the PSD plugin standard** — `model: claude-opus-5`, `effort: high`, `extended-thinking: true`, plus an `argument-hint`. The upstream `version: 1.1.0` field moved into the attribution block.
+- **Description narrowed to avoid colliding with `/lfg`.** Upstream's trigger ("Use when the user asks to build a new app or landing page") would fire on ordinary feature work, where `/lfg` owns the build-to-done loop. The vendored description scopes to visual/design intent and states the boundary explicitly: *this skill styles, it does not ship*.
+
 ## [2.26.0] - 2026-08-18
 
 ### Added
