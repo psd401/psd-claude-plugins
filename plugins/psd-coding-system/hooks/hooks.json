@@ -56,7 +56,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "echo '=== Worktree created: ${worktree_path:-unknown} ==='; if [ -n \"${worktree_path}\" ] && [ -d \"${worktree_path}\" ] && [ -f .env ]; then if ln -sf \"$(pwd)/.env\" \"${worktree_path}/.env\"; then echo 'Symlinked .env to worktree'; else echo 'Warning: Failed to symlink .env to worktree' >&2; fi; fi; true",
+            "command": "input=$(cat); wp=$(printf \"%s\" \"$input\" | jq -r \".worktree_path // .path // empty\" 2>/dev/null); if [ -n \"$wp\" ] && [ -d \"$wp\" ] && [ -f .env ]; then if ln -sf \"$(pwd)/.env\" \"$wp/.env\"; then echo \"Symlinked .env into worktree\" >&2; else echo \"Warning: failed to symlink .env\" >&2; fi; fi; true",
             "timeout": 10
           }
         ]

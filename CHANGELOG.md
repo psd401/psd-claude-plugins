@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.27.1] - 2026-08-23
+
+### Fixed
+- **`psd-coding-system` 3.7.1 — WorktreeCreate hook broke worktree creation**: the hook echoed a status banner to stdout, but a WorktreeCreate hook's stdout is interpreted as the path of the worktree it created — so every isolated-worktree agent launch failed with "hook returned a path that is not a directory" (and the single-quoted `${worktree_path}` never expanded, so the banner printed a literal variable). The hook now reads the worktree path from its stdin JSON, sends all human output to stderr, keeps stdout empty, and preserves the `.env` symlink behavior.
+
 ## [2.27.0] - 2026-08-22
 
 ### Added
