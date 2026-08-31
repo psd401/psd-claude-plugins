@@ -8,7 +8,7 @@
 - **District Code**: 2740
 - **SIS**: PowerSchool
 - **State Reporting**: EDS (Education Data System)
-- **Enrollment Officer**: Michael George
+- **Enrollment Officer**: see district staff directory (name roles, never individuals — a named person dates the doc the moment the role changes hands)
 
 ## Schools
 

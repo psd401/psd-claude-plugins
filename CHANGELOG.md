@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.3] - 2026-08-31
+
+**psd-productivity 2.19.2 → 2.19.3** (psd-coding-system unchanged at 3.7.1)
+
+### Changed
+- **`/enrollment` school-config reference** — the **Enrollment Officer** entry in `references/school-config.md` no longer names an individual. It now points to the district staff directory and states the convention explicitly: name roles, never individuals, because a named person dates the doc the moment the role changes hands. Keeps a distributed plugin reference from going stale on staff turnover and removes an individual's name from a public repo
+
 ## [2.28.2] - 2026-08-31
 
 **psd-productivity 2.19.1 → 2.19.2** (psd-coding-system unchanged at 3.7.1)
