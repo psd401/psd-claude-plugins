@@ -131,6 +131,23 @@ All 5 elementary reports PLUS:
 | September | 4th school day of September |
 | October–June | 1st school day of each month |
 
+### 2026-27 Count Dates (computed from official district calendar, weekdays verified)
+
+Source: 2026-27 PSD calendar (first day 9/2/2026; Labor Day 9/7; winter break 12/21–12/31). Same table lives in the tracking sheet's `Calendar` tab for n8n and cross-machine use.
+
+| Month | Count Date | Weekday | Notes |
+|-------|-----------|---------|-------|
+| September 2026 | 2026-09-08 | Tuesday | 4th school day; **also first day of kindergarten** |
+| October 2026 | 2026-10-01 | Thursday | |
+| November 2026 | 2026-11-02 | Monday | Nov 1 is a Sunday |
+| December 2026 | 2026-12-01 | Tuesday | |
+| January 2027 | 2027-01-04 | Monday | First school day after winter break |
+| February 2027 | 2027-02-01 | Monday | |
+| March 2027 | 2027-03-01 | Monday | |
+| April 2027 | 2027-04-01 | Thursday | Spring break 4/12–4/16 is later in month |
+| May 2027 | 2027-05-03 | Monday | May 1 is a Saturday |
+| June 2027 | 2027-06-01 | Tuesday | Final count of the year |
+
 ## Reporting Deadlines
 
 | Level | Template Due | Admin Meeting |

@@ -17,6 +17,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.0] - 2026-08-31
+
+**psd-productivity 2.18.1 → 2.19.0** (psd-coding-system unchanged at 3.7.1)
+
+### Added
+- **`/enrollment daily-check`** — new lightweight weekday entry point for scheduled (unattended) operation on the office Mac mini. Reads the tracking sheet's `Calendar` tab and branches: normal day → PowerSchool session-health probe (`fetch` of `activenotificationOther.json.html`, checking `r.ok && !r.redirected`) with an email alert on expiry; T-1 → readiness summary (session + Drive BACKUP folder); count day → full `/enrollment run`
+- **`scripts/save_pdf.js`** — the CDP `Page.printToPDF` save helper now ships inside the enrollment skill instead of being hand-copied into per-month Desktop folders. Bun script, `CDP_PORT` env override (default 9222), optional tab-title filter with first-page fallback
+- **`references/machine-setup.md`** — complete one-time-per-machine setup checklist: Brave Nightly debug browser, bun, uv, `gws` CLI auth, the `ENROLLMENT_NOTIFY_TOKEN` env var, `~/Enrollment` staging directory, and the Mac mini scheduled-task configuration (local schedule, not a cloud routine — the browser runs on the machine)
+- **2026-27 count-date table** in `references/school-config.md` — all ten count dates with verified weekdays. September is **Tuesday 2026-09-08** (4th school day; also the first day of kindergarten); October–June are the 1st school day of each month. Mirrored to the tracking sheet's `Calendar` tab for n8n and cross-machine use
+- **Shared-state tracking sheet** — `Calendar` / `SchoolStatus` / `DistrictStatus` tabs (`1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`). The skill writes per-school and district rows via `gws`; n8n and humans read. `/enrollment status` and the Phase 2 completion loop now resume from the sheet rather than local state, so a run can move between machines
+- **n8n handoff for EDS notifications** — after a human confirms EDS submission, the skill POSTs to the `BUS - Enrollment Notifications` webhook (`X-Enrollment-Token` header) to fire Board/Cabinet and Sodexo emails. Degrades safely: an unset token or failed call is reported and falls back to updating `DistrictStatus` directly, never faked
+- **Plugin-namespaced chrome-devtools MCP tool names** in the `allowed-tools` of both `enrollment` and `browser-control` — `mcp__plugin_psd-productivity_chrome-devtools__*`, listed alongside the legacy `mcp__chrome-devtools__*` names for cross-version compatibility
+
+### Changed
+- **Enrollment skill is now machine-portable** — every script and asset path is skill-relative (`<skill-dir>/scripts/...`) instead of repo- or Desktop-relative; local output stages to `~/Enrollment/P223-<Month>-<Year>/` with Drive as the home of record. `~/Enrollment/` added to the skill's `paths:` scope
+- **Division of labor with n8n documented** — n8n owns the schedule and notification layer (count-day calendar, T-1 reminders, monthly Drive BACKUP folder creation, post-EDS emails, TCC Running Start report watcher); the skill owns browser collection and Python computation. Tracking-sheet or n8n unavailability never blocks a local run
+- **`/enrollment` effort lowered `high` → `medium`** — the monthly run is a long mechanical loop; the March failure mode was context-window pressure, not reasoning depth (same rationale as `/lfg` on Opus 5)
+- **Browser automation is main-session only** — stated explicitly in the skill and the build plan: subagents cannot access MCP tools, so browser steps are never delegated. Validation, which is pure computation, is now explicitly dispatched **concurrently** across schools via parallel `enrollment-validator` agents
+- **Session-expiry handling split by run mode** — attended runs re-authenticate and resume from the current school; unattended runs alert a human by email and stop cleanly with state recorded so the next invocation resumes
+- **Running Start FTE cap confirmed at 1.20 for 2026-27** (Hagel, 2026-08-31) in `fte-rules.md`, with the historical note that the state allowed 1.40 for 25-26 while PowerSchool capped at 1.20. Bell schedules verified unchanged for 2026-27
+- **`browser-control` launch instructions** now use the skill-relative script path and point at the installed-plugin location, with a note that installed plugins live under `~/.claude/plugins/marketplaces/`
+- **Download pre-flight reframed from per-session to per-machine** — "Ask where to save each file before downloading" persists in the debug profile once turned off, so it is verified before the first run on a new machine rather than every session
+
+### Removed
+- **`click_at` and `get_tab_id`** from the `allowed-tools` of `enrollment` and `browser-control` — these tools no longer exist in chrome-devtools-mcp
+
+### Fixed
+- **chrome-devtools MCP pinned to `chrome-devtools-mcp@1.8.0`** in `psd-productivity/.claude-plugin/plugin.json` (was `@latest`) — an unpinned MCP server changes its tool surface underneath the skills' `allowed-tools` allowlists without warning
+
 ## [2.27.1] - 2026-08-23
 
 ### Fixed

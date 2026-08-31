@@ -21,7 +21,9 @@
 
 ### Count Day Reports
 
-> **Pre-flight (once per session):** Disable "Ask where to save each file before downloading" at `brave://settings/downloads` — otherwise Student List Export triggers a native OS dialog on every school. Verify it's off before starting.
+> **Pre-flight (once per machine — persists in the debug profile):** Disable "Ask where to save each file before downloading" at `brave://settings/downloads` — otherwise Student List Export triggers a native OS dialog on every school. Verify it's off before the first run on a new machine.
+>
+> **Save script**: `save_pdf.js` ships with the skill at `scripts/save_pdf.js` (relative to the skill directory). `<folder>` below = the local staging folder `~/Enrollment/P223-<Month>-<Year>/`. Every `bun .../save_pdf.js` reference below means the skill's copy — never a Desktop or per-month copy.
 
 > **Session health check (before first report):** Verify the PS session is active. If `getStudents.txt` or any XHR returns HTTP 302 → `/admin/pw.html`, the session has expired and you must log back in before proceeding. Quick check:
 > ```javascript
@@ -68,7 +70,7 @@
   data.settings.onSelect.call(input, '03/02/2026', data);
   ```
 - **wait_for**: Use `["Total In Grade"]` — this text only appears in the loaded data table, not in empty/loading states.
-- **Save**: `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_EnrollmentSummary_<date>.pdf "enrollment summary"`
+- **Save**: `bun <skill-dir>/scripts/save_pdf.js <folder>/<SCHOOL>_EnrollmentSummary_<date>.pdf "enrollment summary"`
 
 #### Report 2: Student List Export
 - **Path**: Start Page > select All students > lower-right dropdown > Export Using Template > Students
@@ -91,7 +93,7 @@
   document.getElementById('btnSubmit').click();
   ```
 - **Poll**: Navigate to report queue → `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Result File"` or `"Completed Reports"` (causes false positives)
-- **Save**: Navigate to result PDF URL → `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_ClassAttendanceAudit_<date>.pdf`
+- **Save**: Navigate to result PDF URL → `bun <skill-dir>/scripts/save_pdf.js <folder>/<SCHOOL>_ClassAttendanceAudit_<date>.pdf`
 
 #### Report 4: Entry/Exit Report (run twice — previous month then current month)
 - **URL**: `/admin/reports/CRB/enrollment/EntryExitReport.html`
@@ -104,7 +106,7 @@
   document.getElementById('m').dispatchEvent(new Event('change', {bubbles: true}));
   // Report auto-refreshes — no submit button needed
   ```
-- **Save**: `bun save_pdf.js <folder>/<SCHOOL>_EntryExit_<MonthYear>_<date>.pdf "entry"`
+- **Save**: `bun <skill-dir>/scripts/save_pdf.js <folder>/<SCHOOL>_EntryExit_<MonthYear>_<date>.pdf "entry"`
 - **Run twice**: Once for previous month, once for current month
 - **Validation**: Previous HC + Entries − Exits = Current HC per grade
 
@@ -124,13 +126,13 @@
 - **CRITICAL**: The `daysToScan` field defaults to 3 (not 20) in some school contexts. ALWAYS explicitly set it to 20 via JS. After running, verify the report header says "Occurrences of 20 consecutive absences" not "Occurrences of 3 consecutive absences". If wrong, re-run with the explicit JS override.
 - **Begin date guide**: Count ~21 school days back from count date. For March 2 count: use Jan 30 (accounts for Presidents Day holiday).
 - **Poll**: Navigate to report queue → `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Result File"` or `"Completed Reports"` (causes false positives)
-- **Save**: Result is HTML → navigate to it → `bun ~/Desktop/P223-<Month>-<Year>/save_pdf.js <folder>/<SCHOOL>_ConsecutiveAbsence_<date>.pdf`
+- **Save**: Result is HTML → navigate to it → `bun <skill-dir>/scripts/save_pdf.js <folder>/<SCHOOL>_ConsecutiveAbsence_<date>.pdf`
 - **Note (MS/HS)**: Run in two parts at term break (report is by class)
 
 #### Report 6: Student Schedule Report (Secondary Only)
 - **Path**: Start Page > Select "All" or "Gr" > lower-right dropdown > Student Schedule Report
 - **Parameters**: Title = "[Month] [Year]", 3 students/page, Date = Count Date, Sort = Last Name, No Coloring
-- **Save**: Print to PDF → `bun save_pdf.js <folder>/<SCHOOL>_StudentSchedule_<date>.pdf`
+- **Save**: Print to PDF → `bun <skill-dir>/scripts/save_pdf.js <folder>/<SCHOOL>_StudentSchedule_<date>.pdf`
 
 ### Post-Count
 

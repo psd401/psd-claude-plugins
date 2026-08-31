@@ -11,9 +11,31 @@ allowed-tools:
   - Glob
   - Grep
   - Agent
+  - mcp__plugin_psd-productivity_chrome-devtools__navigate_page
+  - mcp__plugin_psd-productivity_chrome-devtools__click
+  - mcp__plugin_psd-productivity_chrome-devtools__hover
+  - mcp__plugin_psd-productivity_chrome-devtools__fill
+  - mcp__plugin_psd-productivity_chrome-devtools__type_text
+  - mcp__plugin_psd-productivity_chrome-devtools__fill_form
+  - mcp__plugin_psd-productivity_chrome-devtools__press_key
+  - mcp__plugin_psd-productivity_chrome-devtools__upload_file
+  - mcp__plugin_psd-productivity_chrome-devtools__drag
+  - mcp__plugin_psd-productivity_chrome-devtools__take_screenshot
+  - mcp__plugin_psd-productivity_chrome-devtools__take_snapshot
+  - mcp__plugin_psd-productivity_chrome-devtools__wait_for
+  - mcp__plugin_psd-productivity_chrome-devtools__evaluate_script
+  - mcp__plugin_psd-productivity_chrome-devtools__list_console_messages
+  - mcp__plugin_psd-productivity_chrome-devtools__get_console_message
+  - mcp__plugin_psd-productivity_chrome-devtools__list_network_requests
+  - mcp__plugin_psd-productivity_chrome-devtools__get_network_request
+  - mcp__plugin_psd-productivity_chrome-devtools__list_pages
+  - mcp__plugin_psd-productivity_chrome-devtools__select_page
+  - mcp__plugin_psd-productivity_chrome-devtools__close_page
+  - mcp__plugin_psd-productivity_chrome-devtools__new_page
+  - mcp__plugin_psd-productivity_chrome-devtools__resize_page
+  - mcp__plugin_psd-productivity_chrome-devtools__handle_dialog
   - mcp__chrome-devtools__navigate_page
   - mcp__chrome-devtools__click
-  - mcp__chrome-devtools__click_at
   - mcp__chrome-devtools__hover
   - mcp__chrome-devtools__fill
   - mcp__chrome-devtools__type_text
@@ -35,7 +57,6 @@ allowed-tools:
   - mcp__chrome-devtools__new_page
   - mcp__chrome-devtools__resize_page
   - mcp__chrome-devtools__handle_dialog
-  - mcp__chrome-devtools__get_tab_id
 extended-thinking: true
 ---
 
@@ -45,11 +66,15 @@ You automate browser interactions for authenticated web applications using Chrom
 
 ## Setup — Launch Browser
 
-Before any browser interaction, ensure the debug browser is running:
+Before any browser interaction, ensure the debug browser is running (script lives in **this skill's** `scripts/` directory — use the skill-relative path, never a repo-relative one; installed plugins live under `~/.claude/plugins/marketplaces/`):
 
 ```bash
-bash plugins/psd-productivity/skills/browser-control/scripts/launch-chrome.sh
+bash <skill-dir>/scripts/launch-chrome.sh
 ```
+
+New machine? Full setup checklist: `../enrollment/references/machine-setup.md` (sibling skill).
+
+**Tool naming note**: in current Claude Code the plugin's MCP tools are namespaced `mcp__plugin_psd-productivity_chrome-devtools__*`; older versions used `mcp__chrome-devtools__*`. Both are allowlisted — use whichever this session exposes.
 
 If the script reports `already_running`, the browser is ready. If `started`, wait a moment for it to initialize.
 
@@ -74,11 +99,9 @@ If the script reports `already_running`, the browser is ready. If `started`, wai
 - `close_page` — close a tab
 - `resize_page` — change viewport size
 - `handle_dialog` — accept/dismiss browser dialogs
-- `get_tab_id` — get current tab identifier
 
 ### Input
 - `click` — click an element by CSS selector or text
-- `click_at` — click at x,y coordinates
 - `hover` — hover over an element
 - `fill` — fill an input field (clears first)
 - `type_text` — type text character by character

@@ -115,7 +115,7 @@ Total: 1,440 + 305 = **1,745 min** → 1,745 / 1,665 = 1.04 FTE
 ## Running Start FTE Rules
 
 - Combined district FTE + RS FTE must be ≤ **1.20** in PowerSchool
-- State allows **1.40** for 25-26 school year, but PS caps at 1.20 (reported to PowerSchool as a bug)
+- **2026-27: validate against 1.20** (confirmed by Hagel, 2026-08-31). Historical note: state allowed 1.40 for 25-26, but PS capped at 1.20 (reported to PowerSchool as a bug)
 - January exception: semester change may cause temporary over-1.20; requires SQEAF form to verify annual average stays ≤ 1.20
 - Full-time RS: student backed out full 1.0 from headcount (no HS sections)
 - Part-time RS: some FTE claimed at HS, some at RS

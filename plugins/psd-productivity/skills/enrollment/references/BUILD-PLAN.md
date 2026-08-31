@@ -2,7 +2,7 @@
 
 > Living document tracking the phased build of `/enrollment`
 
-## Current Status: Phases 1-5 Complete
+## Current Status: Phases 1-5 Complete; Phase 8 (portability + n8n split) landed 2026-08-31
 
 ## Build Phases
 
@@ -74,6 +74,24 @@
 - [ ] Does Consecutive Absence at District Office run across all schools?
 - [ ] Multi-tab parallelization within Phase 2 (secondary optimization)
 
+### Phase 8: Multi-Machine Portability + n8n Split — LANDED 2026-08-31 (needs live smoke test)
+
+**Goal**: Run on any machine with Claude Code (laptop, office Mac mini on a schedule, future operator's machine), with n8n owning the schedule/notification layer.
+
+- **Portability**: all paths skill-relative; `save_pdf.js` moved into `scripts/` (was hand-copied to Desktop month folders); local staging at `~/Enrollment/P223-<Month>-<Year>/`; Drive is home of record; `references/machine-setup.md` documents new-machine setup
+- **Shared state**: tracking sheet `P223 Enrollment Tracking 2026-2027` (`1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`) — `Calendar` / `SchoolStatus` / `DistrictStatus` tabs; skill writes via gws, n8n + humans read
+- **Scheduled operation**: new `/enrollment daily-check` command for a weekday scheduled task on the mini (session health probe → alert on expiry; count day → full run)
+- **allowed-tools fix**: chrome-devtools MCP tools are namespaced `mcp__plugin_psd-productivity_chrome-devtools__*` in current Claude Code; both old and new names listed for cross-version compatibility; dropped `click_at` (no longer exists in chrome-devtools-mcp)
+- **effort: medium** (from high) — long mechanical loop, same rationale as /lfg; March failure mode was context pressure, not reasoning depth
+- **2026-27 refresh**: count-date table (Sept = Tue 2026-09-08) in school-config.md + Calendar tab; RS cap validated at 1.20; bell schedules unchanged (confirmed 2026-08-31)
+- **n8n side** (psd-workflow-automation repo): `BUS - Enrollment Count Scheduler` (T-1 reminders, count-day kickoff, Drive folder creation), `BUS - Enrollment Notifications` (Board/Cabinet + Sodexo after EDS), TCC report watcher (pending mailbox address)
+
+**Still needs**:
+- [ ] Live smoke test: one school end-to-end with the plugin-prefixed tool names
+- [ ] Phase 7 district-batch validation (carried over — dry-run before count day 9/8)
+- [ ] TCC watcher mailbox address from Hagel
+- [ ] Mac mini setup per machine-setup.md
+
 ## What's Ready to Test
 
 | Command | Requires | Status |
@@ -111,16 +129,19 @@ enrollment/
     validation_report.py                # Phase 5: District report + EDS import
 
 agents/ (in psd-productivity/)
-  powerschool-navigator.md              # Phase 1: Browser automation
   enrollment-validator.md               # Phase 1: Validation agent
+  (powerschool-navigator was removed — browser automation runs in the main session; subagents cannot access MCP tools)
 
 skills/ (in psd-productivity/)
   google-workspace-cli/SKILL.md         # Phase 3: Shared GWS CLI skill
 ```
 
 ## Unresolved Questions
-- 1.1 RS FTE cap: P223 doc says 1.2 in PS, state allows 1.4 for 25-26 — which to validate against?
 - 1.2 Part Time spreadsheet exact Google Drive path?
 - 1.3 Internal P223 spreadsheet — Google Sheet or Excel?
-- 1.4 Does 25-26 state handbook have rule changes from version provided?
-- 1.5 PowerSchool API access — plugin API, ODBC, or data export?
+- 1.6 TCC RS report arrival mailbox (needed to activate the n8n watcher)
+
+## Resolved
+- 1.1 RS FTE cap → **1.20 for 2026-27** (Hagel, 2026-08-31)
+- 1.4 State handbook changes → none affecting rules; bell schedules unchanged for 2026-27 (Hagel, 2026-08-31)
+- 1.5 PowerSchool API access → **both plugin API and ODBC exist**, but the built-in reports (P223 form) aren't exposed there — direct access would mean building our own reporting, potentially surfaced through psd-data-mcp. Deliberate future track, not part of the browser pipeline (Hagel, 2026-08-31)
