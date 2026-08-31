@@ -335,7 +335,7 @@ After completing each school, immediately output a one-line status, append the s
 **Context management** (prevents mid-run stops from context window pressure):
 - Do NOT take full page snapshots (`take_snapshot`) unless actively debugging a failure. Use `evaluate_script` to extract only the data needed (headcount numbers, student names, report status).
 - Use `take_screenshot` with `filePath` for archival — screenshots don't consume context.
-- Avoid reading full `wait_for` snapshot results — they are 50KB+ and fill the context window. Only check the returned status, not the DOM content.
+- Do NOT use `wait_for` at all in the run loop — chrome-devtools-mcp ≥1.8 attaches a full page snapshot to every `wait_for` result, which floods the context window. Poll with in-page `fetch` loops inside `evaluate_script` (`waitForStableDom: false`) returning tiny JSON — patterns in report-checklist.md.
 - When a report result is predictable (e.g., Entry/Exit with 0 rows), save screenshot and move on without inspecting the DOM.
 
 **Execution model — completion loop, not step list**:
@@ -358,10 +358,12 @@ gws drive files list --params '{"q":"'"'"'1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm'"'"'
 gws drive files create --params '{"supportsAllDrives":true}' --json '{"name":"<Month Year>","mimeType":"application/vnd.google-apps.folder","parents":["1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm"]}'
 ```
 
-**Phase 1: District-Level Batch (run once)**
+**Phase 1: District-Level Batch (validated live 2026-08-31 — two runs, ~1 minute each)**
 1. Switch to District Office context in PowerSchool
-2. Run P223 Form and Audit with "Separate form per school" checked → one ZIP for all schools
-3. Extract and rename per-school PDFs/CSVs from the ZIP
+2. Run P223 Form and Audit at `allSchools` **twice** (the form has one FTE-window setting):
+   - Run A: 1-Day window + FTE Calc Date = count date → covers the 10 elementary schools
+   - Run B: 5-Day window + FTE Calc Date blank → covers the 7 MS/HS
+3. Each ZIP: one 17-page `WA_P223_Form.pdf` (one page per school — split per school by page), one all-school `WA_P223_Audit.csv` (filter per school; **3-char school codes** — map to standard abbreviations), one state-format `P223_*.txt` (retain — candidate EDS upload file)
 4. Test: Run Enrollment Summary at district level (if per-school breakdown available, use it; otherwise fall back to per-school in Phase 2)
 5. Test: Run Consecutive Absence at district level (if it covers all schools, use it; otherwise fall back to per-school in Phase 2)
 6. Record `DistrictBatchDone` on the `DistrictStatus` tab

@@ -86,11 +86,19 @@
 - **2026-27 refresh**: count-date table (Sept = Tue 2026-09-08) in school-config.md + Calendar tab; RS cap validated at 1.20; bell schedules unchanged (confirmed 2026-08-31)
 - **n8n side** (psd-workflow-automation repo): `BUS - Enrollment Count Scheduler` (T-1 reminders, count-day kickoff, Drive folder creation), `BUS - Enrollment Notifications` (Board/Cabinet + Sodexo after EDS), TCC report watcher (pending mailbox address)
 
+**Smoke test PASSED 2026-08-31** (live against PowerSchool, logged in as the "PSD Enrollment" service account):
+- Plugin-prefixed chrome-devtools tools drive the debug browser (1.8.0 calling convention: `pageId` required, `evaluate_script` takes a function)
+- Session probe, state-reports navigation, P223 link discovery, form fill, submit, queue poll, ZIP download, `save_pdf.js` from the skill dir — all working
+- **Phase 7 VALIDATED**: district `allSchools` P223 = 17 schools in <1 minute (vs ~2 hours per-school in March). One FTE window per run → count day = 2 district runs (ES 1-Day / MS-HS 5-Day). ZIP = 17-page form PDF (split by page) + one audit CSV (3-char school codes — needs mapping) + state-format `P223_*.txt`
+- New gotchas documented in report-checklist.md: `schoolNumberSetSelectSchools` takes `allSchools` or ONE school number; synthetic events don't update PS hidden fields; `wait_for` floods context in mcp ≥1.8 (poll via in-page fetch); queue DOM goes stale
+- 26-27 data live: 9/8 run counted 8,953 students incl. kindergartners at 1.0 FTE
+
 **Still needs**:
-- [ ] Live smoke test: one school end-to-end with the plugin-prefixed tool names
-- [ ] Phase 7 district-batch validation (carried over — dry-run before count day 9/8)
+- [ ] Verify with enrollment officer whether the ZIP's `P223_*.txt` is directly EDS-uploadable (could replace the hand-built EDS import)
+- [ ] Map audit-CSV 3-char school codes → standard abbreviations in validator scripts
+- [ ] Rehearse one school's full backup-report set (Enrollment Summary datepicker, Entry/Exit, Consecutive Absence) closer to 9/8
 - [ ] TCC watcher mailbox address from Hagel
-- [ ] Mac mini setup per machine-setup.md
+- [ ] Mac mini setup per machine-setup.md; test Brave saved-login auto-fill for unattended re-login (machine-setup Layer 4)
 
 ## What's Ready to Test
 

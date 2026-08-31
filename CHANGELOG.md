@@ -17,6 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.2] - 2026-08-31
+
+**psd-productivity 2.19.1 → 2.19.2** (psd-coding-system unchanged at 3.7.1)
+
+Smoke-test hardening: the `/enrollment` P223 pipeline was run live against PowerSchool on 2026-08-31 (service account, 26-27 data). Everything documented below is what that run actually proved or broke on — not projection.
+
+### Added
+- **District-level P223 batch, validated live** — one `allSchools` run returns all 17 schools in under a minute (the March per-school approach took roughly two hours). Because the form carries a single FTE-window setting, count day needs **two** district runs: 1-Day window + FTE Calc Date = count date for the 10 elementary schools, 5-Day window + blank FTE Calc Date for the 7 MS/HS. `SKILL.md` Phase 1 and `report-checklist.md` Report 0 now spell out both runs and what each ZIP contains — a 17-page `WA_P223_Form.pdf` (one page per school, split at post-processing), one all-school `WA_P223_Audit.csv`, and a fixed-width state-format `P223_*.txt` that is a candidate direct EDS upload
+- **PowerSchool form gotchas** in `report-checklist.md` — the hidden `schoolNumberSetSelectSchools` field accepts `allSchools` or exactly one school number (a comma list fails at submit with `For input string`), and selecting options in the visible multi-select via JS does not update it because synthetic change events don't fire PowerSchool's handler; set the hidden field directly. Submit is `document.getElementById('submitReportSDKRuntimeParams').click()`
+- **Queue-poll pattern replacing `wait_for`** — chrome-devtools-mcp ≥1.8 attaches a full page snapshot to every `wait_for` result, which floods the context window (and `"Completed"` false-matches the always-present "Completed Reports" heading). `report-checklist.md` now carries a validated in-page `fetch` loop run through `evaluate_script` with `waitForStableDom: false`, plus the `prdetails.html` → `prreport.html` → `window.location.href` download hop. The queue page's rendered DOM goes stale — always re-fetch
+- **PowerSchool school codes** for all 17 schools in `school-config.md` (previously only GHHS and PHS were filled in), plus a new **3-char audit-CSV code → standard abbreviation** mapping table (GHH→GHHS, KMS→Kopa, MES→MCES, VGE→VOY, HBH→HBHS, …). The audit CSV keys on 3-char codes; the validator scripts key on 4-char abbreviations
+- **Unattended-operation guide** — `machine-setup.md` section 7 lays out the four layers between the current setup and a run with nobody at the computer: machine always ready (auto-login, no sleep, browser at login), detection (the existing `daily-check` session probe), a frequent keep-alive probe to hold the PowerSchool session open, and — flagged as a deliberate CIO decision that is **not** built — a credentialed service-account auto-login. Also notes the long-term exit via PowerSchool plugin API / ODBC. Handoff moves to section 8
+
+### Changed
+- **`launch-chrome.sh` opens the PowerSchool admin login page** on a visible launch (`PSD_BROWSER_START_URL` overrides; headless launches stay blank). An expired session lands the operator on exactly the page they need, so a human touch is "type password, walk away" rather than "navigate, then type password"
+- **`SKILL.md` context-management rule tightened** from "avoid reading full `wait_for` results" to "do not use `wait_for` at all in the run loop", pointing at the queue-poll pattern
+- **`BUILD-PLAN.md` open items rewritten** against the smoke-test outcome — the live smoke test and Phase 7 district-batch validation are now recorded as passed, and the remaining work is confirming whether the ZIP's `P223_*.txt` is directly EDS-uploadable, wiring the 3-char code mapping into the validator scripts, rehearsing one school's backup-report set before 9/8, the TCC watcher mailbox, and the Mac mini setup including a Brave saved-login auto-fill test
+
 ## [2.28.1] - 2026-08-31
 
 **psd-productivity 2.19.0 → 2.19.1** (psd-coding-system unchanged at 3.7.1)

@@ -58,7 +58,24 @@ Create a Claude Code scheduled task on the machine (local schedule, NOT a cloud 
   - count day → runs the full `/enrollment run`
 - Keep the machine awake for the window (System Settings → Energy → prevent sleep, or `caffeinate`), and leave the debug browser running (the launch script is idempotent — `daily-check` may call it safely).
 
-## 7. Handoff to a new operator
+## 7. Unattended operation — running with nobody at the computer
+
+The only human dependency in the whole pipeline is the **PowerSchool session** — everything else (calendar, reminders, folders, uploads, tracking, notifications) already runs without a person. Treat it as four layers, adopted in order:
+
+**Layer 1 — machine always ready** (do this once on the mini):
+- macOS auto-login for the operator account (requires FileVault off on this machine — district decision), Screen Sharing enabled
+- Prevent sleep: `sudo pmset -a sleep 0 displaysleep 10` (or Energy settings)
+- Launch the debug browser at login (Login Item or LaunchAgent running `launch-chrome.sh`) — the script opens the PowerSchool login page on fresh starts, so any human touch is just "type password, walk away"
+
+**Layer 2 — detection (already built)**: `daily-check` probes the session every weekday morning and emails when it's dead. Worst case, someone spends 30 seconds in Screen Sharing the day before count day. The T-1 reminder doubles as the prompt.
+
+**Layer 3 — keep-alive (recommended next step)**: PowerSchool expires sessions on inactivity; the probe request itself counts as activity. Schedule the probe frequently (e.g., every 15 minutes during business hours via a second scheduled task or launchd job) and the session may stay alive indefinitely between server restarts. Measure the real lifetime for a week before trusting it — if PS enforces an absolute expiry, Layer 2 still catches it.
+
+**Layer 4 — automated login (deliberate CIO decision, not built)**: a dedicated PowerSchool service account (reports-only role, password login, exempt from SSO/2FA) with credentials in the mini's Keychain and a login script driven over CDP. This removes the last human touch entirely, at the cost of a stored credential on an office machine — weigh audit and security implications before asking for it. Never store the credential in a repo, sheet, or env file.
+
+**Long-term exit**: PowerSchool plugin API / ODBC access (both exist for PSD) would remove the browser for backup data entirely — surfaced through psd-data-mcp. The P223 form itself still comes from the PS report engine, so the browser path never fully disappears until OSPI/EDS accepts data another way.
+
+## 8. Handoff to a new operator
 
 1. New operator installs the plugin and follows steps 1–4 with **their own** PowerSchool + Google accounts
 2. Share the tracking sheet and the Drive Enrollment folder with them

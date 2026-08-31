@@ -16,25 +16,25 @@
 
 | School | Abbreviation | Code | Special Programs | TK Site |
 |--------|-------------|------|------------------|---------|
-| Artondale ES | AES | — | ECEAP, Dev PK | No |
-| Discovery ES | DES | — | TK, PACE | Yes |
-| Evergreen ES | EES | — | ECEAP, TK | Yes |
-| Harbor Heights ES | HHES | — | TK, Options | Yes |
-| Minter Creek ES | MCES | — | TK | Yes |
-| Pioneer ES | PIE | — | TRAC, STEAM | No |
-| Purdy ES | PES | — | Dev PK, PACE | No |
-| Swift Water ES | SWES | — | Options, TRAC | No |
-| Vaughn ES | VES | — | ECEAP, Dev PK | No |
-| Voyager ES | VOY | — | TK, PACE | Yes |
+| Artondale ES | AES | 3299 | ECEAP, Dev PK | No |
+| Discovery ES | DES | 4080 | TK, PACE | Yes |
+| Evergreen ES | EES | 3055 | ECEAP, TK | Yes |
+| Harbor Heights ES | HHES | 2944 | TK, Options | Yes |
+| Minter Creek ES | MCES | 4189 | TK | Yes |
+| Pioneer ES | PIE | 5631 | TRAC, STEAM | No |
+| Purdy ES | PES | 3685 | Dev PK, PACE | No |
+| Swift Water ES | SWES | 5685 | Options, TRAC | No |
+| Vaughn ES | VES | 3056 | ECEAP, Dev PK | No |
+| Voyager ES | VOY | 4307 | TK, PACE | Yes |
 
 ### Middle Schools (MS) — Grades 6–8
 
 | School | Abbreviation | Code | Special Programs |
 |--------|-------------|------|------------------|
-| Goodman MS | GMS | — | Options, PACE |
-| Harbor Ridge MS | HRMS | — | TRAC |
-| Key Peninsula MS | KPMS | — | Options, PACE |
-| Kopachuck MS | Kopa | — | PACE |
+| Goodman MS | GMS | 2294 | Options, PACE |
+| Harbor Ridge MS | HRMS | 4387 | TRAC |
+| Key Peninsula MS | KPMS | 4156 | Options, PACE |
+| Kopachuck MS | Kopa | 4219 | PACE |
 
 ### High Schools (HS) — Grades 9–12
 
@@ -42,7 +42,7 @@
 |--------|-------------|------|------------------|-----------|
 | Gig Harbor HS | GHHS | 4081 | Options, ETT, CTE | 6-period + HR + Zero Hour |
 | Peninsula HS | PHS | 2681 | Options, TRAC, ETT, CTE | 6-period + HR + Zero Hour |
-| Henderson Bay HS | HBHS | — | CTP, PACE, RS | 4-period + Advisory |
+| Henderson Bay HS | HBHS | 1516 | CTP, PACE, RS | 4-period + Advisory |
 
 ### Alternative Programs (under PAP code 5707)
 
@@ -147,6 +147,19 @@ Source: 2026-27 PSD calendar (first day 9/2/2026; Labor Day 9/7; winter break 12
 | April 2027 | 2027-04-01 | Thursday | Spring break 4/12–4/16 is later in month |
 | May 2027 | 2027-05-03 | Monday | May 1 is a Saturday |
 | June 2027 | 2027-06-01 | Tuesday | Final count of the year |
+
+## P223 Audit CSV School Codes (3-char → standard abbreviation)
+
+The district P223 audit CSV uses 3-char codes in its `Reporting School` column (observed live 2026-08-31). Map before comparing against anything keyed on standard abbreviations:
+
+| Audit | Abbr | | Audit | Abbr | | Audit | Abbr |
+|-------|------|-|-------|------|-|-------|------|
+| AES | AES | | GMS | GMS | | PES | PES |
+| DES | DES | | HBH | HBHS | | PHS | PHS |
+| EES | EES | | HHE | HHES | | PIE | PIE |
+| GHH | GHHS | | HRM | HRMS | | SWE | SWES |
+| KMS | Kopa | | KPM | KPMS | | VES | VES |
+| MES | MCES | | VGE | VOY | | | |
 
 ## Reporting Deadlines
 

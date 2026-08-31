@@ -34,6 +34,14 @@
 
 #### Report 0: P223 Form and Audit ⚑ PRIMARY DELIVERABLE
 - **This is the report submitted to EDS. Run it first.**
+- **RUN AT DISTRICT LEVEL — validated live 2026-08-31.** From District Office context, ONE `allSchools` run covers all 17 schools in under a minute (March's per-school approach took ~2 hours). The form has a single FTE-window setting, so count day needs **two district runs**:
+  - Run A (elementary): `fiveDayWindow=0` (1-Day), `FTECalcDate` = count date → use its output for the 10 ES
+  - Run B (secondary): `fiveDayWindow=1` (5-Day), `FTECalcDate` blank → use its output for the 7 MS/HS
+  - Each ZIP contains: `WA_P223_Form.pdf` (**one page per school** — split per school by page at post-processing), `WA_P223_Audit.csv` (all schools, one file — filter per school), and a fixed-width state-format `P223_*.txt` (candidate EDS upload file — verify with the enrollment officer)
+  - **Audit CSV school codes are 3-char** (GHH, KMS, MES, VGE, HBH…) — map before feeding the validator scripts, which use 4-char abbreviations
+- **Form gotchas (learned live)**:
+  - `schoolNumberSetSelectSchools` (hidden text field) accepts `allSchools` or **ONE school number** — a comma list like `3299,3685` fails at submit (`For input string`). Selecting options in the multi-select via JS does NOT update this field (synthetic change events don't fire PS's handler) — set the hidden field directly.
+  - Submit button: `document.getElementById('submitReportSDKRuntimeParams').click()`
 - **Path**: Data and Reporting > Reports > Compliance > P223 Form and Audit
 - **URL**: `/admin/reports/compliance/p223form.html` **404s — do not use.** Navigate to `/admin/reports/statereports.html?repType=state` instead, then find the link via JS:
   ```javascript
@@ -55,7 +63,19 @@
     && mv /tmp/p223/WA_P223_Audit.csv <folder>/<SCHOOL>_P223Audit_<date>.csv \
     && rm ~/Downloads/WA_P223.zip
   ```
-- **wait_for**: After submit, poll Report Queue. Use `wait_for(["Download Completed", "Download Pdf"])` — NOT `"Completed Reports"` (that heading is always present and causes false positives).
+- **Queue polling — do NOT use `wait_for`** (chrome-devtools-mcp ≥1.8 returns a full page snapshot with every `wait_for`, which floods the context window — and `"Completed"` matches the always-present "Completed Reports" heading). Poll with an in-page fetch loop instead (validated 2026-08-31):
+  ```javascript
+  // evaluate_script, waitForStableDom: false
+  async () => {
+    for (let i = 0; i < 10; i++) {
+      const txt = await (await fetch('/admin/reportqueue/prhome.html', {credentials:'same-origin'})).text();
+      if (!/Pending|Running/.test(txt)) return 'done';
+      await new Promise(r => setTimeout(r, 15000));
+    }
+    return 'still pending';
+  }
+  ```
+  Then: newest `prdetails.html?reportId=<max id>` → its `prreport.html?jobQueueCurrentId=<id>&repName=WA_P223&repType=zip` link → `window.location.href = <link>` triggers the download. The queue page's rendered DOM goes stale — always re-fetch, never trust the last render.
 - **Note**: P223 is static — does not hold historical data. If running after count day, use "Selected Students Only" with count-day selection.
 
 #### Report 1: Enrollment Summary

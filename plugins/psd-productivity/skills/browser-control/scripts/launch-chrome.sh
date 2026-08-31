@@ -38,13 +38,20 @@ mkdir -p "$PROFILE_DIR"
 HEADLESS=""
 [ "$1" = "--headless" ] && HEADLESS="--headless=new"
 
+# On a fresh visible launch, open the PowerSchool admin login so the operator
+# can sign in immediately (session expired = this is the page they need anyway;
+# session alive = PS just shows the start page).
+START_URL="${PSD_BROWSER_START_URL:-https://powerschool.psd401.net/admin/pw.html}"
+[ -n "$HEADLESS" ] && START_URL=""
+
 "$BRAVE_PATH" \
     --remote-debugging-port=$PORT \
     --user-data-dir="$PROFILE_DIR" \
     $HEADLESS \
     --no-first-run \
     --no-default-browser-check \
-    --window-size=1280,900 &
+    --window-size=1280,900 \
+    $START_URL &
 
 # Wait for browser to start
 for i in $(seq 1 10); do
