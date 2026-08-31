@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.1] - 2026-08-31
+
+**psd-productivity 2.19.0 → 2.19.1** (psd-coding-system unchanged at 3.7.1)
+
+### Added
+- **`/enrollment` — Phase 0: Ensure Drive month folder.** The P223 monthly workflow now starts by checking for the `<Month Year>` folder under the `AUTOMATION BACKUP (P223)` shared-drive folder and creating it when missing, instead of assuming the n8n automation already created it. Adds the exact `gws drive files list` / `gws drive files create` calls (with `supportsAllDrives` / `includeItemsFromAllDrives` set for shared-drive traversal) ahead of the Phase 1 district-level batch, so a missing folder no longer surfaces later as a failed report upload.
+
 ## [2.28.0] - 2026-08-31
 
 **psd-productivity 2.18.1 → 2.19.0** (psd-coding-system unchanged at 3.7.1)

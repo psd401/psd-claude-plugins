@@ -350,6 +350,14 @@ REQUIRED_REPORTS_ES = [P223, EnrollmentSummary, EntryExitPrev, EntryExitCurr, Co
 
 REQUIRED_REPORTS_MS_HS = REQUIRED_REPORTS_ES + [StudentScheduleReport]
 
+**Phase 0: Ensure Drive month folder (run once, before anything)**
+Check for the month folder under `AUTOMATION BACKUP (P223)` (`1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm`, shared drive `0AGPCnumGcrRLUk9PVA`); create it if missing — do not rely on n8n having created it:
+```bash
+gws drive files list --params '{"q":"'"'"'1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm'"'"' in parents and name = '"'"'<Month Year>'"'"' and trashed = false","fields":"files(id,name)","supportsAllDrives":true,"includeItemsFromAllDrives":true}'
+# if empty:
+gws drive files create --params '{"supportsAllDrives":true}' --json '{"name":"<Month Year>","mimeType":"application/vnd.google-apps.folder","parents":["1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm"]}'
+```
+
 **Phase 1: District-Level Batch (run once)**
 1. Switch to District Office context in PowerSchool
 2. Run P223 Form and Audit with "Separate form per school" checked → one ZIP for all schools
