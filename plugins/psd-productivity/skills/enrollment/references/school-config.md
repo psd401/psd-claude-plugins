@@ -135,18 +135,18 @@ All 5 elementary reports PLUS:
 
 Source: 2026-27 PSD calendar (first day 9/2/2026; Labor Day 9/7; winter break 12/21–12/31). Same table lives in the tracking sheet's `Calendar` tab for n8n and cross-machine use.
 
-| Month | Count Date | Weekday | Notes |
-|-------|-----------|---------|-------|
-| September 2026 | 2026-09-08 | Tuesday | 4th school day; **also first day of kindergarten** |
-| October 2026 | 2026-10-01 | Thursday | |
-| November 2026 | 2026-11-02 | Monday | Nov 1 is a Sunday |
-| December 2026 | 2026-12-01 | Tuesday | |
-| January 2027 | 2027-01-04 | Monday | First school day after winter break |
-| February 2027 | 2027-02-01 | Monday | |
-| March 2027 | 2027-03-01 | Monday | |
-| April 2027 | 2027-04-01 | Thursday | Spring break 4/12–4/16 is later in month |
-| May 2027 | 2027-05-03 | Monday | May 1 is a Saturday |
-| June 2027 | 2027-06-01 | Tuesday | Final count of the year |
+| Month | Count Date | Weekday | T-1 Reminder | Notes |
+|-------|-----------|---------|--------------|-------|
+| September 2026 | 2026-09-08 | Tuesday | 2026-09-04 (Fri; 9/7 is Labor Day) | 4th school day; **also first day of kindergarten** |
+| October 2026 | 2026-10-01 | Thursday | 2026-09-30 (Wed) | |
+| November 2026 | 2026-11-02 | Monday | 2026-10-30 (Fri) | Nov 1 is a Sunday |
+| December 2026 | 2026-12-01 | Tuesday | 2026-11-30 (Mon) | |
+| January 2027 | 2027-01-04 | Monday | 2026-12-18 (Fri, last day before winter break) | First school day after winter break |
+| February 2027 | 2027-02-01 | Monday | 2027-01-29 (Fri, staff semester-break day) | |
+| March 2027 | 2027-03-01 | Monday | 2027-02-26 (Fri) | |
+| April 2027 | 2027-04-01 | Thursday | 2027-03-31 (Wed) | Spring break 4/12–4/16 is later in month |
+| May 2027 | 2027-05-03 | Monday | 2027-04-30 (Fri) | May 1 is a Saturday |
+| June 2027 | 2027-06-01 | Tuesday | 2027-05-28 (Fri; 5/31 is Memorial Day) | Final count of the year |
 
 ## P223 Audit CSV School Codes (3-char → standard abbreviation)
 

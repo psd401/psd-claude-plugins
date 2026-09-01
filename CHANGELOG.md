@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.4] - 2026-08-31
+
+**psd-productivity 2.19.3 → 2.19.4** (psd-coding-system unchanged at 3.7.1)
+
+### Added
+- **`/enrollment` count-date table — T-1 reminder column** (`references/school-config.md`) — every 2026-27 count date now carries its precomputed "day before" reminder date with the weekday spelled out, so the reminder never lands on a non-school day. Five of the ten are not the literal calendar day before: September reminds on Fri 9/4 (9/7 is Labor Day), January on Fri 12/18 (last day before winter break), February on Fri 1/29 (staff semester-break day), June on Fri 5/28 (5/31 is Memorial Day), and the Monday count dates all back up to the prior Friday. All ten weekday labels verified against the calendar
+
+### Changed
+- **`/enrollment` machine-setup — Layer 4 (automated login) ruled out by test** (`references/machine-setup.md`) — a 2026-08-31 test established that Brave's saved PowerSchool login is **not reachable by automation**: no autofill on page load, none on a trusted CDP click, and keyboard-selecting the suggestion submitted an empty form, which PowerSchool recorded as a failed attempt. Password autofill requires real human interaction with browser-chrome UI by design. The reference now states the hard rule that **automation must never retry logins** — lockout before a count day is the worst available failure mode — and replaces the single "stored credential" suggestion with three ranked options: PowerSchool's own server-side report scheduler (the P223 form's `schedulerEnableOption`, no credentials involved, shrinking the browser dependency to result download), an operator-provisioned keychain login script with its stated audit/security tradeoff, or accepting the ~30-second monthly login that Layer 2's alert already makes deterministic
+
 ## [2.28.3] - 2026-08-31
 
 **psd-productivity 2.19.2 → 2.19.3** (psd-coding-system unchanged at 3.7.1)
