@@ -36,8 +36,36 @@ if (!oldKey.startsWith('api_') || !newKey.startsWith('api_')) {
   process.exit(1);
 }
 
-// Read-only fields returned by GET that the PUT endpoint rejects.
-const READ_ONLY_FIELDS = ['id', 'createdAt', 'updatedAt', 'versionId'];
+// n8n's PUT accepts ONLY these four fields.
+//
+// This used to send the whole GET payload minus a handful of read-only keys.
+// That is a denylist, and it silently stopped matching reality: newer n8n
+// rejects `description`, `active`, `isArchived`, `staticData`, `meta`,
+// `pinData`, `activeVersionId`, `versionCounter`, `triggerCount`, `shared`,
+// `tags`, `activeVersion` and `url` too, so every PUT failed with
+// `request/body must NOT have additional properties` and the rotation wrote
+// nothing at all. An allowlist cannot rot the same way -- a new read-only
+// field n8n starts returning is simply not sent.
+const PUT_FIELDS = ['name', 'nodes', 'connections', 'settings'];
+
+// `binaryMode` is a legacy settings key on a few older workflows that the PUT
+// schema also rejects. Omitting it is safe: n8n keeps the stored value
+// server-side, so the workflow is unchanged after the round trip.
+const REJECTED_SETTINGS_KEYS = ['binaryMode'];
+
+function occurrences(haystack, needle) {
+  return haystack.split(needle).length - 1;
+}
+
+function buildPutBody(live) {
+  const body = {};
+  for (const field of PUT_FIELDS) {
+    if (live[field] !== undefined) body[field] = live[field];
+  }
+  body.settings = Object.assign({}, live.settings || {});
+  for (const key of REJECTED_SETTINGS_KEYS) delete body.settings[key];
+  return body;
+}
 
 async function main() {
   // Use n8nFetchAll to paginate through all workflows (n8nFetch only returns one page)
@@ -63,7 +91,7 @@ async function main() {
     }
 
     const json = JSON.stringify(live);
-    const count = (json.match(new RegExp(oldKey.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length;
+    const count = occurrences(json, oldKey);
     if (count === 0) continue;
 
     if (dryRun) {
@@ -71,22 +99,37 @@ async function main() {
       continue;
     }
 
-    // Replace key in the full workflow JSON, then strip only read-only fields
-    // that the API rejects on PUT. This preserves all workflow metadata (tags,
-    // active, staticData, pinData, settings, etc.) instead of destructively
-    // rebuilding a partial body.
-    const updatedJson = json.split(oldKey).join(newKey);
-    const updated = JSON.parse(updatedJson);
-    for (const field of READ_ONLY_FIELDS) {
-      delete updated[field];
-    }
+    const body = JSON.parse(JSON.stringify(buildPutBody(live)).split(oldKey).join(newKey));
 
-    const putResult = await n8nFetch(`/workflows/${id}`, { method: 'PUT', body: updated });
+    const putResult = await n8nFetch(`/workflows/${id}`, { method: 'PUT', body });
     if (putResult.error) {
       results.push({ id, name, status: 'update_failed', references: count, error: putResult.error });
       hasFailures = true;
+      continue;
+    }
+
+    // Verify against the live system, not against the response to our own write.
+    // A rotation that reports success while the old key is still accepted is
+    // worse than one that fails loudly, because nobody goes back to check.
+    const after = await n8nFetch(`/workflows/${id}`);
+    if (after.error) {
+      results.push({ id, name, status: 'verify_failed', references: count, error: after.error });
+      hasFailures = true;
+      continue;
+    }
+    const afterJson = JSON.stringify(after);
+    const oldLeft = occurrences(afterJson, oldKey);
+    const newNow = occurrences(afterJson, newKey);
+
+    if (oldLeft !== 0 || newNow < count) {
+      results.push({
+        id, name, status: 'verify_mismatch', references: count,
+        oldRemaining: oldLeft, newReferences: newNow,
+        error: 'PUT reported success but the live workflow does not match',
+      });
+      hasFailures = true;
     } else {
-      results.push({ id, name, status: 'updated', references: count, url: getEditorUrl(id) });
+      results.push({ id, name, status: 'updated', references: count, newReferences: newNow, url: getEditorUrl(id) });
     }
   }
 
