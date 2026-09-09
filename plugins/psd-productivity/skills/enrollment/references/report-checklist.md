@@ -284,5 +284,4 @@
   - [ ] One Pager
   - [ ] SY Enrollment Summary (ESC Budget)
   - [ ] Ready_Building History (Enrollment Projections)
-- [ ] Email Board/Cabinet: count submitted + summary numbers
-- [ ] Email Sodexo: CNTRL sheet (Food Services tab)
+- [ ] Internal "count submitted" confirmation to the enrollment notification list (automated via the n8n webhook; no other groups are emailed — Hagel, 2026-09-09)

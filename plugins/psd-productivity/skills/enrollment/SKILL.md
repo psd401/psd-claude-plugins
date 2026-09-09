@@ -107,7 +107,7 @@ n8n owns the **schedule-driven and notification** layer; this skill owns **brows
 | PowerSchool report generation (browser) | This skill, on whichever machine runs it |
 | FTE/validation/reconciliation computation (Python) | This skill (`scripts/*.py` via `uv run`) |
 | Progress state | Tracking sheet (skill writes via `gws`, n8n + humans read) |
-| Board/Cabinet + Sodexo notification emails after EDS | n8n `BUS - Enrollment Notifications` (triggered when a human confirms EDS upload) |
+| Internal "count submitted" confirmation after EDS | n8n `BUS - Enrollment Notifications` (triggered when a human confirms EDS upload; recipients = the enrollment notification list, maintained in the live workflow) |
 | TCC Running Start report arrival watch | n8n watcher (Gmail trigger) |
 
 If n8n or the tracking sheet is unreachable, continue the run and note the failure — local work is never blocked on the tracking layer.
@@ -308,7 +308,7 @@ Generate comprehensive validation report + EDS import data for the entire distri
    - EDS-ready import JSON with all data structured for state submission
    - Human review checklist
 4. **Human reviews report and uploads to EDS**
-5. After the human confirms EDS submission, trigger the n8n notification workflow (Board/Cabinet + Sodexo emails; it also marks `EDSSubmitted`/`NotificationsSent` on the `DistrictStatus` tab):
+5. After the human confirms EDS submission, trigger the n8n notification workflow (one internal "count submitted" confirmation email to the enrollment notification list; it also marks `EDSSubmitted`/`NotificationsSent` on the `DistrictStatus` tab):
 ```bash
 curl -sf -X POST "https://n8n.psd401.net/webhook/enrollment-notify" \
   -H "X-Enrollment-Token: $ENROLLMENT_NOTIFY_TOKEN" \
@@ -399,7 +399,7 @@ Failed reports/schools are retried in the next pass of the loop.
 5. Update `DistrictStatus` (ValidationDone, ALEReconDone, RSReconDone)
 6. Present results with human review checklist
 7. **STOP — Human reviews, signs, uploads to EDS**
-8. After confirmation: mark `EDSSubmitted`, trigger n8n notifications (Board/Cabinet email + Sodexo CNTRL), update internal spreadsheets (ANNAVG, CNTRL, One Pager)
+8. After confirmation: trigger the n8n confirmation webhook (marks `EDSSubmitted`, emails the internal notification list), update internal spreadsheets (ANNAVG, CNTRL, One Pager)
 
 ### `/enrollment status`
 

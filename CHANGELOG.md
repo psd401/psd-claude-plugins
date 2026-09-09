@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.6] - 2026-09-09
+
+**psd-productivity 2.19.5 → 2.19.6** (psd-coding-system unchanged at 3.7.1)
+
+### Changed
+- **`/enrollment` — post-EDS notification scope corrected to internal-only** (`SKILL.md`, `references/BUILD-PLAN.md`, `references/report-checklist.md`) — the `BUS - Enrollment Notifications` webhook fired after a human confirms EDS submission is documented as a single internal "count submitted" confirmation to the enrollment notification list, not a Board/Cabinet announcement plus a Sodexo CNTRL email. The recipient list is maintained in the live n8n workflow rather than duplicated in the skill, so it can change without a plugin release
+
+### Removed
+- **`/enrollment` — Board/Cabinet and Sodexo email steps** (`references/report-checklist.md`) — the two manual post-submission email checklist items are replaced by the one automated internal confirmation; no other groups are emailed as part of the monthly count
+
 ## [2.28.5] - 2026-09-09
 
 **psd-productivity 2.19.4 → 2.19.5** (psd-coding-system unchanged at 3.7.1)

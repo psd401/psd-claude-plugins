@@ -50,7 +50,7 @@
 - `/enrollment run [month]` — Full monthly workflow defined in SKILL.md
 - `/enrollment status` — Dashboard command defined
 - Requires live PowerSchool session + Google Workspace auth to test end-to-end
-- Email generation for Board/Cabinet notification handled by SKILL.md orchestration
+- Post-EDS confirmation email handled by the n8n notification webhook (internal list only)
 
 ### Phase 7: Speed & Reliability Improvements — IN PROGRESS (March 2026)
 
@@ -84,7 +84,7 @@
 - **allowed-tools fix**: chrome-devtools MCP tools are namespaced `mcp__plugin_psd-productivity_chrome-devtools__*` in current Claude Code; both old and new names listed for cross-version compatibility; dropped `click_at` (no longer exists in chrome-devtools-mcp)
 - **effort: medium** (from high) — long mechanical loop, same rationale as /lfg; March failure mode was context pressure, not reasoning depth
 - **2026-27 refresh**: count-date table (Sept = Tue 2026-09-08) in school-config.md + Calendar tab; RS cap validated at 1.20; bell schedules unchanged (confirmed 2026-08-31)
-- **n8n side** (psd-workflow-automation repo): `BUS - Enrollment Count Scheduler` (T-1 reminders, count-day kickoff, Drive folder creation), `BUS - Enrollment Notifications` (Board/Cabinet + Sodexo after EDS), TCC report watcher (pending mailbox address)
+- **n8n side** (psd-workflow-automation repo): `BUS - Enrollment Count Scheduler` (T-1 reminders, count-day kickoff, Drive folder creation), `BUS - Enrollment Notifications` (internal "count submitted" confirmation after EDS), TCC report watcher (pending mailbox address)
 
 **Smoke test PASSED 2026-08-31** (live against PowerSchool, logged in as the "PSD Enrollment" service account):
 - Plugin-prefixed chrome-devtools tools drive the debug browser (1.8.0 calling convention: `pageId` required, `evaluate_script` takes a function)
