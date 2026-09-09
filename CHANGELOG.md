@@ -17,6 +17,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.28.5] - 2026-09-09
+
+**psd-productivity 2.19.4 → 2.19.5** (psd-coding-system unchanged at 3.7.1)
+
+### Added
+- **`/enrollment` — school switching via the Angular school picker** (`references/report-checklist.md`) — documented the validated sequence: open `#school_picker_adminSchoolPicker_toggle_btn`, click the school's `<li role="menuitem">` in `#school_choices`, then confirm the picker label before running any report. The switch is session-wide, so every open tab follows it
+- **`/enrollment` — report-engine result collection** (`references/report-checklist.md`) — the System report queue lives at `/admin/reportqueue/home.html` (ReportWorks is `prhome.html`) and must be polled with an in-page `fetch` + `DOMParser` rather than `wait_for`. PDF results must be fetched in-page and saved through a Blob + `<a download>` click, because navigating to them opens Brave's PDF viewer instead of downloading; HTML results are navigated to and printed with `save_pdf.js`
+- **`/enrollment` — Student List Export automation path** (`references/report-checklist.md`) — full click path from the Start Page through `#selectedFunctionButtonStudent` → `#filenum=1` → `#utableid=351`, including the non-obvious step of clicking the `DOTHISFOR=selected` radio (the default targets a single student, not the selection). Records template id `352` for the Monthly Withdraw List
+
+### Changed
+- **`/enrollment` — Section Enrollment Audit direct URL** (`references/report-checklist.md`) — the audit renders immediately at `/admin/locale/checkclassdates.html` for the current school with no submit step
+- **`/enrollment` — Google Workspace command examples corrected** (`SKILL.md`) — the `gws sheets +append` helper has no tab/range flag and would have appended school-status rows to the first tab (`Calendar`) instead of `SchoolStatus`; the example now uses the raw `sheets spreadsheets values append` form with an explicit range. The `gws drive +upload` helper cannot see shared-drive parents, so the backup-upload example now uses `drive files create` with `supportsAllDrives`
+- **`/enrollment` — backup-report rehearsal recorded** (`references/BUILD-PLAN.md`) — the pre-count rehearsal item is closed with the 2026-09-09 live-session results (Artondale, 9/8 count date), including the Student List Export's CR line endings, which make `wc -l` report 0 and require validator scripts to read with universal newlines
+
+### Fixed
+- **`/enrollment` — Entry/Exit Report parameters** (`references/report-checklist.md`) — the page's inline script keeps an internal pause flag that only the checkbox's own `change` handler flips, so setting `pause.checked = false` by property left results hidden indefinitely. The documented sequence now dispatches `change` on every control and toggles pause on-then-off to trigger `loadResults()`, plus a results poll and a school-year check on the header row
+- **`/browser-control` — `launch-chrome.sh` hangs the calling tool** (`scripts/launch-chrome.sh`) — Brave inherited the shell's stdout/stderr pipe, so the caller blocked until Brave exited. Launch is now fully detached (`nohup … > log 2>&1 < /dev/null &` + `disown`). Readiness is also no longer inferred from a bound port via `lsof`: the script polls the DevTools endpoint (`/json/version`) or Brave's own "DevTools listening" log line for up to ~15s, and the failure message points at the log
+- **`/n8n-manager` — `rotate_documenso_key.js` could not rotate anything** (`scripts/rotate_documenso_key.js`) — every PUT failed with `request/body must NOT have additional properties`, so a real rotation of 18 workflows wrote zero changes. The PUT body was a denylist of the GET payload; it is now an allowlist of `name`/`nodes`/`connections`/`settings` (plus stripping the legacy `settings.binaryMode` that the schema rejects), which cannot rot as n8n adds read-only fields. Success is also no longer judged from the PUT response — each workflow is re-fetched and asserted (zero old-key references, at least as many new-key references), with mismatches surfacing as `verify_mismatch` and failing the run
+
 ## [2.28.4] - 2026-08-31
 
 **psd-productivity 2.19.3 → 2.19.4** (psd-coding-system unchanged at 3.7.1)

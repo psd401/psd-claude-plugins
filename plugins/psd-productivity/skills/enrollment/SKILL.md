@@ -434,12 +434,17 @@ Common operations used by enrollment:
 # Read tracking sheet calendar
 gws sheets +read --spreadsheet "1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0" --range 'Calendar!A1:E12'
 
-# Append a school status row
-gws sheets +append --spreadsheet "1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0" \
-  --range 'SchoolStatus!A1' --values '[["September 2026","GHHS","HS","Y","1420","none","2026-09-08T14:02:11","mac-mini"]]'
+# Append a school status row — use the raw API form: the +append helper has no
+# tab/range flag and would append to the FIRST tab (Calendar), not SchoolStatus
+gws sheets spreadsheets values append \
+  --params '{"spreadsheetId":"1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0","range":"SchoolStatus!A1","valueInputOption":"RAW","insertDataOption":"INSERT_ROWS"}' \
+  --json '{"values":[["September 2026","GHHS","HS","Y","1420","none","2026-09-08T14:02:11Z","mac-mini"]]}'
 
-# Upload enrollment backup
-gws drive +upload ./backup.pdf --name "GHHS_EnrollmentSummary_20260908"
+# Upload enrollment backup into the month folder (shared drive — the +upload helper
+# cannot see shared-drive parents; use files create with supportsAllDrives)
+gws drive files create --params '{"supportsAllDrives":true}' \
+  --json '{"name":"GHHS_EnrollmentSummary_20260908.pdf","parents":["<month folder id>"]}' \
+  --upload ./GHHS_EnrollmentSummary_20260908.pdf
 ```
 
 ## School Abbreviations

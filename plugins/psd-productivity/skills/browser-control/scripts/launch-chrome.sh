@@ -44,23 +44,30 @@ HEADLESS=""
 START_URL="${PSD_BROWSER_START_URL:-https://powerschool.psd401.net/admin/pw.html}"
 [ -n "$HEADLESS" ] && START_URL=""
 
-"$BRAVE_PATH" \
+# Fully detach Brave from this shell: an inherited stdout/stderr pipe makes the
+# calling tool hang until Brave exits (seen 2026-09-09). Brave's own stderr is
+# kept in a log because "DevTools listening on ws://..." is the reliable
+# readiness signal.
+LOG="$PROFILE_DIR/brave-launch.log"
+nohup "$BRAVE_PATH" \
     --remote-debugging-port=$PORT \
     --user-data-dir="$PROFILE_DIR" \
     $HEADLESS \
     --no-first-run \
     --no-default-browser-check \
     --window-size=1280,900 \
-    $START_URL &
+    $START_URL > "$LOG" 2>&1 < /dev/null &
+disown 2>/dev/null || true
 
-# Wait for browser to start
-for i in $(seq 1 10); do
-    if lsof -i :$PORT > /dev/null 2>&1; then
-        echo '{"status":"started","port":'$PORT',"profile":"'"$PROFILE_DIR"'"}'
+# Wait for the DevTools endpoint (not just a bound port) — up to ~15s
+for i in $(seq 1 30); do
+    if curl -s --max-time 1 "http://127.0.0.1:$PORT/json/version" > /dev/null 2>&1 \
+       || grep -q "DevTools listening" "$LOG" 2>/dev/null; then
+        echo '{"status":"started","port":'$PORT',"profile":"'"$PROFILE_DIR"'","log":"'"$LOG"'"}'
         exit 0
     fi
     sleep 0.5
 done
 
-echo '{"status":"failed","error":"Browser did not start on port '$PORT' within 5 seconds"}'
+echo '{"status":"failed","error":"DevTools endpoint on port '$PORT' not ready within 15 seconds — see '"$LOG"'"}'
 exit 1

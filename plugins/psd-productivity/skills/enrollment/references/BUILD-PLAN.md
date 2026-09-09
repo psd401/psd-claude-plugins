@@ -96,7 +96,7 @@
 **Still needs**:
 - [ ] Verify with enrollment officer whether the ZIP's `P223_*.txt` is directly EDS-uploadable (could replace the hand-built EDS import)
 - [ ] Map audit-CSV 3-char school codes → standard abbreviations in validator scripts
-- [ ] Rehearse one school's full backup-report set (Enrollment Summary datepicker, Entry/Exit, Consecutive Absence) closer to 9/8
+- [x] **Backup-report rehearsal DONE 2026-09-09** (Artondale, count date 9/8, live session): school switch via Angular picker `<li>` click; Enrollment Summary datepicker `lastVal` trick still works (total 394); Entry/Exit needs the pause checkbox toggled through its own change handler (internal `p` flag) — Sept 425 rows + Aug both rendered with the correct 2026-27 year; Consecutive Absence + Class Attendance Audit submitted, completed in ~1 min, results collected (HTML → `save_pdf.js`, PDF → in-page blob download); Section Enrollment Audit = `/admin/locale/checkclassdates.html` (renders directly); Student List Export via Select Function → `filenum=1` → `utableid=351` → `DOTHISFOR=selected` radio → `btnSubmit` (export uses CR line endings — `wc -l` reports 0; validator scripts must read with universal newlines). All mechanics recorded in report-checklist.md. Duplicate-launch hazard: `launch-chrome.sh` backgrounds Brave and can hang the Bash tool / leave a debug instance without a bound port — a detached `nohup … & disown` relaunch fixed it; Brave's own stderr line "DevTools listening on ws://127.0.0.1:9222" is the reliable readiness signal, not `lsof`.
 - [ ] TCC watcher mailbox address from Hagel
 - [ ] Mac mini setup per machine-setup.md; test Brave saved-login auto-fill for unattended re-login (machine-setup Layer 4)
 

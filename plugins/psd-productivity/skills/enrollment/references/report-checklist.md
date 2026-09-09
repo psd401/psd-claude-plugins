@@ -10,7 +10,7 @@
 - [ ] Clean up data in PowerSchool
   - [ ] All attending students enrolled and assigned to classes
   - [ ] All withdrawn students exited
-  - [ ] Section Enrollment Audit: System Reports > Membership and Enrollment > Section Enrollment Audit
+  - [ ] Section Enrollment Audit: System Reports > Membership and Enrollment > Section Enrollment Audit — direct URL `/admin/locale/checkclassdates.html` (renders immediately for the current school, no submit; print with `save_pdf.js … "section enrollment"`)
   - [ ] (ES) Class Roster check: System Reports > Student/Staff Listings > Class Rosters (PDF)
 - [ ] Check previous month for revisions
   - [ ] Re-run previous month Enrollment Summary with previous count date
@@ -25,6 +25,10 @@
 >
 > **Save script**: `save_pdf.js` ships with the skill at `scripts/save_pdf.js` (relative to the skill directory). `<folder>` below = the local staging folder `~/Enrollment/P223-<Month>-<Year>/`. Every `bun .../save_pdf.js` reference below means the skill's copy — never a Desktop or per-month copy.
 
+> **School switching (validated 2026-09-09):** the header school picker is an Angular widget. Open it with `document.getElementById('school_picker_adminSchoolPicker_toggle_btn').click()`, then click the school's `<li role="menuitem">` inside `#school_choices` (match by name text). The page reloads in the new school context (session-wide — every tab follows). Verify with the picker label text before running reports.
+>
+> **Report-engine result files (validated 2026-09-09):** the System queue is `/admin/reportqueue/home.html` (ReportWorks is `prhome.html`). Poll it with an in-page `fetch` + `DOMParser`, never `wait_for`. Result links look like `ClassAttendanceAudit.pdf?ac=report_batch_getresult&report_batch_jobID=<id>` (PDF) or `PSPRE_ConsecAbsences.html?ac=...` (HTML). For PDF results, do NOT navigate (Brave opens its viewer) — `fetch` the URL in-page, wrap in a Blob, and click an `<a download="<SCHOOL>_<Report>_<date>.pdf">`; the file lands in `~/Downloads`, then `mv` it. For HTML results, navigate the tab to the URL and print with `save_pdf.js`.
+>
 > **Session health check (before first report):** Verify the PS session is active. If `getStudents.txt` or any XHR returns HTTP 302 → `/admin/pw.html`, the session has expired and you must log back in before proceeding. Quick check:
 > ```javascript
 > // In evaluate_script — returns true if session is alive
@@ -96,6 +100,7 @@
 - **Path**: Start Page > select All students > lower-right dropdown > Export Using Template > Students
 - **Template**: `(Dist) Enrollment - Monthly Backup Student List`
 - **Parameters**: "The selected N students" radio
+- **Automation path (validated 2026-09-09)**: on the Start Page (school context set) click the Angular "All" link (`[...document.querySelectorAll('a')].find(a => a.textContent.trim() === 'All').click()`) → selection count appears → click `#selectedFunctionButtonStudent` (the split button whose current function is "Export Using Template"; falls through to `/admin/importexport/exportusingtemplate/home.html`) → set `#filenum` to `1` (Students) and dispatch `change` (navigates to `export.html`) → set `#utableid` to `351` ("(Dist) Enrollment-Monthly Backup Student List") → **click** `input[name="DOTHISFOR"][value="selected"]` (the default radio is a single student, not the selection!) → `document.getElementById('btnSubmit').click()`. Other useful template ids: `352` = "(Dist) Enrollment-MonthlyWithdraw List".
 - **JS submit**: `document.getElementById('btnSubmit').click()`
 - **Save**: File auto-downloads to `~/Downloads/student.export.text` → `mv ~/Downloads/student.export.text <folder>/<SCHOOL>_StudentListExport_<date>.txt`
 - **Note**: No save dialog if "Ask where to save" is disabled in Brave settings (pre-flight step above)
@@ -117,14 +122,16 @@
 
 #### Report 4: Entry/Exit Report (run twice — previous month then current month)
 - **URL**: `/admin/reports/CRB/enrollment/EntryExitReport.html`
-- **JS parameters**:
+- **JS parameters** (revalidated 2026-09-09 — the page's inline script keeps an internal pause flag `p=1` that only the checkbox's OWN change handler flips; setting `.checked` by property leaves results hidden forever):
   ```javascript
-  document.getElementById('pause').checked = false;
-  document.getElementById('showN').checked = true;  // Show Enrolled
-  document.getElementById('showX').checked = true;  // Show Exited
-  document.getElementById('m').value = '2';          // 2=Feb, 3=Mar, etc.
-  document.getElementById('m').dispatchEvent(new Event('change', {bubbles: true}));
-  // Report auto-refreshes — no submit button needed
+  const pause = document.getElementById('pause'), showN = document.getElementById('showN'), showX = document.getElementById('showX'), m = document.getElementById('m');
+  m.value = '9'; m.dispatchEvent(new Event('change', {bubbles: true}));            // 9=Sep, 10=Oct … 6=Jun
+  pause.checked = true;  pause.dispatchEvent(new Event('change', {bubbles: true}));
+  showN.checked = true;  showN.dispatchEvent(new Event('change', {bubbles: true})); // Show Enrolled
+  showX.checked = true;  showX.dispatchEvent(new Event('change', {bubbles: true})); // Show Exited
+  pause.checked = false; pause.dispatchEvent(new Event('change', {bubbles: true})); // un-pausing fires loadResults()
+  // then poll: document.getElementById('results').querySelectorAll('tr').length > 1
+  // header row reads "Students Enrolled at <School> in <Month> of the 2026-2027 school year" — check the year
   ```
 - **Save**: `bun <skill-dir>/scripts/save_pdf.js <folder>/<SCHOOL>_EntryExit_<MonthYear>_<date>.pdf "entry"`
 - **Run twice**: Once for previous month, once for current month
