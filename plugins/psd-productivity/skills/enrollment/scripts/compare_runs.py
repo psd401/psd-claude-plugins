@@ -9,7 +9,7 @@ Usage:
 
 Each directory must hold p223_totals.json and validation.json as written by the
 run's Phase 1/3 steps. Prints (and optionally writes) a markdown table of per-school
-deltas in headcount, FTE, Running Start count, over-1.20 count and zero-FTE count,
+deltas in headcount, FTE, Running Start count, over-1.30 count and zero-FTE count,
 plus a district line. Non-zero deltas are what the rerun's findings doc must explain.
 """
 import argparse, json, pathlib
@@ -27,7 +27,7 @@ def main():
     a = ap.parse_args()
     tb, vb = load(a.before); ta, va = load(a.after)
     schools = sorted(set(tb) | set(ta))
-    lines = ["| School | HC before | HC after | Δ HC | FTE before | FTE after | Δ FTE | RS before | RS after | Over 1.20 before→after | Zero-FTE before→after |",
+    lines = ["| School | HC before | HC after | Δ HC | FTE before | FTE after | Δ FTE | RS before | RS after | Over 1.30 before→after | Zero-FTE before→after |",
              "|---|---|---|---|---|---|---|---|---|---|---|"]
     T = dict(hcb=0, hca=0, fb=0.0, fa=0.0)
     for s in schools:

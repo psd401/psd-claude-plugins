@@ -225,7 +225,7 @@ def check_running_start_cap(
     district_fte_field: str = "District_FTE",
     rs_fte_field: str = "RS_FTE",
     student_id_field: str = "Student_Number",
-    cap: float = 1.20,
+    cap: float = 1.30,
 ) -> CheckResult:
     """Check combined district + RS FTE does not exceed cap."""
     if not rs_students:
@@ -360,7 +360,7 @@ def run_all_checks(
     students_with_overrides: Optional[list[dict]] = None,
     school: str = "Unknown",
     count_date: str = "",
-    rs_cap: float = 1.20,
+    rs_cap: float = 1.30,
 ) -> ValidationReport:
     """Run all validation checks and return a report."""
     report = ValidationReport(
@@ -399,7 +399,7 @@ def main():
     parser.add_argument("--entry-exit-current", help="Path to current month entry/exit CSV")
     parser.add_argument("--entry-exit-previous", help="Path to previous month entry/exit CSV")
     parser.add_argument("--rs-students", help="Path to Running Start students CSV")
-    parser.add_argument("--rs-cap", type=float, default=1.20, help="RS combined FTE cap")
+    parser.add_argument("--rs-cap", type=float, default=1.30, help="RS combined FTE cap")
     parser.add_argument("--output", help="Output path for validation report (markdown)")
     parser.add_argument("--json", action="store_true", help="Output as JSON instead of markdown")
 

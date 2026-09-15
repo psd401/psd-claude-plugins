@@ -7,7 +7,7 @@
 Running Start Reconciliation for PSD P223 Enrollment.
 
 Compares TCC Running Start reports against PowerSchool RS data to:
-- Verify combined district + RS FTE <= 1.20 per student
+- Verify combined district + RS FTE <= 1.30 per student
 - Identify full-time vs part-time RS correctly
 - Populate RSCNTRL spreadsheet data
 - Flag January semester-change SQEAF requirements
@@ -81,7 +81,7 @@ class RSReconciliationReport:
             f"- Total RS students: {len(self.students)}",
             f"- Full-time RS (backed out of HC): {len(ft)}",
             f"- Part-time RS (some HS FTE): {len(pt)}",
-            f"- Over 1.20 combined FTE: {len(self.over_cap)}",
+            f"- Over 1.30 combined FTE: {len(self.over_cap)}",
             f"- In TCC but not PS: {len(self.tcc_only)}",
             f"- In PS but not TCC: {len(self.ps_only)}",
         ])
@@ -125,7 +125,7 @@ class RSReconciliationReport:
 
         # Over-cap students
         if self.over_cap:
-            lines.append(f"\n## Over 1.20 Combined FTE\n")
+            lines.append(f"\n## Over 1.30 Combined FTE\n")
             lines.append("| Student | Grade | School | District FTE | RS FTE | Combined |")
             lines.append("|---------|-------|--------|-------------|--------|----------|")
             for s in self.over_cap:
@@ -150,7 +150,7 @@ class RSReconciliationReport:
         # SQEAF
         if self.sqeaf_needed:
             lines.append(f"\n## SQEAF Required (January Semester Change)\n")
-            lines.append("These students exceed 1.20 combined FTE during semester change.\n")
+            lines.append("These students exceed 1.30 combined FTE during semester change.\n")
             for s in self.sqeaf_needed:
                 lines.append(
                     f"- {s.student_id} ({s.school}): "
@@ -167,7 +167,7 @@ def reconcile_running_start(
     count_month: str = "",
     tcc_id_field: str = "Student_Number",
     ps_id_field: str = "Student_Number",
-    cap: float = 1.20,
+    cap: float = 1.30,
 ) -> RSReconciliationReport:
     """Run RS reconciliation between TCC report and PowerSchool data."""
     is_jan = count_month.lower().startswith("jan")
@@ -292,7 +292,7 @@ def main():
     parser.add_argument("--ps-report", help="Path to PowerSchool RS export CSV")
     parser.add_argument("--count-date", default="", help="Count date")
     parser.add_argument("--count-month", default="", help="Count month name")
-    parser.add_argument("--rs-cap", type=float, default=1.20, help="Combined FTE cap")
+    parser.add_argument("--rs-cap", type=float, default=1.30, help="Combined FTE cap")
     parser.add_argument("--output", help="Output path for report")
     parser.add_argument("--rscntrl-output", help="Output RSCNTRL data as JSON")
     parser.add_argument("--json", action="store_true", help="Output as JSON")

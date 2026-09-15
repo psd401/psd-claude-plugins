@@ -52,6 +52,14 @@
 | Fresh Start (Open Doors) | A (C for enrollment) | 5707 (PAP) | Reengagement ages 16-21, via TCC |
 | Community Transition Program (CTP) | B | PAP | Ages 18-21, post-secondary transition |
 
+## Expected-ALE schools (2026-27)
+
+| School | Rule | Source |
+|--------|------|--------|
+| HBHS | **All** Henderson Bay students are ALE for 2026-27. `district_checks.py` fails when PowerSchool disagrees; `eds_txt.py` mirrors HBHS's K-12 enrollment into the ALE fields (30-57, 76-77) regardless, and the SAFS ALE application must be restated by program and home district | Hagel, 2026-09-15 |
+
+Pass the list as `--expected-ale HBHS` (comma-separated if it grows).
+
 ## Feeder Pattern (ES → MS → HS)
 
 | Elementary | Middle School | High School |
@@ -147,6 +155,18 @@ Source: 2026-27 PSD calendar (first day 9/2/2026; Labor Day 9/7; winter break 12
 | April 2027 | 2027-04-01 | Thursday | 2027-03-31 (Wed) | Spring break 4/12–4/16 is later in month |
 | May 2027 | 2027-05-03 | Monday | 2027-04-30 (Fri) | May 1 is a Saturday |
 | June 2027 | 2027-06-01 | Tuesday | 2027-05-28 (Fri; 5/31 is Memorial Day) | Final count of the year |
+
+### 2026-27 state due dates (OSPI Enrollment Handbook §4.B — also in the sheet's `Calendar!DueDate`)
+
+| Report month | Due | Report month | Due |
+|---|---|---|---|
+| September | Tue 2026-09-22 | February | Thu 2027-02-11 |
+| October | Mon 2026-10-19 | March | Mon 2027-03-15 |
+| November | Mon 2026-11-16 | April | Wed 2027-04-14 |
+| December | Mon 2026-12-14 | May | Thu 2027-05-13 |
+| January | Thu 2027-01-14 | June | Mon 2027-06-14 |
+
+Prior-month revisions are due the same day; 2026-27 revisions after 2027-08-11 go through 2027-11-22 electronically, later on signed paper.
 
 ## P223 Audit CSV School Codes (3-char → standard abbreviation)
 

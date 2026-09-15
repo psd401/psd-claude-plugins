@@ -17,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.30.0] - 2026-09-15
+
+### Added
+- **`/enrollment` — five new scripts** (psd-productivity 2.21.0), turning Phases 0–3 from prose into tooling:
+  - `split_p223.py` — splits the district P223 ZIP into one form page and one audit CSV per school (elementary from Run A, secondary from Run B) and writes `_district/p223_totals.json`. Replaces hand-splitting
+  - `district_checks.py` — district-wide integrity pass: per-school gap-student lists from the Student List export, Running Start cap / September-zero / HS-share checks, zero-FTE, expected-ALE, TK-without-FTE and EDS field completeness, emitting `validation.json` + `schools.json`
+  - `eds_txt.py` — rebuilds the EDS upload file, because PowerSchool's `P223_*.txt` omits TK (fields 223-225), Open Doors (218-220), Running Start (163-167) and expected-ALE fields; also emits `eds_txt_changes.md`
+  - `findings_doc.py` — generates the monthly findings doc (Markdown + HTML) including the CTE 7-8 / 9-12 split, TK, ALE, and correction/delta sections for reruns
+  - `drive_layout.py` — creates per-run and per-school Drive folders (`<Month YYYY>/Run <date>/{schools…, District}`) so no run overwrites another and a school's folder can be shared with that building
+- **`/enrollment` reference data** — expected-ALE school list (HBHS is all-ALE for 2026-27) and the 2026-27 OSPI state due-date table added to `school-config.md`
+
+### Changed
+- **`/enrollment` Running Start rules** — aligned with the 2026-27 OSPI Enrollment Handbook (read 2026-09-15): combined district + RS FTE cap is **1.30** (previously recorded as 1.20), the high school's own share must be ≤ 1.00, Running Start is reported October–June only so **September RS is reported as zero**, and December/January term overlap is warn-only (SQEAF). Applied across `SKILL.md`, `fte-rules.md`, `cant-automate.md`, `report-checklist.md`, `BUILD-PLAN.md`, `ale_reconciler.py`, `rs_reconciler.py`, `enrollment_validator.py`, `fte_calculator.py` and `compare_runs.py`
+- **`/enrollment` validation report** — `validation_report.py` now carries TK counts and the CTE 7-8 / 9-12 split through to the EDS import JSON
+- **`/enrollment` workflow** — Phase 0/1/2/3 in `SKILL.md` are now script-driven; rerun mode uses `drive_layout.py --label Rerun` instead of hand-created Drive subfolders, and PowerSchool's raw `P223_*.txt` is explicitly no longer treated as the EDS upload file
+
 ## [2.29.2] - 2026-09-15
 
 **psd-productivity 2.20.1 → 2.20.2** (psd-coding-system unchanged at 3.7.1)

@@ -81,7 +81,7 @@ class FTEResult:
     school: str
     level: str
     calculated_fte: float
-    capped_fte: float  # capped at 1.0 for regular, 1.20 for RS
+    capped_fte: float  # capped at 1.0 for regular, 1.30 for RS
     adjustment: float  # 1.0 - capped_fte
     breakdown: dict
     warnings: list[str]
@@ -271,7 +271,7 @@ def calculate_gva_fte(
     )
 
 
-def check_running_start_cap(district_fte: float, rs_fte: float, cap: float = 1.20) -> dict:
+def check_running_start_cap(district_fte: float, rs_fte: float, cap: float = 1.30) -> dict:
     """Check if combined district + Running Start FTE exceeds cap."""
     combined = round(district_fte + rs_fte, 2)
     over = combined > cap
@@ -300,7 +300,7 @@ def main():
     parser.add_argument("--gva-sections", type=int, default=0, help="Number of GVA sections")
     parser.add_argument("--brick-sections", type=int, default=0, help="Number of brick-and-mortar sections")
     parser.add_argument("--rs-fte", type=float, help="Running Start FTE to check combined cap")
-    parser.add_argument("--rs-cap", type=float, default=1.20, help="RS combined FTE cap (default 1.20)")
+    parser.add_argument("--rs-cap", type=float, default=1.30, help="RS combined FTE cap (default 1.30)")
     parser.add_argument("--json", action="store_true", help="Output as JSON")
 
     args = parser.parse_args()

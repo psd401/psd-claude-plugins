@@ -114,9 +114,9 @@ Total: 1,440 + 305 = **1,745 min** → 1,745 / 1,665 = 1.04 FTE
 
 ## Running Start FTE Rules
 
-- Combined district FTE + RS FTE must be ≤ **1.20** in PowerSchool
-- **2026-27: validate against 1.20** (confirmed by Hagel, 2026-08-31). Historical note: state allowed 1.40 for 25-26, but PS capped at 1.20 (reported to PowerSchool as a bug)
-- January exception: semester change may cause temporary over-1.20; requires SQEAF form to verify annual average stays ≤ 1.20
+- Combined district FTE + RS FTE must be ≤ **1.30**; the high school's own share ≤ 1.00 (2026-27 OSPI Enrollment Handbook §2.A, §5.I)
+- **2026-27: validate against 1.30** — the state cap changed from 1.40 (2025-26) to 1.30. The earlier 1.20 was never the state rule (corrected 2026-09-15 from the handbook). **Running Start is reported October–June only; September RS is zero** (§6.F). Historical note: PS capped at 1.20 (reported to PowerSchool as a bug)
+- December/January exception: term overlap may exceed 1.30 for that month only; requires SQEAF form to verify the annual average stays ≤ 1.30 AAFTE
 - Full-time RS: student backed out full 1.0 from headcount (no HS sections)
 - Part-time RS: some FTE claimed at HS, some at RS
 - RS students categorized as Program 1 (Concurrently Enrolled) or Program 2 (College Only)

@@ -233,7 +233,7 @@
 - [ ] Highlight GVA students (yellow), non-instructional sections (pink), RS students (separate color)
 - [ ] Verify 1 HC per student, correct FTE
 - [ ] Apply split-school FTE rules (see fte-rules.md)
-- [ ] Verify RS + ALE combined FTE ≤ 1.20
+- [ ] Verify RS + ALE combined FTE ≤ 1.30
 - [ ] Extract CTE ALE sections (OCT135, OPE901)
 - [ ] Send CTE ALE FTE report to CTE program
 - [ ] Enter ALE into EDS application
@@ -241,7 +241,7 @@
 
 ### Running Start Reconciliation
 - [ ] Compare TCC RS report against HS adjustment lists
-- [ ] Verify combined district + RS FTE ≤ 1.20
+- [ ] Verify combined district + RS FTE ≤ 1.30 (high school share ≤ 1.00; none in September)
 - [ ] Check full-time GVA students against RS FTE
 - [ ] January: complete SQEAF for semester-change students
 - [ ] Update RSCNTRL spreadsheet (Academic/Vocational FTE by school, HC by grade)

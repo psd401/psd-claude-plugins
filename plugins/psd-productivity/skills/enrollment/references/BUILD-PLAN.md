@@ -28,7 +28,7 @@
 ### Phase 4: District Reconciliation Automation — COMPLETE
 - `scripts/ale_reconciler.py` — ALE FTE reconciliation:
   - Assigns FTE per section based on paired school rules
-  - Verifies combined ALE + RS FTE ≤ 1.20
+  - Verifies combined ALE + RS FTE ≤ 1.30
   - Extracts CTE ALE sections (OCT135, OPE901)
   - Generates CTE report for CTE program
   - Splits in-district vs out-of-district
@@ -83,7 +83,7 @@
 - **Scheduled operation**: new `/enrollment daily-check` command for a weekday scheduled task on the mini (session health probe → alert on expiry; count day → full run)
 - **allowed-tools fix**: chrome-devtools MCP tools are namespaced `mcp__plugin_psd-productivity_chrome-devtools__*` in current Claude Code; both old and new names listed for cross-version compatibility; dropped `click_at` (no longer exists in chrome-devtools-mcp)
 - **effort: medium** (from high) — long mechanical loop, same rationale as /lfg; March failure mode was context pressure, not reasoning depth
-- **2026-27 refresh**: count-date table (Sept = Tue 2026-09-08) in school-config.md + Calendar tab; RS cap validated at 1.20; bell schedules unchanged (confirmed 2026-08-31)
+- **2026-27 refresh**: count-date table (Sept = Tue 2026-09-08) in school-config.md + Calendar tab; RS cap validated at 1.30 per the handbook (recorded as 1.20 on 2026-08-31, corrected 2026-09-15); bell schedules unchanged
 - **n8n side** (psd-workflow-automation repo): `BUS - Enrollment Count Scheduler` (T-1 reminders, count-day kickoff, Drive folder creation), `BUS - Enrollment Notifications` (internal "count submitted" confirmation after EDS), TCC report watcher (pending mailbox address)
 
 **Smoke test PASSED 2026-08-31** (live against PowerSchool, logged in as the "PSD Enrollment" service account):
@@ -150,6 +150,6 @@ skills/ (in psd-productivity/)
 - 1.6 TCC RS report arrival mailbox (needed to activate the n8n watcher)
 
 ## Resolved
-- 1.1 RS FTE cap → **1.20 for 2026-27** (Hagel, 2026-08-31)
-- 1.4 State handbook changes → none affecting rules; bell schedules unchanged for 2026-27 (Hagel, 2026-08-31)
+- 1.1 RS FTE cap → **1.30 for 2026-27** per the OSPI handbook (was recorded as 1.20 on 2026-08-31; corrected 2026-09-15). September RS = 0
+- 1.4 State handbook changes (read 2026-09-15): RS cap 1.40→1.30 with HS ≤ 1.00; RS reported Oct–Jun only; TK funding capped by district list (report all TK anyway); PowerSchool's EDS TXT omits TK/Open Doors and zeroes RS → `eds_txt.py` rebuilds it; due dates now tracked. Bell schedules unchanged
 - 1.5 PowerSchool API access → **both plugin API and ODBC exist**, but the built-in reports (P223 form) aren't exposed there — direct access would mean building our own reporting, potentially surfaced through psd-data-mcp. Deliberate future track, not part of the browser pipeline (Hagel, 2026-08-31)

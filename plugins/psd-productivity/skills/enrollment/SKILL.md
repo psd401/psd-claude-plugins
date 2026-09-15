@@ -232,7 +232,7 @@ Run validation checks against downloaded enrollment data.
    - FTE calculation verification against bell schedule
    - Consecutive absence exclusion flags
    - Entry/Exit balancing (prev HC + entries - exits = current HC)
-   - Running Start combined FTE ≤ 1.20
+   - Running Start combined FTE ≤ 1.30 (October–June; September must be zero)
    - Program compliance (RS Program 1/2, Fresh Start Track=C)
    - Non-FTE course marking
    - Teacher assignment gaps
@@ -264,7 +264,7 @@ Run ALE FTE reconciliation from the GVA ALE report.
 1. Read `references/fte-rules.md` for ALE FTE rates by paired school
 2. Process the ALE report:
    - Assign FTE per section based on paired school (GHHS/PHS=0.15/0.17, HBHS=0.21, MS=0.16, ES=0.20)
-   - Verify combined ALE + RS FTE ≤ 1.20 per student
+   - Verify combined ALE + RS FTE ≤ 1.30 per student
    - Extract CTE ALE sections (OCT135, OPE901) and generate CTE report
    - Split by in-district (2740) vs out-of-district
    - Total by school and grade level
@@ -283,7 +283,7 @@ Reconcile Running Start between TCC college report and PowerSchool data.
 **Workflow**:
 1. Compare TCC RS report against PS RS export
 2. For each student:
-   - Verify combined district + RS FTE ≤ 1.20
+   - Verify combined district + RS FTE ≤ 1.30 (high school share ≤ 1.00)
    - Identify full-time vs part-time RS
    - Flag students in TCC but not PS (contact registrar)
    - Flag students in PS but not TCC (verify RS status)
@@ -353,7 +353,12 @@ REQUIRED_REPORTS_ES = [P223, EnrollmentSummary, EntryExitPrev, EntryExitCurr, Co
 
 REQUIRED_REPORTS_MS_HS = REQUIRED_REPORTS_ES + [StudentScheduleReport]
 
-**Phase 0: Ensure Drive month folder (run once, before anything)**
+**Phase 0: Ensure the Drive layout (run once, before anything)**
+Every run gets its own folder and every school its own subfolder — nothing is ever overwritten, and a school's folder can be shared with that building (Hagel, 2026-09-15):
+```
+AUTOMATION BACKUP (P223) / <Month YYYY> / Run <YYYY-MM-DD> / {AES … HBHS, District}
+```
+`uv run <skill-dir>/scripts/drive_layout.py --month "<Month YYYY>" --run-date <today>` creates whatever is missing and prints every folder id as JSON — save it to `_district/drive_layout.json` and upload each school's files to **its** folder, district files to `District`, and the findings Google Doc to the run folder root. A rerun passes `--label Rerun`. The month folder itself:
 Check for the month folder under `AUTOMATION BACKUP (P223)` (`1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm`, shared drive `0AGPCnumGcrRLUk9PVA`); create it if missing — do not rely on n8n having created it:
 ```bash
 gws drive files list --params '{"q":"'"'"'1p_i0btMW4Wvq32mhsBXiABP8eTwWrdHm'"'"' in parents and name = '"'"'<Month Year>'"'"' and trashed = false","fields":"files(id,name)","supportsAllDrives":true,"includeItemsFromAllDrives":true}'
@@ -366,7 +371,7 @@ gws drive files create --params '{"supportsAllDrives":true}' --json '{"name":"<M
 2. Run P223 Form and Audit at `allSchools` **twice** (the form has one FTE-window setting):
    - Run A: 1-Day window + FTE Calc Date = count date → covers the 10 elementary schools
    - Run B: 5-Day window + FTE Calc Date blank → covers the 7 MS/HS
-3. Each ZIP: one 17-page `WA_P223_Form.pdf` (one page per school — split per school by page), one all-school `WA_P223_Audit.csv` (filter per school; **3-char school codes** — map to standard abbreviations), one state-format `P223_*.txt` (retain — candidate EDS upload file)
+3. Each ZIP: one 17-page `WA_P223_Form.pdf`, one all-school `WA_P223_Audit.csv`, one state-format `P223_*.txt`. Save them as `_district/P223_RunA_1Day_{Form,Audit,State}_<date>.*` and `_district/P223_RunB_5Day_…`, then `uv run <skill-dir>/scripts/split_p223.py --folder <month folder> --date <YYYYMMDD>` — it writes one form page + one audit CSV per school (elementary from Run A, secondary from Run B) and `_district/p223_totals.json` (grades, totals, TK and RS as printed on each page). Do not split by hand. The PowerSchool `P223_*.txt` is **not** the EDS upload file — see Phase 3
 4. Test: Run Enrollment Summary at district level (if per-school breakdown available, use it; otherwise fall back to per-school in Phase 2)
 5. Test: Run Consecutive Absence at district level (if it covers all schools, use it; otherwise fall back to per-school in Phase 2)
 6. Record `DistrictBatchDone` on the `DistrictStatus` tab
@@ -381,7 +386,7 @@ Loop:
   5. Switch to that school in PowerSchool
   6. Run all MISSING reports for that school (skip any already saved from Phase 1)
   7. After each report, save to staging folder
-  8. After all reports for this school: upload the school's files to Drive,
+  8. After all reports for this school: upload the school's files to ITS folder from `_district/drive_layout.json`,
      append its SchoolStatus row, output one-line status:
      ✓ [SCHOOL] — HC: [N], Issues: [none/description] ([completed]/[total] schools done)
   9. GOTO step 1
@@ -394,15 +399,15 @@ If a school fails entirely: log it, continue to next school.
 If the session expires: on an attended run, re-authenticate and resume from current school; on an unattended run, alert a human (email) and stop cleanly with state recorded so the next invocation resumes.
 Failed reports/schools are retried in the next pass of the loop.
 
-**Phase 3: Post-Reports**
-1. Run validation checks on downloaded data — dispatch enrollment-validator agents for multiple schools concurrently
-2. Run ALE reconciliation
-3. Run RS reconciliation
-4. Generate comprehensive validation report + EDS import
-5. Update `DistrictStatus` (ValidationDone, ALEReconDone, RSReconDone)
+**Phase 3: Post-Reports** — script-driven; the scripts read the month folder and write everything into `_district/`
+1. Write the inputs the run collected: `_district/summary_hc.json` (`{"AES": 394, …}` from each Enrollment Summary), `_district/section_audit.json` (one line per school with conflicts), `_district/collection_gaps.json` (a list of anything not collected and why)
+2. `uv run <skill-dir>/scripts/district_checks.py --folder <month folder> --date <YYYYMMDD> --month "<Month YYYY>" --rs-cap 1.30 --expected-ale HBHS` → `validation.json` + `schools.json` (integrity, per-school gap-student lists from the Student List export, September-RS-zero / 1.30 cap / HS ≤ 1.00, zero-FTE, expected-ALE, TK-without-FTE, EDS-field completeness)
+3. `uv run <skill-dir>/scripts/eds_txt.py --folder … --date … --month … --expected-ale HBHS` → the real EDS upload file `P223_09_<year>_<mm>_27401_<date>_<time>.txt` (elementary from Run A, secondary from Run B; TK 223-225, Open Doors 218-220, Running Start 163-167 (zero in September), and expected-ALE schools' ALE fields filled from the audit; K-12 asserted against the form) + `eds_txt_changes.md`
+4. `uv run <skill-dir>/scripts/validation_report.py --school-data _district/schools.json …` → validation report + EDS import JSON (now carries TK and the CTE 7-8 / 9-12 split)
+5. ALE (`/enrollment ale`) and RS (`/enrollment rs`, October–June) reconciliations when their inputs exist; update `DistrictStatus` (ValidationDone, ALEReconDone, RSReconDone)
 6. Present results with human review checklist
 7. **Findings doc + completion email — runs every month, never skipped.** This is how the enrollment officer learns the run is done and what needs fixing; it is not optional and does not wait for a human prompt. The email goes through the n8n `BUS - Enrollment Notifications` workflow (`event: collection_complete`), which owns the recipient list.
-   a. Write `~/Enrollment/P223-<Month>-<Year>/_district/<Month><Year>_Findings.md` — a thorough narrative, not a dump: summary + status line; district totals table; per-school table (Enrollment Summary HC, P223 HC, gap, FTE, RS, TBIP, zero-FTE, over-1.20); **critical findings** with per-student tables (student numbers only, never names); warnings (zero-FTE-in-headcount list, Enrollment Summary vs P223 gaps explained, Section Enrollment Audit findings per school); scope gaps (GVA/Fresh Start/CTP under PAP 5707 are NOT in the district batch — say so every month; RS vs TCC; ALE); collection gaps with the reason (e.g. Student Schedule Report privilege); what was collected (file inventory); next-steps table with an owner per row; tracking-sheet state.
+   a. `uv run <skill-dir>/scripts/findings_doc.py --folder … --date … --month … --due-date <Calendar!DueDate> --run-date <today> --run-folder-url <run folder> --tracking-url <sheet> [--correction <md>] [--deltas <md> --original-run-date <date>]` writes `_district/<Month><Year>_Findings.md` + `.html`. It already produces every section below; only add prose the data cannot know. The sections, for reference: summary + status line; district totals table; per-school table (Enrollment Summary HC, P223 HC, gap, FTE, RS, TBIP, zero-FTE, RS flags); **critical findings** with per-student tables (student numbers only, never names); warnings (zero-FTE-in-headcount list, Enrollment Summary vs P223 gaps explained, Section Enrollment Audit findings per school); scope gaps (GVA/Fresh Start/CTP under PAP 5707 are NOT in the district batch — say so every month; RS vs TCC; ALE); collection gaps with the reason (e.g. Student Schedule Report privilege); what was collected (file inventory); next-steps table with an owner per row; tracking-sheet state.
    b. Convert to a Google Doc **in the month's Drive folder** (HTML import works; markdown extraction alone does not):
       ```bash
       uv run - <<'EOF'   # md → html (PEP 723: markdown)
@@ -441,7 +446,7 @@ Re-collect a month that has already been collected — typically because correct
 
 - **RUN_LABEL** = `<Month YYYY> (rerun YYYY-MM-DD)` using today's date, e.g. `September 2026 (rerun 2026-09-18)`. It is the `Month` value on every tracker row the rerun writes, and the `month` field in the webhook payload, so n8n finds the rerun's own `DistrictStatus` row and the email subject says it is a rerun. No n8n change is needed.
 - **Local staging**: `~/Enrollment/P223-<Month>-<Year>-rerun-<YYYYMMDD>/` (fresh folder).
-- **Drive**: a `Rerun <YYYY-MM-DD>` subfolder inside the month folder (create it with `gws drive files create`, `supportsAllDrives`). Every upload in the rerun targets that subfolder.
+- **Drive**: `drive_layout.py --label Rerun --run-date <today>` → `<Month YYYY>/Rerun <date>/{schools…, District}`. Every upload in the rerun targets those folders; the original `Run <date>` folder is untouched.
 - **Tracker**: append a new `DistrictStatus` row with `Month` = RUN_LABEL and `CountDate` = the original count date before Phase 1; `SchoolStatus` rows use `Month` = RUN_LABEL. The Phase 2 DONE check counts only rows whose `Month` equals RUN_LABEL, so all 17 schools re-collect even though the original rows say complete.
 - **Report parameters are identical to the original run** — same count date, same FTE windows, same report set. The P223 form is static and reflects the overrides as they stand today, which is the point of the rerun.
 - **Phase 3 additions**: pull the original run's `_district/p223_totals.json` and `validation.json` from the month folder if they are not local, then run
@@ -531,7 +536,9 @@ gws drive files create --params '{"supportsAllDrives":true,"fields":"id,webViewL
 ## Important Notes
 
 - **Count Day**: Sept = 4th school day (2026-09-08); Oct–Jun = 1st school day of each month. Full 2026-27 table in `references/school-config.md` and the tracking sheet's `Calendar` tab.
-- **RS combined FTE cap**: validate against **1.20** for 2026-27 (confirmed by Hagel, 2026-08-31)
+- **Running Start rules (2026-27 OSPI Enrollment Handbook, read 2026-09-15)**: colleges report RS for **October–June only, so September RS is reported as zero** (any September RS FTE in PowerSchool is a FAIL); combined district+RS FTE ≤ **1.30** (FAIL; December/January WARN only, SQEAF); the high school's own share ≤ 1.00. `district_checks.py` and `eds_txt.py` enforce all of this
+- **Expected-ALE schools** (`references/school-config.md`): HBHS is all-ALE for 2026-27. `district_checks.py` fails if PowerSchool disagrees and `eds_txt.py` marks the school's K-12 enrollment in the ALE fields regardless (Hagel, 2026-09-15: report them, fix PowerSchool later)
+- **PowerSchool's EDS export is incomplete** — never upload `P223_*.txt` straight from PowerSchool. `eds_txt.py` rebuilds it (see Phase 3)
 - **Bell schedules change yearly** — always pull live from PowerSchool, never hardcode. 2026-27: no bell schedule changes; the values in fte-rules.md stand (verified 2026-08-31).
 - **P223 is static** — does not hold historical data. Running for a previous month requires restoring FTE overrides from backup.
 - **Retain reports 4 years** after submission (OSPI audit requirement)

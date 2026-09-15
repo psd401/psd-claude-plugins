@@ -8,7 +8,7 @@ ALE FTE Reconciliation for PSD P223 Enrollment.
 
 Processes GVA ALE report data to:
 - Assign correct FTE per section based on paired school
-- Verify combined ALE + RS FTE <= 1.20
+- Verify combined ALE + RS FTE <= 1.30
 - Extract CTE ALE sections (OCT135, OPE901)
 - Generate CTE report for CTE program
 - Split by in-district and out-of-district
@@ -153,9 +153,9 @@ class ALEReconciliationReport:
                 lines.append(f"- {sch}: {fte:.2f}")
 
         # RS over-cap students
-        over_cap = [s for s in self.students if s.combined_fte > 1.20]
+        over_cap = [s for s in self.students if s.combined_fte > 1.30]
         if over_cap:
-            lines.append(f"\n## Running Start Over-Cap (>1.20)\n")
+            lines.append(f"\n## Running Start Over-Cap (>1.30)\n")
             lines.append("| Student | Grade | ALE FTE | RS FTE | Combined |")
             lines.append("|---------|-------|---------|--------|----------|")
             for s in over_cap:
@@ -289,12 +289,12 @@ def reconcile_ale(
 
         # Combined FTE check
         student.combined_fte = round(student.total_ale_fte + student.rs_fte, 2)
-        if student.combined_fte > 1.20:
+        if student.combined_fte > 1.30:
             student.warnings.append(
-                f"Combined ALE+RS FTE {student.combined_fte} exceeds 1.20 cap"
+                f"Combined ALE+RS FTE {student.combined_fte} exceeds 1.30 cap"
             )
             report.warnings.append(
-                f"Student {sid}: ALE={student.total_ale_fte} + RS={student.rs_fte} = {student.combined_fte} > 1.20"
+                f"Student {sid}: ALE={student.total_ale_fte} + RS={student.rs_fte} = {student.combined_fte} > 1.30"
             )
 
         # Extract CTE sections

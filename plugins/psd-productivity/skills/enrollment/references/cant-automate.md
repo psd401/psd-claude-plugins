@@ -60,8 +60,8 @@
 
 ## January Semester Change SQEAF
 
-- **Why**: Running Start students may temporarily exceed 1.20 combined FTE during semester change. SQEAF form required to verify annual average compliance.
-- **Workaround**: Identify over-1.20 students in January, generate SQEAF data, human completes form.
+- **Why**: Running Start students may temporarily exceed 1.30 combined FTE during term overlap (December/January). SQEAF form required to verify annual average compliance.
+- **Workaround**: Identify over-1.30 students in December/January, generate SQEAF data, human completes form.
 
 ## K-3 Class Size Manual Entry
 
