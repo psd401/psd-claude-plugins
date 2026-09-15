@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.29.1] - 2026-09-15
+
+**psd-productivity 2.20.0 → 2.20.1** (psd-coding-system unchanged at 3.7.1)
+
+### Added
+- **`/enrollment daily-check` — sheet-driven rerun trigger** (`SKILL.md`, `references/machine-setup.md`) — the `Calendar` tab gains a `RerunDate` column (column G). When today matches a month's `RerunDate`, the weekday `daily-check` runs `/enrollment run <month> rerun` end to end instead of exiting. Requesting a re-collection on the unattended office mini is now a single sheet edit — no machine access, config change, or code change. The check fires only on an exact date match, so a stale value cannot re-trigger; the calendar read range widens from `Calendar!A1:E12` to `Calendar!A1:G12`
+
+### Changed
+- **`/enrollment daily-check` role ladder** (`SKILL.md`) — renumbered to four roles (count day, T-1, rerun day, nothing) with the rerun branch evaluated alongside the existing ones
+
+### Fixed
+- **`/enrollment` secrets loader docs** (`scripts/secrets.py`) — docstring and step comments now match the actual Keychain lookup order (env var → Keychain → legacy iCloud `.env`)
+
 ## [2.29.0] - 2026-09-15
 
 **psd-productivity 2.19.6 → 2.20.0** (psd-coding-system unchanged at 3.7.1)
