@@ -30,24 +30,27 @@ Authenticate `gws` per the google-workspace-cli skill with an account that can:
 
 Verify: `gws sheets +read --spreadsheet 1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0 --range 'Calendar!A1:B3'`
 
-## 4. n8n access (one-time)
+## 4. Webhook token (one-time)
 
 The monthly completion email and the post-EDS confirmation both go through the n8n
-`BUS - Enrollment Notifications` webhook. Two things make that work on a machine:
+`BUS - Enrollment Notifications` webhook, which needs `ENROLLMENT_NOTIFY_TOKEN`. There
+are two machine profiles; pick one.
 
-1. **n8n API key in the login Keychain** — so the skill can read the webhook token from the
-   live workflow and the n8n-manager scripts work at all:
-   ```bash
-   security add-generic-password -a "$USER" -s N8N_HOST -w      # e.g. n8n.psd401.net
-   security add-generic-password -a "$USER" -s N8N_API_KEY -w
-   ```
-   Each command prompts for the value. Get the key from the n8n Settings → API page
-   as `serv_automation`, or from Hagel. Never put it in a committed file.
-2. **`ENROLLMENT_NOTIFY_TOKEN` is *not* stored on the machine.** The skill reads it from
-   the `Validate Token and Payload` node of the live workflow via the n8n-manager
-   `get_workflow.js`, inside a script that never prints it. If you prefer a local copy
-   (e.g. a machine with no n8n API access), the Keychain is the only acceptable place:
-   `security add-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w`.
+**Operator machine** (enrollment officer's computer, the office Mac mini) — holds only
+the webhook token, in the login Keychain:
+```bash
+security add-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w   # prompts for the value
+```
+Get the value from the CIO. That is the only secret an operator machine needs.
+
+**Admin machine** (the CIO's laptop) — also manages the n8n workflows, so it holds the
+n8n API key in the Keychain and the skill reads the webhook token from the live
+workflow instead of storing it:
+```bash
+security add-generic-password -a "$USER" -s N8N_HOST -w      # e.g. n8n.psd401.net
+security add-generic-password -a "$USER" -s N8N_API_KEY -w
+```
+Never put either value in a committed file, the sheet, or an email.
 
 Unattended runs (Mac mini): the login Keychain is readable only while the operator
 account is logged in. Keep it logged in with the screen locked.

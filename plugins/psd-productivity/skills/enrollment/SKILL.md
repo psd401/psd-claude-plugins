@@ -430,7 +430,7 @@ Failed reports/schools are retried in the next pass of the loop.
              "runBy":"<machine/user>"}'
       ```
       Expect `{"success":true,"sheetUpdated":true}`. A 400 names the missing field. `findingsDocUrl` is required for this event; omitting `event` means `eds_submitted` and would mark the count as submitted — never do that here.
-   d. `ENROLLMENT_NOTIFY_TOKEN` is per machine (see `references/machine-setup.md`). If it is unset, read it from the live workflow's `Validate Token and Payload` node via the n8n-manager `get_workflow.js` in a script that never prints it. If the call still fails, say so, leave column M blank, and hand the user the payload — never fake the send and never fall back to `gws gmail`.
+   d. Resolve the token in this order, in a script that never prints it: the `ENROLLMENT_NOTIFY_TOKEN` env var → the login Keychain (`security find-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w`; this is how operator machines hold it, see `references/machine-setup.md`) → the live workflow's `Validate Token and Payload` node via the n8n-manager `get_workflow.js` (admin machines only — needs `N8N_API_KEY`). If none resolves or the call fails, say so, leave column M blank, and hand the user the payload — never fake the send and never fall back to `gws gmail`.
    e. Verify `DistrictStatus!L<row>:M<row>` came back populated (URL + ISO timestamp with recipient count). First done live for September 2026 on 2026-09-09.
 8. **STOP — Human reviews, signs, uploads to EDS**
 9. After confirmation: trigger the same webhook with `event: eds_submitted` (or omit `event`) — marks `EDSSubmitted`/`NotificationsSent` (cols I/J) and emails the internal notification list — then update internal spreadsheets (ANNAVG, CNTRL, One Pager)

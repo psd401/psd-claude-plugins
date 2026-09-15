@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.29.2] - 2026-09-15
+
+**psd-productivity 2.20.1 → 2.20.2** (psd-coding-system unchanged at 3.7.1)
+
+### Changed
+- **`/enrollment` completion-webhook token resolution** (`SKILL.md` step 7d) — the token now resolves through an explicit three-step ladder instead of assuming an env var: `ENROLLMENT_NOTIFY_TOKEN` env var → login Keychain (`security find-generic-password -s ENROLLMENT_NOTIFY_TOKEN`) → the live workflow's `Validate Token and Payload` node via n8n-manager (admin machines only, needs `N8N_API_KEY`). A machine with no n8n API access can now send the completion email on its own. Unchanged failure behavior: if nothing resolves, say so, leave column M blank, hand the user the payload — never fake the send, never fall back to `gws gmail`
+- **`/enrollment` machine setup — operator vs admin profiles** (`references/machine-setup.md` §4, retitled "n8n access" → "Webhook token") — setup now defines two machine profiles. An **operator machine** (enrollment officer's computer, the office Mac mini) holds only `ENROLLMENT_NOTIFY_TOKEN` in the login Keychain and needs no n8n API key at all. An **admin machine** (CIO laptop) holds `N8N_HOST` + `N8N_API_KEY` and reads the webhook token from the live workflow rather than storing it. Replaces the previous guidance that the token is "*not* stored on the machine," which forced n8n API access onto every machine that sends the email
+
 ## [2.29.1] - 2026-09-15
 
 **psd-productivity 2.20.0 → 2.20.1** (psd-coding-system unchanged at 3.7.1)
