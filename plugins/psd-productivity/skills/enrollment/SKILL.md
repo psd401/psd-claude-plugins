@@ -72,7 +72,7 @@ This skill runs on **multiple machines** (Hagel's laptop, the office Mac mini on
 3. **Google Drive is the home of record.** Local files are staging only — every report must be uploaded to the Drive BACKUP folder before the month is DONE. A run finished on the mini must be fully retrievable from any other machine.
 4. **Shared state lives in the tracking sheet**, not on any one machine:
    - **P223 Enrollment Tracking 2026-2027**: `1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`
-   - Tabs: `Calendar` (count dates), `SchoolStatus` (per school per month), `DistrictStatus` (per month phases; cols I/J written by the `eds_submitted` webhook event, cols L/M `FindingsDoc` / `CompletionEmailSent` written by the `collection_complete` event). Notification addresses live ONLY in the live n8n workflow — never in this skill, the sheet, or any committed file
+   - Tabs: `Calendar` (count dates, `ReminderDate`, and `RerunDate` — a date in `RerunDate` makes the next `daily-check` on that day run the month in rerun mode), `SchoolStatus` (per school per month), `DistrictStatus` (per month phases; cols I/J written by the `eds_submitted` webhook event, cols L/M `FindingsDoc` / `CompletionEmailSent` written by the `collection_complete` event). Notification addresses live ONLY in the live n8n workflow — never in this skill, the sheet, or any committed file
    - Read/write via `gws` CLI, `valueInputOption=RAW` always
 5. **PDF saving**: `bun <skill-dir>/scripts/save_pdf.js <path> [title_filter]` (env `CDP_PORT` overrides the default 9222). The script ships with the skill — never copy it to month folders or the Desktop.
 6. **New machine?** Follow `references/machine-setup.md` — Brave Nightly, debug profile, one-time PowerSchool login, `gws` auth, bun/uv.
@@ -120,10 +120,11 @@ Lightweight scheduled entry point — designed to run every weekday morning on t
 
 **Workflow**:
 1. Read the `Calendar` tab of the tracking sheet (`gws sheets +read`)
-2. Determine today's role: count day, T-1 (last school day before count), or nothing
-3. **Nothing** → verify PowerSchool session health (probe below) and exit silently. If the session is expired, alert (email `hagelk@psd401.net` via `gws gmail` or the n8n error channel) so a human can re-login before count day
-4. **T-1** → session health probe + confirm the Drive BACKUP folder for the month exists + report readiness summary
-5. **Count day** → run `/enrollment run [month]` end to end
+2. Determine today's role: count day, T-1 (last school day before count), **rerun day** (today equals a month's `RerunDate`), or nothing
+3. **Rerun day** → run `/enrollment run <that month> rerun` end to end (see the `rerun` section under `/enrollment run`). A human requests a rerun by typing the date into the `Calendar` tab's `RerunDate` column for that month — no machine config, no code change. Clear the cell (or leave it in the past) afterwards; the check only fires on an exact date match, so a stale value cannot re-trigger.
+4. **Nothing** → verify PowerSchool session health (probe below) and exit silently. If the session is expired, alert (email `hagelk@psd401.net` via `gws gmail` or the n8n error channel) so a human can re-login before count day
+5. **T-1** → session health probe + confirm the Drive BACKUP folder for the month exists + report readiness summary
+6. **Count day** → run `/enrollment run [month]` end to end
 
 **Session health probe** (in `evaluate_script`):
 ```javascript
@@ -482,7 +483,7 @@ Drive and Sheets access is provided by the shared `google-workspace-cli` skill (
 Common operations used by enrollment:
 ```bash
 # Read tracking sheet calendar
-gws sheets +read --spreadsheet "1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0" --range 'Calendar!A1:E12'
+gws sheets +read --spreadsheet "1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0" --range 'Calendar!A1:G12'
 
 # Append a school status row — use the raw API form: the +append helper has no
 # tab/range flag and would append to the FIRST tab (Calendar), not SchoolStatus

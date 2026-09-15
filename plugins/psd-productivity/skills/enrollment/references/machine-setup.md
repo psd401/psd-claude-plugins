@@ -68,6 +68,7 @@ Create a Claude Code scheduled task on the machine (local schedule, NOT a cloud 
   - normal day → probes PowerSchool session health, alerts by email if a re-login is needed, exits
   - T-1 → readiness summary (session + Drive folder)
   - count day → runs the full `/enrollment run`
+  - a month's `RerunDate` (Calendar tab, column G) equals today → runs `/enrollment run <month> rerun`. This is how a re-collection is requested on an unattended machine: type the date in the sheet, nothing else.
 - Keep the machine awake for the window (System Settings → Energy → prevent sleep, or `caffeinate`), and leave the debug browser running (the launch script is idempotent — `daily-check` may call it safely).
 
 ## 7. Unattended operation — running with nobody at the computer
