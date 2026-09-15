@@ -150,8 +150,9 @@ def get_secret(name: str) -> Optional[str]:
     """
     Get a secret by name. Checks in order:
       1. Environment variable (set in shell profile)
-      2. ~/.config/psd-productivity/.env file
-      3. 1Password CLI (if available)
+      2. macOS login Keychain (generic password, service = name, account = $USER)
+      3. Legacy Geoffrey .env file (see ENV_FILE) — being retired
+      4. 1Password CLI (if available)
 
     Returns None if not found anywhere.
     """
@@ -165,12 +166,12 @@ def get_secret(name: str) -> Optional[str]:
     if kc_val:
         return kc_val
 
-    # 2. Check .env file cache
+    # 3. Legacy .env file cache
     _load_env_file()
     if name in _secrets_cache:
         return _secrets_cache[name]
 
-    # 3. Try 1Password as fallback
+    # 4. Try 1Password as fallback
     if _is_1password_available():
         secret_ref = VAULT_MAP.get(name)
         if secret_ref:
