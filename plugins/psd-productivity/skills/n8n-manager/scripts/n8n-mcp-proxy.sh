@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Wrapper script for n8n native instance MCP server.
-# Reads N8N_HOST and N8N_MCP_TOKEN from environment or .env file,
+# Reads N8N_HOST and N8N_MCP_TOKEN from environment, then the macOS Keychain, then the legacy .env file,
 # then launches mcp-remote with the correct URL and auth header.
 #
 # This script is referenced by plugin.json — it keeps the MCP server
@@ -9,7 +9,15 @@
 
 ENV_FILE="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env"
 
-# Load from .env if vars not already set
+# Prefer the macOS login Keychain (service = var name, account = $USER)
+for var in N8N_HOST N8N_MCP_TOKEN; do
+  if [[ -z "${!var}" ]]; then
+    kc="$(/usr/bin/security find-generic-password -a "$USER" -s "$var" -w 2>/dev/null || true)"
+    [[ -n "$kc" ]] && export "$var"="$kc"
+  fi
+done
+
+# Fall back to the legacy .env if still unset
 if [[ -z "$N8N_HOST" || -z "$N8N_MCP_TOKEN" ]]; then
   if [[ -f "$ENV_FILE" ]]; then
     while IFS='=' read -r key value; do

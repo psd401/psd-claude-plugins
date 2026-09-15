@@ -30,15 +30,27 @@ Authenticate `gws` per the google-workspace-cli skill with an account that can:
 
 Verify: `gws sheets +read --spreadsheet 1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0 --range 'Calendar!A1:B3'`
 
-## 4. Notification webhook token (one-time)
+## 4. n8n access (one-time)
 
-The EDS-confirmation step calls the n8n `BUS - Enrollment Notifications` webhook, authenticated by a shared token. Set it in the operator's shell profile:
+The monthly completion email and the post-EDS confirmation both go through the n8n
+`BUS - Enrollment Notifications` webhook. Two things make that work on a machine:
 
-```bash
-export ENROLLMENT_NOTIFY_TOKEN="<get value from Hagel — not committed anywhere>"
-```
+1. **n8n API key in the login Keychain** — so the skill can read the webhook token from the
+   live workflow and the n8n-manager scripts work at all:
+   ```bash
+   security add-generic-password -a "$USER" -s N8N_HOST -w      # e.g. n8n.psd401.net
+   security add-generic-password -a "$USER" -s N8N_API_KEY -w
+   ```
+   Each command prompts for the value. Get the key from the n8n Settings → API page
+   as `serv_automation`, or from Hagel. Never put it in a committed file.
+2. **`ENROLLMENT_NOTIFY_TOKEN` is *not* stored on the machine.** The skill reads it from
+   the `Validate Token and Payload` node of the live workflow via the n8n-manager
+   `get_workflow.js`, inside a script that never prints it. If you prefer a local copy
+   (e.g. a machine with no n8n API access), the Keychain is the only acceptable place:
+   `security add-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w`.
 
-The token value lives only in the deployed n8n workflow and in each runner machine's env. The webhook degrades safely: without the token the skill reports the failure and updates the tracking sheet directly instead.
+Unattended runs (Mac mini): the login Keychain is readable only while the operator
+account is logged in. Keep it logged in with the screen locked.
 
 ## 5. Local staging directory
 

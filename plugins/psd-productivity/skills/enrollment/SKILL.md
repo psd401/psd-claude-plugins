@@ -72,7 +72,7 @@ This skill runs on **multiple machines** (Hagel's laptop, the office Mac mini on
 3. **Google Drive is the home of record.** Local files are staging only — every report must be uploaded to the Drive BACKUP folder before the month is DONE. A run finished on the mini must be fully retrievable from any other machine.
 4. **Shared state lives in the tracking sheet**, not on any one machine:
    - **P223 Enrollment Tracking 2026-2027**: `1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`
-   - Tabs: `Calendar` (count dates), `SchoolStatus` (per school per month), `DistrictStatus` (per month phases)
+   - Tabs: `Calendar` (count dates), `SchoolStatus` (per school per month), `DistrictStatus` (per month phases; cols I/J written by the `eds_submitted` webhook event, cols L/M `FindingsDoc` / `CompletionEmailSent` written by the `collection_complete` event). Notification addresses live ONLY in the live n8n workflow — never in this skill, the sheet, or any committed file
    - Read/write via `gws` CLI, `valueInputOption=RAW` always
 5. **PDF saving**: `bun <skill-dir>/scripts/save_pdf.js <path> [title_filter]` (env `CDP_PORT` overrides the default 9222). The script ships with the skill — never copy it to month folders or the Desktop.
 6. **New machine?** Follow `references/machine-setup.md` — Brave Nightly, debug profile, one-time PowerSchool login, `gws` auth, bun/uv.
@@ -326,6 +326,8 @@ uv run <skill-dir>/scripts/validation_report.py --school-data schools.json \
 
 ### `/enrollment run [month]`
 
+(Add `rerun` after the month to re-collect a month already collected — see the `rerun` section below.)
+
 Full monthly workflow with human checkpoints. Orchestrates all steps.
 
 **CRITICAL — NEVER STOP**: When running the full monthly workflow, you MUST process every school without pausing, stopping, or asking for confirmation between schools. If you encounter an error at one school, log it and continue to the next school. Report all errors at the end. The only acceptable reason to stop is if the PowerSchool session expires (HTTP 302 to pw.html) — and on an unattended machine, that means alerting a human, not silently dying.
@@ -398,8 +400,55 @@ Failed reports/schools are retried in the next pass of the loop.
 4. Generate comprehensive validation report + EDS import
 5. Update `DistrictStatus` (ValidationDone, ALEReconDone, RSReconDone)
 6. Present results with human review checklist
-7. **STOP — Human reviews, signs, uploads to EDS**
-8. After confirmation: trigger the n8n confirmation webhook (marks `EDSSubmitted`, emails the internal notification list), update internal spreadsheets (ANNAVG, CNTRL, One Pager)
+7. **Findings doc + completion email — runs every month, never skipped.** This is how the enrollment officer learns the run is done and what needs fixing; it is not optional and does not wait for a human prompt. The email goes through the n8n `BUS - Enrollment Notifications` workflow (`event: collection_complete`), which owns the recipient list.
+   a. Write `~/Enrollment/P223-<Month>-<Year>/_district/<Month><Year>_Findings.md` — a thorough narrative, not a dump: summary + status line; district totals table; per-school table (Enrollment Summary HC, P223 HC, gap, FTE, RS, TBIP, zero-FTE, over-1.20); **critical findings** with per-student tables (student numbers only, never names); warnings (zero-FTE-in-headcount list, Enrollment Summary vs P223 gaps explained, Section Enrollment Audit findings per school); scope gaps (GVA/Fresh Start/CTP under PAP 5707 are NOT in the district batch — say so every month; RS vs TCC; ALE); collection gaps with the reason (e.g. Student Schedule Report privilege); what was collected (file inventory); next-steps table with an owner per row; tracking-sheet state.
+   b. Convert to a Google Doc **in the month's Drive folder** (HTML import works; markdown extraction alone does not):
+      ```bash
+      uv run - <<'EOF'   # md → html (PEP 723: markdown)
+      # /// script
+      # dependencies = ["markdown"]
+      # ///
+      import markdown,pathlib; d=pathlib.Path.home()/"Enrollment/P223-<Month>-<Year>/_district"
+      md=(d/"<Month><Year>_Findings.md").read_text()
+      (d/"<Month><Year>_Findings.html").write_text("<html><head><meta charset='utf-8'></head><body>"+markdown.markdown(md,extensions=["tables"])+"</body></html>")
+      EOF
+      gws drive files create --params '{"supportsAllDrives":true,"fields":"id,webViewLink"}' \
+        --json '{"name":"P223 <Month> <Year> - Findings and Review","mimeType":"application/vnd.google-apps.document","parents":["<month-folder-id>"]}' \
+        --upload <path>/<Month><Year>_Findings.html --upload-content-type text/html
+      ```
+      Also upload the `.md` itself to the folder. Verify the doc rendered (`gws docs documents get` → headings + table count) before emailing a link to it.
+   c. Fire the n8n notifications webhook with `event: collection_complete` — the same endpoint and token step 9 uses. n8n holds the recipient list, sends the email, and writes `FindingsDoc` (col L) + `CompletionEmailSent` (col M) on the month's `DistrictStatus` row. The skill never sends mail itself and never touches columns I/J here.
+      ```bash
+      curl -sf -X POST "https://n8n.psd401.net/webhook/enrollment-notify" \
+        -H "X-Enrollment-Token: $ENROLLMENT_NOTIFY_TOKEN" -H "Content-Type: application/json" \
+        -d '{"event":"collection_complete","month":"<Month YYYY>","countDate":"<YYYY-MM-DD>",
+             "totals":{"headcount":<HC>,"fte":<FTE>},
+             "findingsDocUrl":"<doc url>","folderUrl":"<month folder url>",
+             "blockers":["<each finding that blocks EDS>"],
+             "attention":["<each item needing review but not blocking>"],
+             "runBy":"<machine/user>"}'
+      ```
+      Expect `{"success":true,"sheetUpdated":true}`. A 400 names the missing field. `findingsDocUrl` is required for this event; omitting `event` means `eds_submitted` and would mark the count as submitted — never do that here.
+   d. `ENROLLMENT_NOTIFY_TOKEN` is per machine (see `references/machine-setup.md`). If it is unset, read it from the live workflow's `Validate Token and Payload` node via the n8n-manager `get_workflow.js` in a script that never prints it. If the call still fails, say so, leave column M blank, and hand the user the payload — never fake the send and never fall back to `gws gmail`.
+   e. Verify `DistrictStatus!L<row>:M<row>` came back populated (URL + ISO timestamp with recipient count). First done live for September 2026 on 2026-09-09.
+8. **STOP — Human reviews, signs, uploads to EDS**
+9. After confirmation: trigger the same webhook with `event: eds_submitted` (or omit `event`) — marks `EDSSubmitted`/`NotificationsSent` (cols I/J) and emails the internal notification list — then update internal spreadsheets (ANNAVG, CNTRL, One Pager)
+
+### `/enrollment run [month] rerun`
+
+Re-collect a month that has already been collected — typically because corrections were entered after count day (missing Running Start overrides, unscheduled students) and the state numbers must be regenerated. **The original run is a retained audit record. Never overwrite or delete it.** A rerun is a second, parallel collection that lives beside the first.
+
+- **RUN_LABEL** = `<Month YYYY> (rerun YYYY-MM-DD)` using today's date, e.g. `September 2026 (rerun 2026-09-18)`. It is the `Month` value on every tracker row the rerun writes, and the `month` field in the webhook payload, so n8n finds the rerun's own `DistrictStatus` row and the email subject says it is a rerun. No n8n change is needed.
+- **Local staging**: `~/Enrollment/P223-<Month>-<Year>-rerun-<YYYYMMDD>/` (fresh folder).
+- **Drive**: a `Rerun <YYYY-MM-DD>` subfolder inside the month folder (create it with `gws drive files create`, `supportsAllDrives`). Every upload in the rerun targets that subfolder.
+- **Tracker**: append a new `DistrictStatus` row with `Month` = RUN_LABEL and `CountDate` = the original count date before Phase 1; `SchoolStatus` rows use `Month` = RUN_LABEL. The Phase 2 DONE check counts only rows whose `Month` equals RUN_LABEL, so all 17 schools re-collect even though the original rows say complete.
+- **Report parameters are identical to the original run** — same count date, same FTE windows, same report set. The P223 form is static and reflects the overrides as they stand today, which is the point of the rerun.
+- **Phase 3 additions**: pull the original run's `_district/p223_totals.json` and `validation.json` from the month folder if they are not local, then run
+  ```bash
+  uv run <skill-dir>/scripts/compare_runs.py --before <orig>/_district --after <rerun>/_district --output <rerun>/_district/<Month><Year>_RerunDeltas.md
+  ```
+  and put its table in the findings doc under a section titled **"What changed since the <original date> run"** — every school with a bold row needs a one-line explanation. The doc title is `P223 <Month> <Year> - Findings and Review (Rerun <YYYY-MM-DD>)` and it lives in the rerun subfolder. Fire the completion webhook exactly as in step 7, with `month` = RUN_LABEL and the rerun subfolder as `folderUrl`.
+- **Before starting**, state in one line why the rerun is happening and what is expected to change (e.g. "PHS Running Start overrides entered 9/17; expect PHS RS count > 0 and district FTE to move"). If the rerun's numbers do not move where expected, say so in the findings doc rather than silently reporting the new totals.
 
 ### `/enrollment status`
 
@@ -424,6 +473,7 @@ All scripts live in this skill's `scripts/` directory. Python via `uv run`, JS v
 | `ale_reconciler.py` | 4 | ALE FTE reconciliation + CTE extraction |
 | `rs_reconciler.py` | 4 | Running Start reconciliation vs TCC |
 | `validation_report.py` | 5 | District validation report + EDS import |
+| `compare_runs.py` | rerun | Per-school deltas between an original run and a rerun of the same month (`_district` dirs) |
 
 ## Google Workspace Integration
 
@@ -445,6 +495,12 @@ gws sheets spreadsheets values append \
 gws drive files create --params '{"supportsAllDrives":true}' \
   --json '{"name":"GHHS_EnrollmentSummary_20260908.pdf","parents":["<month folder id>"]}' \
   --upload ./GHHS_EnrollmentSummary_20260908.pdf
+
+# Create the monthly findings Google Doc in the month folder from HTML
+gws drive files create --params '{"supportsAllDrives":true,"fields":"id,webViewLink"}' \
+  --json '{"name":"P223 <Month> <Year> - Findings and Review","mimeType":"application/vnd.google-apps.document","parents":["<month folder id>"]}' \
+  --upload ./<Month><Year>_Findings.html --upload-content-type text/html
+
 ```
 
 ## School Abbreviations

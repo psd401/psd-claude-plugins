@@ -17,6 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.29.0] - 2026-09-15
+
+**psd-productivity 2.19.6 → 2.20.0** (psd-coding-system unchanged at 3.7.1)
+
+### Added
+- **`/enrollment` — monthly findings doc + completion email are now a required step** (`SKILL.md`) — Phase 5 gains step 7: write `<Month><Year>_Findings.md` (district + per-school tables, critical findings with student numbers only, warnings, scope gaps, collection gaps, file inventory, owner-per-row next steps), convert it to a Google Doc in the month's Drive folder via HTML import (markdown extraction alone does not render), then fire the `BUS - Enrollment Notifications` webhook with `event: collection_complete`. n8n owns the recipient list and writes `FindingsDoc` (col L) and `CompletionEmailSent` (col M) on the month's `DistrictStatus` row. The skill never sends mail itself and never fakes a send. The former "after EDS confirmation" trigger is now step 9 with an explicit `event: eds_submitted`, so the two notifications can no longer be confused
+- **`/enrollment run [month] rerun`** (`SKILL.md`) — re-collect a month already collected (e.g. Running Start overrides entered after count day) without touching the original, which stays as the audit record. Defines the `RUN_LABEL` convention (`<Month YYYY> (rerun YYYY-MM-DD)`) used as the tracker `Month` value and webhook `month` field so n8n routes to the rerun's own row with no workflow change, a separate local staging folder, a `Rerun <YYYY-MM-DD>` Drive subfolder, and the rule that report parameters stay identical to the original run
+- **`/enrollment` — `scripts/compare_runs.py`** — computes per-school deltas between an original run's and a rerun's `_district` output and emits a markdown table for the findings doc's "What changed since the <date> run" section
+- **macOS Keychain as a secrets source** (`scripts/secrets.py`, `scripts/secrets.js`, `skills/n8n-manager/scripts/n8n-mcp-proxy.sh`) — all three loaders now check the login Keychain (generic password, service = variable name, account = `$USER`) between the environment variable and the legacy iCloud `.env`. Lookups are cached per process, misses included; non-darwin platforms skip the check. The n8n MCP proxy resolves `N8N_HOST` / `N8N_MCP_TOKEN` the same way, so the MCP server works on a machine with no `.env`
+
+### Changed
+- **`SECRETS-SETUP.md`** — Keychain is now Option A (recommended), shell profile Option B, `.env` file Option C (legacy). Documents `security add-generic-password -a "$USER" -s NAME -w` (prompts, so nothing lands in shell history), how to replace a value (`-U`), how to confirm a value exists without printing it, and the unattended-run constraint: the login Keychain is readable only while that user is logged in — screen lock is fine, logged out is not
+- **`secrets.js` missing-secret error message** — now leads with the Keychain command instead of the shell-profile export
+- **`/enrollment` machine setup** (`references/machine-setup.md`) — section 4 replaces the "export `ENROLLMENT_NOTIFY_TOKEN` in your shell profile" instruction with n8n access: `N8N_HOST` + `N8N_API_KEY` in the Keychain, and the token itself read from the live workflow's `Validate Token and Payload` node rather than stored on the machine. A local copy, if needed, belongs in the Keychain only
+- **`/enrollment` tracking-sheet contract** (`SKILL.md`) — `DistrictStatus` column ownership is now spelled out per webhook event (I/J from `eds_submitted`, L/M from `collection_complete`), with the standing rule that notification addresses live only in the live n8n workflow, never in the skill, the sheet, or any committed file
+
 ## [2.28.6] - 2026-09-09
 
 **psd-productivity 2.19.5 → 2.19.6** (psd-coding-system unchanged at 3.7.1)

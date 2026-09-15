@@ -7,9 +7,10 @@
 PSD Productivity Secrets Manager
 
 Loads secrets using a priority chain:
-  1. Environment variables (from shell profile — safest)
-  2. ~/.config/psd-productivity/.env file
-  3. 1Password CLI (if installed and authenticated)
+  1. Environment variables (from shell profile)
+  2. macOS login Keychain (generic password, service = secret name, account = $USER)
+  3. ~/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env (legacy — being retired)
+  4. 1Password CLI (if installed and authenticated)
 
 Setup: See SECRETS-SETUP.md in this plugin for instructions.
 """
@@ -130,6 +131,21 @@ def _load_from_1password(secret_ref: str) -> Optional[str]:
         return None
 
 
+@lru_cache(maxsize=None)
+def _load_keychain(name: str) -> Optional[str]:
+    """Generic password in the login Keychain: service = secret name, account = $USER."""
+    if sys.platform != "darwin":
+        return None
+    try:
+        out = subprocess.run(
+            ["/usr/bin/security", "find-generic-password", "-a", os.environ.get("USER", ""), "-s", name, "-w"],
+            capture_output=True, text=True, timeout=5,
+        )
+        return out.stdout.strip() or None if out.returncode == 0 else None
+    except Exception:
+        return None
+
+
 def get_secret(name: str) -> Optional[str]:
     """
     Get a secret by name. Checks in order:
@@ -143,6 +159,11 @@ def get_secret(name: str) -> Optional[str]:
     env_val = os.environ.get(name)
     if env_val:
         return env_val
+
+    # 2. macOS login Keychain
+    kc_val = _load_keychain(name)
+    if kc_val:
+        return kc_val
 
     # 2. Check .env file cache
     _load_env_file()

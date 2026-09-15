@@ -4,8 +4,10 @@
  * PSD Productivity Secrets Manager (JavaScript)
  *
  * Loads secrets using a priority chain:
- *   1. Environment variables (from shell profile — safest)
- *   2. ~/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env file
+ *   1. Environment variables (from shell profile)
+ *   2. macOS login Keychain — generic password, service = secret name, account = $USER
+ *      (add one with: security add-generic-password -a "$USER" -s N8N_API_KEY -w)
+ *   3. ~/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env file (legacy — being retired)
  *
  * This is the JS counterpart to secrets.py. Both read from the same sources.
  * Setup: See SECRETS-SETUP.md in this plugin for instructions.
@@ -13,7 +15,8 @@
 
 const { readFileSync } = require('fs');
 const { join } = require('path');
-const { homedir } = require('os');
+const { homedir, userInfo, platform } = require('os');
+const { execFileSync } = require('child_process');
 
 // Where the .env file lives (Geoffrey's iCloud secrets directory)
 const ENV_FILE = join(
@@ -23,6 +26,27 @@ const ENV_FILE = join(
 
 // Cache for .env file values
 let _envCache = null;
+
+// Cache for Keychain lookups (name -> value | null). Misses are cached too so a
+// script that asks for the same absent secret repeatedly shells out only once.
+const _keychainCache = new Map();
+
+function _loadKeychain(name) {
+  if (platform() !== 'darwin') return undefined;
+  if (_keychainCache.has(name)) return _keychainCache.get(name) || undefined;
+  let value = null;
+  try {
+    value = execFileSync(
+      '/usr/bin/security',
+      ['find-generic-password', '-a', userInfo().username, '-s', name, '-w'],
+      { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'] }
+    ).trim() || null;
+  } catch {
+    value = null; // not in the Keychain, or the Keychain is locked
+  }
+  _keychainCache.set(name, value);
+  return value || undefined;
+}
 
 function _loadEnvFile() {
   if (_envCache !== null) return _envCache;
@@ -51,14 +75,18 @@ function _loadEnvFile() {
 }
 
 /**
- * Get a secret by name. Checks environment variables first, then .env file.
- * Returns undefined if not found.
+ * Get a secret by name. Checks environment variables, then the macOS Keychain,
+ * then the legacy .env file. Returns undefined if not found.
  */
 function getSecret(name) {
   // 1. Environment variable (highest priority)
   if (process.env[name]) return process.env[name];
 
-  // 2. .env file
+  // 2. macOS login Keychain
+  const kc = _loadKeychain(name);
+  if (kc) return kc;
+
+  // 3. Legacy .env file
   const envFile = _loadEnvFile();
   if (envFile[name]) return envFile[name];
 
@@ -74,10 +102,12 @@ function requireSecret(name) {
     throw new Error(
       `Missing required secret: ${name}\n\n` +
       `Set it using ONE of these methods:\n\n` +
-      `  Option A (safest) — Add to your shell profile (~/.zshrc):\n` +
-      `    export ${name}="your-key-here"\n` +
-      `    Then restart your terminal.\n\n` +
-      `  Option B — Add to ${ENV_FILE}:\n` +
+      `  Option A — macOS Keychain (recommended; nothing lands on disk in clear text):\n` +
+      `    security add-generic-password -a "$USER" -s ${name} -w\n` +
+      `    (it prompts for the value)\n\n` +
+      `  Option B — Add to your shell profile (~/.zshrc):\n` +
+      `    export ${name}="your-key-here"\n\n` +
+      `  Option C (legacy) — Add to ${ENV_FILE}:\n` +
       `    ${name}=your-key-here\n\n` +
       `See SECRETS-SETUP.md in the psd-productivity plugin for full instructions.`
     );

@@ -42,7 +42,35 @@ result that an admin must approve.
 
 ---
 
-## Option A: Shell Profile (Safest)
+## Option A: macOS Keychain (recommended)
+
+The loaders check the login Keychain right after environment variables, so a key
+stored here works for every script, the n8n MCP proxy, and unattended runs on a
+machine where the user is logged in. Nothing is written to disk in clear text and
+nothing lands in shell history — `-w` with no value prompts for it.
+
+```bash
+security add-generic-password -a "$USER" -s N8N_API_KEY -w
+security add-generic-password -a "$USER" -s N8N_HOST -w
+security add-generic-password -a "$USER" -s N8N_MCP_TOKEN -w
+```
+
+One entry per secret: service name = the variable name, account = your login user.
+Re-run with `-U` to replace a value. Check what is stored without revealing it:
+
+```bash
+security find-generic-password -a "$USER" -s N8N_API_KEY -w | wc -c
+```
+
+Unattended note: a launchd or scheduled task can read the login Keychain only while
+that user is logged in (screen lock is fine; logged out is not). The Mac mini's
+scheduled `/enrollment` runs need the enrollment operator account logged in.
+
+Migrated on 2026-09-15: the three `N8N_*` values on Hagel's laptop now live only in the
+Keychain; the legacy Geoffrey `.env` keeps a comment where each one was. The Geoffrey
+file is being retired — put new secrets in the Keychain, not there.
+
+## Option B: Shell Profile
 
 Add your keys to `~/.zshrc`. They stay in memory only — Claude Code cannot read your shell profile.
 
@@ -68,7 +96,7 @@ Only add the keys you actually have — you don't need all of them.
 
 ---
 
-## Option B: Config File (Easier)
+## Option C: Config File (legacy)
 
 Store keys in `~/.config/psd-productivity/.env`. This folder is NOT inside any project directory, so Claude Code will not auto-read it.
 
@@ -96,6 +124,8 @@ The `chmod 600` makes the file readable only by you.
 ---
 
 ## How it works
+
+The lookup order is: environment variable → macOS login Keychain → legacy `.env` file (Python also tries 1Password last). First hit wins.
 
 When a skill needs a key, it checks in this order:
 
