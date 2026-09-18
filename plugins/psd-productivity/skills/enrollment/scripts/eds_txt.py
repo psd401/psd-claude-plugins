@@ -56,6 +56,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--folder", required=True); ap.add_argument("--date", required=True); ap.add_argument("--month", required=True)
     ap.add_argument("--expected-ale", default="HBHS"); ap.add_argument("--out")
+    ap.add_argument("--tk-folder", help="folder of a separate P223 pass run on TK's own count date; TK fields (223-225) come from its audit CSVs")
+    ap.add_argument("--tk-date", help="YYYYMMDD of that TK pass")
     a = ap.parse_args(); F = Path(a.folder).expanduser(); D = F / "_district"
     expected_ale = {s.strip() for s in a.expected_ale.split(",") if s.strip()}
     month_name = a.month.split()[0]; september = month_name == "September"
@@ -87,9 +89,13 @@ def main():
         od = [r for r in rd if f(r["Open Doors FTE"]) + f(r["Open Doors Voc FTE"]) > 0]
         setf(school, OD_HC, len(od), "Open Doors headcount"); setf(school, OD_NV, sum(f(r["Open Doors FTE"]) for r in od), "Open Doors non-voc FTE")
         setf(school, OD_V, sum(f(r["Open Doors Voc FTE"]) for r in od), "Open Doors voc FTE")
-        # TK
-        tk = [r for r in rd if (r.get("Grade") or "").strip() == "TK"]
-        setf(school, TK_HC, len(tk), "TK headcount"); setf(school, TK_FTE, sum(f(r["Total FTE"]) for r in tk), "TK FTE")
+        # TK — from the TK pass when the program counts on its own date (Handbook 4.A), else from this run
+        tk_src = rd
+        if a.tk_folder:
+            tk_path = Path(a.tk_folder).expanduser() / f"{abbr}_P223Audit_{a.tk_date}.csv"
+            tk_src = list(csv.DictReader(open(tk_path))) if tk_path.exists() else []
+        tk = [r for r in tk_src if (r.get("Grade") or "").strip() == "TK"]
+        setf(school, TK_HC, len(tk), "TK headcount" + (f" (from TK pass {a.tk_date})" if a.tk_folder else "")); setf(school, TK_FTE, sum(f(r["Total FTE"]) for r in tk), "TK FTE")
         setf(school, TBIP_TK, len([r for r in tk if yes(r["Count As Bilingual"])]), "TBIP TK headcount")
         # expected all-ALE schools: ALE fields mirror K-12 by grade
         if abbr in expected_ale:

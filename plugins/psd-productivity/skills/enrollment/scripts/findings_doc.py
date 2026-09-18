@@ -111,6 +111,22 @@ def main():
     base.with_suffix(".md").write_text(md)
     html = f"<!doctype html><html><head><meta charset='utf-8'><title>{a.title or f'P223 {month} - Findings and Review'}</title><style>{CSS}</style></head><body>{markdown.markdown(md, extensions=['tables','md_in_html'])}</body></html>"
     base.with_suffix(".html").write_text(html); print(base.with_suffix(".md"), "|", len(L), "lines")
+    # per-school follow-up payload for the n8n building_followups event (addresses are looked up by n8n)
+    layout = json.load(open(D / "drive_layout.json")) if (D / "drive_layout.json").exists() else {"folders": {}}
+    fol = []
+    for c in S:
+        s = S[c]; chk = {x["name"]: x for x in s["validation_results"]}
+        gl = detail.get(c, {}).get("gap", [])
+        zero = chk.get("Zero-FTE students included in headcount", {}).get("details", [])
+        tk0 = chk.get("TK students without FTE", {}).get("details", [])
+        items = []
+        if gl: items.append({"title": "Students on your Enrollment Summary but outside the P223 headcount", "lines": [f"{g['id']} (gr {g['grade']}) — {g['reason']}" for g in gl], "ask": "TK and pre-K are expected. Students marked 'excluded' are Running Start (college-only) or Open Doors students that PowerSchool leaves out of the building headcount on purpose; for them, only confirm the Student Type is right. For any other student, confirm the enrollment and schedule are correct in PowerSchool."})
+        if zero: items.append({"title": "Students in headcount with 0.00 FTE", "lines": zero, "ask": "Each of these has no section generating minutes on the count date. Add the schedule or confirm the student should not be enrolled."})
+        if tk0: items.append({"title": "TK students with 0.00 FTE", "lines": tk0, "ask": "No TK section generated minutes on the count date."})
+        if sec.get(c): items.append({"title": "Section Enrollment Audit", "lines": [sec[c]], "ask": "Fix in PowerSchool (students not in any class, or course dates that do not match the enrollment date)."})
+        fol.append({"school": c, "schoolName": NAME[c], "folderUrl": ("https://drive.google.com/drive/folders/" + layout["folders"][c]) if c in layout.get("folders", {}) else a.run_folder_url, "items": items})
+    (D / "building_followups.json").write_text(json.dumps({"month": month, "countDate": cd, "dueDate": a.due_date, "runDate": a.run_date, "findingsDocUrl": "", "schools": fol}, indent=1))
+    print("building_followups.json:", len(fol), "schools,", sum(len(x["items"]) for x in fol), "items")
 
 if __name__ == "__main__":
     main()

@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.31.0] - 2026-09-18
+
+### psd-productivity 2.22.0
+
+- `/enrollment`: every pull of a month, including a rerun, is its own `Run <date>` Drive folder with one folder per school plus `District`; `drive_layout.py --share` grants each school's contact (from the tracking sheet's new `Buildings` tab) commenter access to that school's folder with no notification email, and records the result in `drive_layout.json`.
+- `/enrollment`: `findings_doc.py` now also writes `_district/building_followups.json` (per school: folder link, students outside the P223 headcount with reasons, zero-FTE students, TK without FTE, Section Enrollment Audit conflicts). Phase 3 step 7f posts it to the notifications webhook as `event: building_followups`; n8n sends one email per building (reply-to the enrollment officer, internal list in CC), a summary to the list, and stamps `DistrictStatus!N`.
+- `/enrollment`: the gap-list ask tells high schools that `excluded` rows are college-only Running Start or Open Doors students PowerSchool leaves out of the building headcount on purpose.
+- `/enrollment`: rerun naming unified — tracker rows and webhook `month` use `<Month YYYY> (run <date>)`, local staging `~/Enrollment/P223-<Month>-<Year>-run-<YYYYMMDD>/`, findings doc titled `(Run <date>)` at the run folder root.
+- `/enrollment`: TK on its own count date — `eds_txt.py --tk-folder/--tk-date` takes the TK fields (223-225) from a separate TK-dated district pass (September 2026: K-12 on 9/8, TK on 9/22 per Handbook 4.A).
+- `/enrollment`: webhook token ladder documented as env → macOS Keychain → live workflow (read in-script, never printed).
+
 ## [2.30.0] - 2026-09-15
 
 ### Added
