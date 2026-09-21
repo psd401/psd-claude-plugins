@@ -48,7 +48,14 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--folder", required=True); ap.add_argument("--date", required=True); ap.add_argument("--month", required=True)
     ap.add_argument("--rs-cap", type=float, default=1.30); ap.add_argument("--expected-ale", default="HBHS")
+    ap.add_argument("--known-exclusions", default=None, help="CSV of student numbers to skip in the gap lists (default: references/known-exclusions.csv)")
     a = ap.parse_args(); F = Path(a.folder).expanduser(); D = F / "_district"
+    kx_path = Path(a.known_exclusions) if a.known_exclusions else Path(__file__).resolve().parent.parent / "references" / "known-exclusions.csv"
+    known = {}
+    if kx_path.exists():
+        for kr in csv.DictReader(open(kx_path, newline="", encoding="utf-8")):
+            ksid = (kr.get("student_number") or "").strip()
+            if ksid and not ksid.startswith("#"): known[ksid] = (kr.get("reason") or "").strip()
     month_name = a.month.split()[0]; iso_date = f"{a.date[:4]}-{a.date[4:6]}-{a.date[6:]}"
     expected_ale = {s.strip() for s in a.expected_ale.split(",") if s.strip()}
     p223 = json.load(open(D / "p223_totals.json"))
@@ -68,7 +75,7 @@ def main():
         add("P223 form vs audit CSV integrity", "PASS" if len(inc) == hc and abs(afte - fte) < 0.05 else "FAIL",
             f"audit headcount {len(inc)} vs form {hc}; audit FTE {afte:.2f} vs form {fte:.2f}")
         # 2 gap students (export minus P223 headcount)
-        gap = []
+        gap = []; skipped = []
         exp_path = F / f"{c}_StudentListExport_{a.date}.txt"
         if exp_path.exists():
             audit_by_id = {r["Student Number"]: r for r in rd}
@@ -76,6 +83,7 @@ def main():
                 sid = e.get("Student ID", ""); start = mdy(e.get("StartDate")); exit_ = mdy(e.get("ExitDate"))
                 if not sid or (start and start > iso_date) or (exit_ and exit_ <= iso_date): continue
                 if sid in inc_ids: continue
+                if sid in known: skipped.append(sid); continue  # demo/test accounts (references/known-exclusions.csv)
                 r = audit_by_id.get(sid); g = e.get("Grade", "")
                 if r is None: reason = "not in P223 audit"
                 elif (r.get("Grade") or "").strip() == "TK": reason = "TK (reported in the TK fields)"
@@ -84,9 +92,10 @@ def main():
                 gap.append({"id": sid, "grade": g, "reason": reason})
         shc = summary.get(c)
         delta = (shc - hc) if isinstance(shc, int) else None
+        sk = f"; {len(skipped)} known test account(s) skipped" if skipped else ""
         add("Enrollment Summary vs P223 headcount", "PASS" if delta in (0, None) else "WARN",
-            (f"Enrollment Summary {shc} vs P223 {hc} (gap {delta}); {len(gap)} students identified below"
-             if delta is not None else f"no Enrollment Summary count recorded; {len(gap)} students outside the P223 headcount"),
+            (f"Enrollment Summary {shc} vs P223 {hc} (gap {delta}); {len(gap)} students identified below{sk}"
+             if delta is not None else f"no Enrollment Summary count recorded; {len(gap)} students outside the P223 headcount{sk}"),
             [f"{g['id']} (gr {g['grade']}) — {g['reason']}" for g in gap])
         # 3 Running Start rules
         rs = [r for r in rd if f(r["Non-Vocational Running Start FTE"]) + f(r["Vocational Running Start FTE"]) > 0]
@@ -150,7 +159,7 @@ def main():
                      "rs": len(rs), "ale": ale_hc, "openDoors": len(od), "bilingual": len(bil), "tk": len(tk), "tkFte": round(sum(f(r["Total FTE"]) for r in tk), 2),
                      "cte78": voc78, "cte912": voc912, "zeroFTE": len(zero), "gap": len(gap),
                      "over120": len([x for x in checks if x["name"].startswith("Running Start combined") and x["status"] != "PASS"])})
-        detail[c] = {"gap": gap}
+        detail[c] = {"gap": gap, "known_skipped": skipped}
     # EDS file completeness (which required fields PowerSchool omitted / zeroed)
     eds = {}
     for tag in ("RunA_1Day", "RunB_5Day"):

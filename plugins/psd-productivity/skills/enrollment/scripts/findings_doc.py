@@ -78,6 +78,8 @@ def main():
     A("## 5. Warnings and lists for the buildings"); A("")
     A("### 5.1 Students outside the P223 headcount, by school"); A("")
     A("These make up the gap between the Enrollment Summary and the P223 headcount. Send each school its own list. TK and pre-K are expected; \"not in P223 audit\" and \"excluded\" rows need a look."); A("")
+    ks = sum(len(v.get("known_skipped", [])) for v in detail.values())
+    if ks: A(""); A(f"{ks} known test account(s) listed in the skill's `references/known-exclusions.csv` were skipped and appear in no building's list.")
     for c in S:
         gl = detail.get(c, {}).get("gap", [])
         if not gl: continue

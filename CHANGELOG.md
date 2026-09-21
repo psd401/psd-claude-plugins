@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.31.1] - 2026-09-21
+
+### psd-productivity 2.22.1
+
+- `/enrollment`: new `references/known-exclusions.csv` (student number, school, reason, added) for PowerSchool demo/test accounts that are flagged exclude-from-state-reporting and therefore sit on the Enrollment Summary export but never in the P223 audit. `district_checks.py` reads it by default (`--known-exclusions <file>` overrides) and leaves those students out of the gap lists, the WARN details, and `building_followups.json`, so buildings stop being asked to confirm the same demo accounts every month; the check message and the findings doc state how many were skipped. Seeded with the four district demo accounts.
+
 ## [2.31.0] - 2026-09-18
 
 ### psd-productivity 2.22.0

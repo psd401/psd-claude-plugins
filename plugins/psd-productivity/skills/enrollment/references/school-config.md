@@ -60,6 +60,10 @@
 
 Pass the list as `--expected-ale HBHS` (comma-separated if it grows).
 
+## Known exclusions (demo / test accounts)
+
+`references/known-exclusions.csv` lists student numbers that are never real enrollments — PowerSchool's demo accounts, flagged *exclude from state reporting*. `district_checks.py` reads it by default and leaves those students out of the gap lists, the WARN details, and the building follow-up emails; the findings doc says how many were skipped. When Technology creates a new demo account, add a row (student number, school, reason, date added). Do not add real students here — a real student outside the count is a finding, not an exclusion.
+
 ## Feeder Pattern (ES → MS → HS)
 
 | Elementary | Middle School | High School |
