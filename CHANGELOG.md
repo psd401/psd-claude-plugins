@@ -17,6 +17,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.4] - 2026-09-22
+
+### Fixed
+- **`/bump-version` Phase 6 comment accuracy** — the v2.32.3 release shipped an in-line comment in `skills/bump-version/SKILL.md` claiming ugrep "does not honor `\b` in `-E` mode." That is overstated and would mislead a future editor into removing working `\b` patterns elsewhere in the repo. The comment now states the precise, reproduced condition and the measured miss rate. **The grep pattern itself is unchanged and was already correct — no behavior change in this release.**
+  - **The actual condition.** ugrep 7.8.4's non-backtracking ERE engine fails to match only when a `\b` sits immediately on *both* sides of a bounded repeat. Reproduced against the line `consolidates 21 skills down to 6`:
+
+    | Pattern | `-E` | `-P` |
+    |---|---|---|
+    | `\b[0-9]+\b[^.]{0,30}\bskills\b` | **0** | 1 |
+    | `\b[0-9]+[^.]{0,30}\bskills\b` (left `\b` dropped) | 1 | — |
+    | `\b[0-9]+\b[^.]{0,30}skills\b` (right `\b` dropped) | 1 | — |
+
+    Dropping *either* flanking `\b` restores the match, and PCRE (`-P`) matches in all cases. A plain `\b(word|word)\b` alternation with no repeat is unaffected.
+  - **Corrected miss rate.** The earlier claim that the `\b` form "matched 0 of the 3 real stale counts" was wrong. Re-measured against the three actual stale lines Phase 6 exists to catch — the psd-coding-system README's "consolidates 21 skills down to 6" and "Eight skills, each with a clear lane", and the root README tree's "7 user-invocable skills" — the `\b` form catches **1 of 3** (only the literal "Eight", which contains no repeat) and the shipped explicit-boundary form catches **3 of 3**. The comment now says 1 of 3. The conclusion holds; only the magnitude was overstated.
+
+### Changed
+- **Fleet audit of every `\b` in skills and agents** — recorded here so the question is not re-opened. No other code is affected:
+  - `plugins/psd-productivity/skills/tech-writing/SKILL.md:215` — `\b(alternation)\b` with no bounded repeat; tested working under ugrep 7.8.4.
+  - `plugins/psd-coding-system/agents/validation/breaking-change-validator.md` — runs through the `Grep` tool and `rg` (ripgrep 14.1.1, Rust regex engine), not ugrep; unaffected.
+  - `parentsquare` and `class-intercom` `cli/README.md` hits are Windows paths (`PrintingPress\bin`), not regex.
+
+**No functional change.** Documentation and comment accuracy only; the Phase 6 detection grep, all skills, agents, hooks, scripts, and manifests are byte-identical to v2.32.3 apart from version strings.
+
 ## [2.32.3] - 2026-09-22
 
 ### Changed

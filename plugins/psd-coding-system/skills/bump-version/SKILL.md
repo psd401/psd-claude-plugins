@@ -161,8 +161,13 @@ echo "coding skills=$CODING_SKILLS  coding agents=$CODING_AGENTS  productivity s
 # Every count claim in all three docs, digits and spelled-out alike.
 # The word alternatives are load-bearing: "Eight skills" is the exact form
 # that survived three releases. Do not trim them.
-# Do NOT use \b here — this repo's `grep` may be ugrep, which does not honor
-# \b in -E mode, so the pattern would silently match nothing.
+# The explicit (^|[^a-zA-Z0-9]) boundaries replace \b on purpose. ugrep — which
+# may be this machine's `grep` — uses a non-backtracking ERE engine that fails
+# to match when a \b sits immediately on BOTH sides of a bounded repeat, as in
+# \b[0-9]+\b[^.]{0,30}\bskills\b. Dropping either adjacent \b makes it match, and
+# -P (PCRE) matches. Measured on the three real stale counts this phase exists to
+# catch: the \b form found 1 of 3, this form found 3 of 3. Plain \b(word|word)\b
+# is unaffected and fine — only the repeat-flanked shape breaks.
 grep -nE -i '(^|[^a-zA-Z0-9])([0-9]+|six|seven|eight|nine|ten|eleven|twelve)[^.]{0,30}(skills?|agents?)([^a-zA-Z]|$)' \
   CLAUDE.md README.md plugins/psd-coding-system/README.md
 ```
