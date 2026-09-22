@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.2] - 2026-09-22
+
+### Fixed
+- **psd-coding-system README** — corrected two stale skill-count claims that had drifted since `/psd-sign` (v3.4.0), `/chad-review` (v3.6.0), and `/hallmark` (v3.7.0) were added without the surrounding prose following:
+  - The "What Is This?" paragraph said the v3.0.0 overhaul consolidates 21 skills down to **6** with no indication the plugin ships **9** today. It now carries a parenthetical naming the three skills added since, while keeping the original "consolidates / replaces / makes" parallel phrasing intact.
+  - The Workflow Commands intro said "Eight skills, each with a clear lane" while the command table directly beneath it already listed all nine rows including `/hallmark`. Now reads "Nine skills".
+- No skill, agent, hook, script, or manifest content changed — this release is documentation-only. The `9 skills + 44 specialized agents` line in the same README and every count claim in the root README and `CLAUDE.md` were already accurate and were left untouched; all were re-verified against the tree at 9 coding skills / 44 coding agents (review 15, domain 7, research 6, validation 5, quality 4, workflow 4, external 2, meta 1) / 38 productivity skills.
+
 ## [2.32.1] - 2026-09-22
 
 ### Changed

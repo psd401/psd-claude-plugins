@@ -2,7 +2,7 @@
 
 **Comprehensive AI-assisted development system for Peninsula School District**
 
-Version: 3.8.1
+Version: 3.8.2
 Status: Production-Ready Workflows + Memory-Based Learning
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -10,7 +10,7 @@ Author: Kris Hagel (hagelk@psd401.net)
 
 ## What Is This?
 
-A unified Claude Code plugin that collapses development into a tight, contract-driven loop: **plan → build-to-done → compound what you learned**. The v3.0.0 overhaul consolidates 21 skills down to **6**, replaces "the agent thinks it's finished" with a **machine-checkable Definition of Done**, and makes "done" mean "the verify gate is green and the PR is 100% reviewed."
+A unified Claude Code plugin that collapses development into a tight, contract-driven loop: **plan → build-to-done → compound what you learned**. The v3.0.0 overhaul consolidates 21 skills down to **6** disciplined surfaces (**9** today — `/psd-sign`, `/chad-review`, and `/hallmark` were added in v3.4.0–v3.7.0), replaces "the agent thinks it's finished" with a **machine-checkable Definition of Done**, and makes "done" mean "the verify gate is green and the PR is 100% reviewed."
 
 **One plugin. Three superpowers.**
 
@@ -46,7 +46,7 @@ A unified Claude Code plugin that collapses development into a tight, contract-d
 
 ## Workflow Commands
 
-Eight skills, each with a clear lane. The old 21 skills were absorbed — `/plan` swallows the design surface, `/lfg` swallows the build/test/review surface, and `/bump-version` swallows `/changelog`.
+Nine skills, each with a clear lane. The old 21 skills were absorbed — `/plan` swallows the design surface, `/lfg` swallows the build/test/review surface, and `/bump-version` swallows `/changelog`.
 
 | Command | Description | Example |
 |---------|-------------|---------|
