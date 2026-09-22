@@ -147,16 +147,41 @@ Classify every commit into Keep-a-Changelog sections and write the entry at the 
 
 **Rules:** describe user-visible impact (not implementation), bold the component, group related commits, omit version-bump and merge commits, include only non-empty sections. If git history is too terse to classify, fall back to AskUserQuestion for a brief description.
 
-## Phase 6: Update Skill/Agent Counts (if changed)
+## Phase 6: Reconcile count claims across every doc that states one
+
+Three docs assert skill/agent counts and drift independently. Reconciling only CLAUDE.md is what let `plugins/psd-coding-system/README.md` say "Eight skills" — and the root `README.md` directory tree say "7 user-invocable skills" — for several releases after new skills landed.
 
 ```bash
-SKILL_COUNT=$(find plugins/psd-coding-system/skills -name 'SKILL.md' -type f | wc -l | tr -d ' ')
-AGENT_COUNT=$(find plugins/psd-coding-system/agents -name '*.md' -type f | wc -l | tr -d ' ')
-echo "Skills: $SKILL_COUNT"
-echo "Agents: $AGENT_COUNT"
+# Recount from the tree — the only authoritative numbers
+CODING_SKILLS=$(find plugins/psd-coding-system/skills -name 'SKILL.md' -type f | wc -l | tr -d ' ')
+CODING_AGENTS=$(find plugins/psd-coding-system/agents -name '*.md' -type f | wc -l | tr -d ' ')
+PROD_SKILLS=$(find plugins/psd-productivity/skills -name 'SKILL.md' -type f | wc -l | tr -d ' ')
+echo "coding skills=$CODING_SKILLS  coding agents=$CODING_AGENTS  productivity skills=$PROD_SKILLS"
+
+# Every count claim in all three docs, digits and spelled-out alike.
+# The word alternatives are load-bearing: "Eight skills" is the exact form
+# that survived three releases. Do not trim them.
+# Do NOT use \b here — this repo's `grep` may be ugrep, which does not honor
+# \b in -E mode, so the pattern would silently match nothing.
+grep -nE -i '(^|[^a-zA-Z0-9])([0-9]+|six|seven|eight|nine|ten|eleven|twelve)[^.]{0,30}(skills?|agents?)([^a-zA-Z]|$)' \
+  CLAUDE.md README.md plugins/psd-coding-system/README.md
 ```
 
-If counts differ from CLAUDE.md, update them. Otherwise skip.
+Reconcile every line the grep returns against the three counts above. It deliberately over-matches — unrelated prose like "5 key agents" and the feature-adoption table will appear. Eyeball them; a few extra lines costs less than missing a stale count.
+
+Two things the grep cannot check on its own:
+
+```bash
+# One command-table row per skill — a new skill often lands in the table with
+# the sentence above it left stale, or the reverse
+grep -cE '^\| `/[a-z-]+`' plugins/psd-coding-system/README.md   # must equal $CODING_SKILLS
+```
+
+- The root README's **directory tree** carries counts inside `#` comments (`skills/  # N user-invocable skills`). They are hand-written prose, not generated, and drift silently.
+
+Known non-defect: the root README's **"Meta & Validation (6 agents)"** is a deliberate combined heading (meta 1 + validation 5). Leave it.
+
+If every claim matches, skip. Otherwise fix them now — Phase 8 re-checks these, and a mismatch there costs an amend.
 
 ## Phase 7: Commit (do NOT tag yet)
 

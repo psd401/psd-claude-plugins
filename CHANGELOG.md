@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.3] - 2026-09-22
+
+### Changed
+- **`/bump-version` Phase 6** — widened from "recount coding skills/agents, reconcile against `CLAUDE.md`" to reconciling every doc that asserts a count. Three docs state counts and drift independently (`CLAUDE.md`, root `README.md`, `plugins/psd-coding-system/README.md`); checking only one is what let two stale claims survive several releases. The phase now also counts psd-productivity skills, and adds three checks:
+  - A detection grep over all three docs that matches **spelled-out** numbers as well as digits — `six|seven|eight|nine|ten|eleven|twelve`. "Eight skills" is the exact form that survived three releases, so the word alternatives are load-bearing, not decoration. The pattern deliberately over-matches (unrelated prose like "5 key agents" and the feature-adoption table appear); a few extra lines to eyeball costs less than a missed stale count.
+  - **The pattern must not use `\b`.** This environment's `grep` is ugrep 7.8.4, which does not honor `\b` in `-E` mode — the original pattern used `\b` and silently matched nothing. The in-line comment forbidding it is a correctness guard, not a style note.
+  - Two structural checks the grep cannot make: the psd-coding-system README's command table must have exactly one `| /skill |` row per skill, and the root README's directory tree carries hand-written counts inside `#` comments that no generator maintains.
+  - Documents `Meta & Validation (6 agents)` in the root README as a **deliberate combined heading** (meta 1 + validation 5), not drift — so future runs stop re-investigating it.
+
+### Fixed
+- **Root `README.md` directory tree** — the `skills/` comment claimed "7 user-invocable skills" against an actual **9**. Found by the new Phase 6 check while testing it, which is the first evidence the widened phase catches what the narrow one missed. The sibling `agents/ # 44 specialized agents` line was already correct.
+
+**Verified counts at this release:** 9 coding skills · 44 coding agents · 38 productivity skills, agreeing across all three docs. `CLAUDE.md`'s "7 skills" in the `keep-coding-instructions:` adoption row is a feature-scope count, not a total, and is intentionally left alone.
+
 ## [2.32.2] - 2026-09-22
 
 ### Fixed
