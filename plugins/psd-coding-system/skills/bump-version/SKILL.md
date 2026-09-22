@@ -172,7 +172,20 @@ grep -nE -i '(^|[^a-zA-Z0-9])([0-9]+|six|seven|eight|nine|ten|eleven|twelve)[^.]
   CLAUDE.md README.md plugins/psd-coding-system/README.md
 ```
 
-Reconcile every line the grep returns against the three counts above. It deliberately over-matches — unrelated prose like "5 key agents" and the feature-adoption table will appear. Eyeball them; a few extra lines costs less than missing a stale count.
+Reconcile **every** line the grep returns. Each one is exactly one of three things, and only the third is safe to pass over:
+
+1. **A total** — skills or agents in a plugin. Check against the three counts above.
+2. **A scope count** — how many skills or agents adopted some feature ("Enabled on 6 key agents", "`paths:` … 5 skills"). These are just as checkable, from frontmatter, and they drift just as often. Recount them:
+   ```bash
+   grep -rl "^memory: project" --include="*.md" plugins/*/agents | wc -l
+   grep -rl "^paths:" --include="SKILL.md" plugins/*/skills | wc -l
+   grep -rl "^keep-coding-instructions:" --include="*.md" plugins/*/skills plugins/*/agents | wc -l
+   grep -rl "^effort: xhigh" --include="*.md" plugins/*/skills plugins/*/agents | wc -l
+   ```
+   CLAUDE.md's **feature-adoption table** is nothing but scope counts. Recount every row you touch; the named lists beside them go stale too, independently of the number.
+3. **Genuinely unrelated** — a count of something that is not skills or agents.
+
+**Do not treat category 2 as noise.** An earlier version of this phase named `"5 key agents"` as its example of harmless over-matching. That line was wrong for several releases, and the guidance here is what told operators to skip past it. Two more rows in the same table (`paths:`, `keep-coding-instructions:`) were stale for the same reason. A number you decline to recount is a number you are asserting on faith.
 
 Two things the grep cannot check on its own:
 
@@ -184,7 +197,7 @@ grep -cE '^\| `/[a-z-]+`' plugins/psd-coding-system/README.md   # must equal $CO
 
 - The root README's **directory tree** carries counts inside `#` comments (`skills/  # N user-invocable skills`). They are hand-written prose, not generated, and drift silently.
 
-Known non-defect: the root README's **"Meta & Validation (6 agents)"** is a deliberate combined heading (meta 1 + validation 5). Leave it.
+The **only** verified non-defect is the root README's **"Meta & Validation (6 agents)"** — a deliberate combined heading (meta 1 + validation 5), confirmed against the category dirs. Nothing else is on a skip list. If a line looks like noise, recount it anyway: dismissing lines as noise is what let three real defects through.
 
 If every claim matches, skip. Otherwise fix them now — Phase 8 re-checks these, and a mismatch there costs an amend.
 

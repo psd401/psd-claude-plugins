@@ -17,6 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.6] - 2026-09-22
+
+### Changed
+- **`/bump-version` Phase 6 — skip guidance replaced with a three-category classification.** The phase previously told operators the count grep "deliberately over-matches" and named `"5 key agents"` and "the feature-adoption table" as examples of unrelated prose to eyeball past. That instruction was wrong, and it was load-bearing: `"5 key agents"` was a real stale count for several releases (fixed in v2.32.5), and two further rows of that same table were stale for the same reason. The guidance was not describing noise — it was concealing defects the grep had already surfaced.
+  - Every returned line is now classified as exactly one of three things, and only the third may be passed over: **(1) a total** — skills or agents in a plugin, checked against the three recounted numbers; **(2) a scope count** — how many skills or agents adopted a feature, equally checkable from frontmatter and drifting just as often; **(3) genuinely unrelated** — a count of something that is not skills or agents.
+  - Category 2 ships with runnable recount commands for `memory: project`, `paths:`, `keep-coding-instructions:`, and `effort: xhigh`, plus an explicit statement that **CLAUDE.md's feature-adoption table is nothing but scope counts**, and that the named lists beside each number go stale independently of the number itself.
+  - Adds a **"Do not treat category 2 as noise"** paragraph naming the exact past failure, so the rationale travels with the rule rather than being rediscovered.
+  - The skip list is narrowed from an open-ended "eyeball them" to the **single verified case**: the root `README.md`'s "Meta & Validation (6 agents)" combined heading (meta 1 + validation 5), confirmed against the category dirs.
+
+### Fixed
+- **`CLAUDE.md` feature-adoption table — two stale `Scope` rows**, both of which the old Phase 6 guidance had been instructing operators to skip. Documentation-only; no skill, agent, hook, script, or manifest content changed.
+  - **`paths:` file access scoping** — said "5 skills | enrollment, pdf-builder, documenso, docusign, n8n" against an actual **10**. Now "10 skills" with the full sorted list: `board-policy-formatter`, `class-intercom`, `documenso-manager`, `docusign-manager`, `enrollment`, `html-artifact`, `n8n-manager`, `parentsquare`, `pdf-builder`, `psd-atrium`. Note the three names in the old list were also abbreviated forms that do not match the skill directories (`documenso` → `documenso-manager`, `docusign` → `docusign-manager`, `n8n` → `n8n-manager`) — the named list had drifted separately from the number.
+  - **`keep-coding-instructions:`** — said "10 skills/agents | 7 skills + work-researcher, learning-writer, test-specialist" against an actual **11**. Now "11 skills/agents | 7 skills + learning-writer, runtime-verifier, test-specialist, work-researcher". `runtime-verifier` carried the field but was absent from both the count and the named list.
+
+**Every other row of that table was recounted under the new rule and is accurate — no other row changed.** `initialPrompt:` 4 agents (`learning-writer`, `meta-reviewer`, `work-researcher`, `work-validator`); `effort: xhigh` 3 (`plan`, `evolve`, `meta-reviewer`); `mcpServers` 3 (`best-practices-researcher`, `framework-docs-researcher`, `repo-research-analyst`); `disallowed-tools` "all 15 read-only agents" — exactly 15 agents carry a `tools:` allowlist with no Edit/Write/Bash (5 research + 10 review). `memory: project` 6 was corrected in v2.32.5 and re-verified here.
+
+**Verified counts at this release:** 9 coding skills · 44 coding agents · 38 productivity skills, agreeing across `CLAUDE.md`, the root `README.md`, and `plugins/psd-coding-system/README.md`. The psd-coding-system README command table carries 9 `/skill` rows; the agent category dirs sum to 44 (review 15 · domain 7 · research 6 · validation 5 · quality 4 · workflow 4 · external 2 · meta 1); the root README's productivity category table sums to 38.
+
 ## [2.32.5] - 2026-09-22
 
 ### Fixed
