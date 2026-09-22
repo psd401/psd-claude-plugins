@@ -175,7 +175,7 @@ grep -nE -i '(^|[^a-zA-Z0-9])([0-9]+|six|seven|eight|nine|ten|eleven|twelve)[^.]
 Reconcile **every** line the grep returns. Each one is exactly one of three things, and only the third is safe to pass over:
 
 1. **A total** — skills or agents in a plugin. Check against the three counts above.
-2. **A scope count** — how many skills or agents adopted some feature ("Enabled on 6 key agents", "`paths:` … 5 skills"). These are just as checkable, from frontmatter, and they drift just as often. Recount them:
+2. **A scope count** — how many skills or agents adopted some feature ("Enabled on 6 key agents", "`paths:` … 10 skills"). These are just as checkable, from frontmatter, and they drift just as often. Recount them:
    ```bash
    grep -rl "^memory: project" --include="*.md" plugins/*/agents | wc -l
    grep -rl "^paths:" --include="SKILL.md" plugins/*/skills | wc -l
@@ -183,7 +183,7 @@ Reconcile **every** line the grep returns. Each one is exactly one of three thin
    grep -rl "^effort: xhigh" --include="*.md" plugins/*/skills plugins/*/agents | wc -l
    ```
    CLAUDE.md's **feature-adoption table** is nothing but scope counts. Recount every row you touch; the named lists beside them go stale too, independently of the number.
-3. **Genuinely unrelated** — a count of something that is not skills or agents.
+3. **Genuinely unrelated** — the number is not counting skills or agents at all. Real example from this repo: `- **claude-sonnet-5**: Default for agents and lightweight coding tasks` matches only because of the `5` in the model ID. Version numbers, model IDs and `v2.1.x` adoption columns land here.
 
 **Do not treat category 2 as noise.** An earlier version of this phase named `"5 key agents"` as its example of harmless over-matching. That line was wrong for several releases, and the guidance here is what told operators to skip past it. Two more rows in the same table (`paths:`, `keep-coding-instructions:`) were stale for the same reason. A number you decline to recount is a number you are asserting on faith.
 

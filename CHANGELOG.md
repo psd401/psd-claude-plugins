@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.7] - 2026-09-22
+
+### Changed
+- **`/bump-version` Phase 6 — the two illustrative examples now match reality**, completing the work v2.32.6 started. Documentation-only. Exactly one content file changed — `plugins/psd-coding-system/skills/bump-version/SKILL.md`; the other six paths in this release commit are version and changelog locations. No skill logic, grep pattern, agent, hook, script, or manifest content changed.
+  - **Category 3 ("genuinely unrelated") gained a concrete example.** v2.32.6 defined the three-way classification but left category 3 as the bare abstraction "a count of something that is not skills or agents" — no anchor for the one category the phase says is safe to skip, which is precisely the category where a wrong judgment hides a defect. It now carries a real hit from this repo's own grep output: `- **claude-sonnet-5**: Default for agents and lightweight coding tasks`, which matches only because of the `5` in the model ID. The line also names the recurring shapes that land here — version numbers, model IDs, and the `v2.1.x` adoption column of CLAUDE.md's feature table.
+  - **Category 2's illustration no longer quotes a stale number.** It cited `` `paths:` … 5 skills `` — the pre-v2.32.6 wrong value that v2.32.6 itself corrected in CLAUDE.md — so the example read as though the feature-adoption table still claimed 5. Now `` `paths:` … 10 skills ``. Both illustrative figures in that paragraph ("Enabled on 6 key agents", "`paths:` … 10 skills") agree with the tree as of this release.
+
+**Deliberately unchanged — the three `"5 key agents"` occurrences that remain in this CHANGELOG**, one each in the `[2.32.3]`, `[2.32.5]`, and `[2.32.6]` entries. (Referenced by entry rather than by line number, because line numbers move every release.) The `[2.32.3]` occurrence accurately records the guidance that release actually shipped; the `[2.32.5]` occurrence accurately records that release's decision to defer the fix; the `[2.32.6]` occurrence accurately describes the fix in past tense. Two reasons for leaving them: this repo has twice-stated precedent that historical CHANGELOG entries are point-in-time records left at their original values (see the `memory: project` note in `[2.32.5]` and the "Out of scope, deliberately untouched: historical CHANGELOG entries" line in the model-ID sweep), and the three together form a self-documenting correction chain — claim → flagged-and-deferred → fixed. Rewriting the `[2.32.3]` occurrence would break that chain by making v2.32.6 appear to fix something that entry never claimed.
+
+**CLAUDE.md is untouched in this release.** Its `paths:` row (10 skills, full sorted list) and `keep-coding-instructions:` row (11, `runtime-verifier` included) were corrected in v2.32.6 and re-verified against frontmatter here as still accurate.
+
+**Verified counts at this release:** 9 coding skills · 44 coding agents · 38 productivity skills, agreeing across `CLAUDE.md`, the root `README.md`, and `plugins/psd-coding-system/README.md`; the psd-coding-system README command table carries 9 `/skill` rows. Scope counts recounted from frontmatter: `memory: project` = 6, `paths:` = 10, `keep-coding-instructions:` = 11, `effort: xhigh` = 3, `initialPrompt:` = 4, `mcpServers:` = 3 — all matching what CLAUDE.md states.
+
+Versions: **marketplace 2.32.6 → 2.32.7**, **psd-coding-system 3.8.6 → 3.8.7**, **psd-productivity 2.23.0 (unchanged)**.
+
 ## [2.32.6] - 2026-09-22
 
 ### Changed
