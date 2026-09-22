@@ -66,14 +66,14 @@ When version changes detected, validate ALL 5 required locations are updated:
 **Model Name/ID Consistency:**
 
 When model changes detected, validate consistency across:
-- Agent frontmatter: `model: claude-sonnet-5` (current standard — bare alias, no date suffix; the four heavy agents use `claude-opus-5`)
-- Skill frontmatter: `model: claude-opus-5` (exception: `/plan` uses `claude-fable-5`)
+- Agent frontmatter: `model: claude-sonnet-5` (current standard — bare alias, no date suffix; the four heavy agents use `claude-opus-5-5`)
+- Skill frontmatter: `model: claude-opus-5-5` (exception: `/plan` uses `claude-fable-5-1`)
 - Code references: check for hardcoded model names
 - Documentation: ensure model references are up-to-date
 
 **Common model errors:**
 - Inconsistent naming: `claude-sonnet-5` vs `sonnet-5` vs `claude-sonnet-5-20260115` (use the bare alias `claude-sonnet-5`)
-- Old model IDs: `claude-opus-4-8` instead of `claude-opus-5`
+- Old model IDs: `claude-opus-5` or `claude-opus-4-8` instead of `claude-opus-5-5`; `claude-fable-5` instead of `claude-fable-5-1`
 - Hardcoded in code: `const model = "claude-sonnet-5"` instead of config
 - Model change in agent but not documented in CLAUDE.md
 

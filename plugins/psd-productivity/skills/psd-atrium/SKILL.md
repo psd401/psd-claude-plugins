@@ -2,7 +2,7 @@
 name: psd-atrium
 description: "Publish and manage content in Atrium — PSD AI Studio's collaborative content workspace. Create native Atrium documents (markdown) and interactive HTML/JSX artifacts, embed images, edit, create and organize nested district/private collections, move content between collections, set visibility, and publish to the internal intranet reader. Artifacts fully support real HTML, CSS, and JavaScript including <script> and <style>. Use when: publishing a doc/report/spec into Atrium, organizing Atrium sections or private collections, turning an HTML artifact into a shareable Atrium page, finding or reading existing Atrium content, or publishing/unpublishing internally. Triggers on: atrium, publish to atrium, ai studio content, atrium doc, atrium artifact, atrium collection, subcollection, publish internally, intranet reader, psd401.ai content."
 argument-hint: "[command] [args...] — e.g. 'status', 'collections --shape tree', 'create-collection --name \"X\" --scope private', 'move-content --id <id> --collection <id>', 'create-document --title \"X\" --markdown-file doc.md', 'publish --id <id>'"
-model: claude-opus-5
+model: claude-opus-5-5
 effort: high
 extended-thinking: true
 allowed-tools:

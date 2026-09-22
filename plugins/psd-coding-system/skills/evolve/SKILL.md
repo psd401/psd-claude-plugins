@@ -1,7 +1,7 @@
 ---
 name: evolve
 description: Auto-evolve the plugin — compounds learnings into CLAUDE.md/patterns/agents then prunes them, checks releases, compares competition, contributes patterns
-model: claude-opus-5
+model: claude-opus-5-5
 effort: xhigh
 context: fork
 agent: general-purpose

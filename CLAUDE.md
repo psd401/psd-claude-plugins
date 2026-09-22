@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.31.1
+**Version**: 2.32.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -219,23 +219,25 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 
 ### Model Selection Strategy
 - **claude-sonnet-5**: Default for agents and lightweight coding tasks
-- **claude-opus-5**: Default for all skills that specify `model:` in frontmatter
-- **claude-fable-5**: `/plan` only — the deep-design surface gets the most capable model
+- **claude-opus-5-5**: Default for all skills that specify `model:` in frontmatter
+- **claude-fable-5-1**: `/plan` only — the deep-design surface gets the most capable model
 - **effort: high**: Default for most skills/agents
 - **effort: xhigh**: `/plan`, `/evolve`, and the meta-reviewer agent
-- **effort: medium**: `/lfg` — Opus 5 stays strong at medium, the cost/latency sweet spot for the build loop
+- **effort: medium**: `/lfg` — Opus 5.5 stays strong at medium, the cost/latency sweet spot for the build loop
 - **extended-thinking: true**: Enabled on all skills/agents
 - **memory: project**: Enabled on 5 key agents
 
 ### Model Selection Rules for Skills
 
-**Rule**: Skills that specify `model:` use `claude-opus-5` with `effort: high` (`xhigh` for /evolve). Exceptions: `/plan` runs `claude-fable-5` at `xhigh`; `/lfg` runs `claude-opus-5` at `medium`. Agents run `claude-sonnet-5` (the four heavy agents — architect-specialist, meta-reviewer, runtime-verifier, plan-validator — run `claude-opus-5`).
+**Rule**: Skills that specify `model:` use `claude-opus-5-5` with `effort: high` (`xhigh` for /evolve). Exceptions: `/plan` runs `claude-fable-5-1` at `xhigh`; `/lfg` runs `claude-opus-5-5` at `medium`. Agents run `claude-sonnet-5` (the four heavy agents — architect-specialist, meta-reviewer, runtime-verifier, plan-validator — run `claude-opus-5-5`).
 
-**Why**: `claude-opus-5` is a drop-in upgrade at Opus 4.8 pricing with a higher ceiling; on Opus 5, `medium` effort delivers near-`xhigh` quality at a fraction of the tokens, which is why `/lfg` runs there. `claude-fable-5` (2× Opus pricing, always-on thinking) is reserved for `/plan`, where design depth pays for itself. All three Claude 5 models support the full effort ladder (`low`/`medium`/`high`/`xhigh`/`max`). Use bare aliases only — never date-suffixed IDs.
+**Why**: `claude-opus-5-5` (released 2026-09-22) supersedes Opus 5 as the recommended default for most workloads, and it is *cheaper* than the model it replaces — $4/$20 per MTok vs Opus 5's $5/$25. `claude-fable-5-1` ($10/$50, always-on thinking) is reserved for `/plan`, where design depth pays for itself, and for cases where Opus 5.5 at higher effort still falls short. All three models support the full effort ladder (`low`/`medium`/`high`/`xhigh`/`max`). Use bare aliases only — never date-suffixed IDs.
+
+**Effort is always explicit — do not rely on the model default.** Opus 5.5 defaults to `effort: medium` (Opus 5 defaulted to `high`); Fable 5.1 and Sonnet 5 default to `high`. Every skill and agent in this repo pins `effort:` in frontmatter, so the 5.5 migration changed no effort behavior. That pinning is what prevents a silent quality drop whenever a model default moves — the failure mode this repo has already hit once.
 
 **Skills without `model:`** inherit the session default and are safe.
 
-**If you want Sonnet in a skill**: set `model: claude-sonnet-5` explicitly; the project default for model-pinned skills remains `claude-opus-5`.
+**If you want Sonnet in a skill**: set `model: claude-sonnet-5` explicitly; the project default for model-pinned skills remains `claude-opus-5-5`.
 
 ### Adopted Claude Code Features
 

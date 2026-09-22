@@ -15,7 +15,7 @@ description: >-
   "audit the design" — or when Hallmark is invoked by name. For build-to-done feature work with a
   verification gate, use /lfg instead; this skill styles, it does not ship.
 argument-hint: "[audit|redesign|study] [target]"
-model: claude-opus-5
+model: claude-opus-5-5
 effort: high
 extended-thinking: true
 ---

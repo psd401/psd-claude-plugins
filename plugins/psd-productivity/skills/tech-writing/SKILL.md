@@ -2,7 +2,7 @@
 name: tech-writing
 description: "Write and edit technical content in Google developer-documentation style — distilled from the complete Google style guide (developers.google.com/style, ~60 pages). Covers voice and tone, grammar, punctuation, formatting, procedures, code-in-text, placeholders, UI elements, link text, accessibility, inclusive language, and a 598-entry word list. Make sure to use this skill whenever writing, editing, or reviewing developer-facing prose — READMEs, documentation, API references, tutorials, how-to guides, release notes, error messages, UI text, or technical blog posts — even if the user doesn't mention a style guide. Triggers on: style guide, tech writing, documentation style, Google style, write docs, edit docs, review docs, polish docs, README, API docs, tutorial, docs voice, developer docs."
 argument-hint: "[write|edit|review] [target] — e.g., 'review README.md', 'write a how-to for X', 'edit this doc for style'"
-model: claude-opus-5
+model: claude-opus-5-5
 effort: high
 extended-thinking: true
 allowed-tools:

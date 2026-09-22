@@ -2,7 +2,7 @@
 name: lfg
 description: Autonomous build-to-done — implement, verify the full Definition of Done (build/lint/typecheck/full suite/Playwright + screenshots), open a PR with visual evidence, then watch CI and the AI reviewers and fix every round until 100% clean. Does not stop until done.
 argument-hint: "[issue number OR description of work]"
-model: claude-opus-5
+model: claude-opus-5-5
 effort: medium
 context: fork
 agent: general-purpose

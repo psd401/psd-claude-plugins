@@ -16,7 +16,7 @@ description: >-
 
   Triggers: "cut the showing-off", "this is too clever / too flowery", "run Chad review on X".
 argument-hint: "[file-or-directory-to-review]"
-model: claude-opus-5
+model: claude-opus-5-5
 effort: high
 extended-thinking: true
 ---

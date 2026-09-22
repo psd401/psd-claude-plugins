@@ -2,7 +2,7 @@
 name: plan
 description: Clarify intent, research in parallel, design the approach, and emit a task breakdown + a machine-checkable Definition of Done — optionally filing contract-compliant GitHub issues that /lfg can pick up and drive to done.
 argument-hint: "[idea, feature, problem, or issue number to refine]"
-model: claude-fable-5
+model: claude-fable-5-1
 effort: xhigh
 context: fork
 agent: general-purpose

@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.0] - 2026-09-22
+
+### Changed
+
+- **Model migration to Opus 5.5 / Fable 5.1** — all 27 `model:` frontmatter pins in the marketplace moved off the Claude 5 generation. **No `effort:` value changed**, and no skill or agent body logic changed.
+  - **`claude-opus-5` → `claude-opus-5-5`** on 26 surfaces: 8 psd-coding-system skills (`/bump-version`, `/chad-review`, `/evolve`, `/hallmark`, `/lfg`, `/psd-sign`, `/setup`, `/worktree`), the 4 heavy agents (`architect-specialist`, `meta-reviewer`, `runtime-verifier`, `plan-validator`), and 15 psd-productivity skills (`board-policy-formatter`, `browser-control`, `chief-of-staff`, `class-intercom`, `documenso-manager`, `docusign-manager`, `enrollment`, `google-workspace-cli`, `html-artifact`, `n8n-manager`, `parentsquare`, `pdf-builder`, `psd-atrium`, `slides-to-site`, `tech-writing`).
+  - **`claude-fable-5` → `claude-fable-5-1`** on `/plan`, which keeps `effort: xhigh`.
+  - Opus 5.5 is *cheaper* than the model it replaces — $4/$20 per MTok vs Opus 5's $5/$25 — so the migration lowers cost on every model-pinned surface.
+- **CLAUDE.md model policy rewritten** to the 5.5 standard, with a new **"Effort is always explicit — do not rely on the model default"** rule: Opus 5.5 defaults to `effort: medium` where Opus 5 defaulted to `high`, so a repo that left `effort:` unpinned would have taken a silent quality drop on this migration. Every skill and agent here pins `effort:`, which is why the migration was frontmatter-only.
+- **`configuration-validator` enforcement updated** — model-consistency checks now require `claude-opus-5-5` for skills and the four heavy agents, `claude-fable-5-1` for `/plan`, and treat `claude-opus-5` / `claude-opus-4-8` / `claude-fable-5` as stale IDs to flag.
+- **`agent-native-reviewer` frontmatter checklist updated** — the valid-model-ID list is now `claude-sonnet-5`, `claude-opus-5-5`, `claude-fable-5-1`.
+
+Versions: **psd-coding-system 3.7.1 → 3.8.0**, **psd-productivity 2.22.1 → 2.23.0**, **marketplace 2.31.1 → 2.32.0**.
+
 ## [2.31.1] - 2026-09-21
 
 ### psd-productivity 2.22.1
