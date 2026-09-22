@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.32.4
+**Version**: 2.32.5
 **Status**: Production-Ready
 
 ### Plugins
@@ -225,7 +225,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - **effort: xhigh**: `/plan`, `/evolve`, and the meta-reviewer agent
 - **effort: medium**: `/lfg` — Opus 5.5 stays strong at medium, the cost/latency sweet spot for the build loop
 - **extended-thinking: true**: Enabled on all skills/agents
-- **memory: project**: Enabled on 5 key agents
+- **memory: project**: Enabled on 6 key agents
 
 ### Model Selection Rules for Skills
 

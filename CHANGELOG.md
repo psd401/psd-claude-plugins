@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.5] - 2026-09-22
+
+### Fixed
+- **`CLAUDE.md` `memory: project` agent count** — the Model Selection Strategy bullet list said "Enabled on **5** key agents" against an actual **6**. Documentation-only; no skill, agent, hook, script, or manifest content changed.
+  - **The file contradicted itself.** Two other lines in the same document already stated the correct figure and named the agents — the Agents section ("six agents carry `memory: project` ... runtime-verifier, test-specialist, learnings-researcher, work-researcher, learning-writer, meta-reviewer") and the Memory-Based Learning System section ("Six agents carry `memory: project`"). Line 228 was the outlier, so it was the line that moved.
+  - **Ground truth re-verified from frontmatter, not from prose:** `grep -rl "^memory: project" plugins/*/agents` returns exactly 6 files — `agents/quality/runtime-verifier.md`, `agents/quality/test-specialist.md`, `agents/research/learnings-researcher.md`, `agents/workflow/work-researcher.md`, `agents/workflow/learning-writer.md`, `agents/meta/meta-reviewer.md`. The count most likely went stale when runtime-verifier gained `memory: project` without the bullet following.
+  - **Surfaced by the Phase 6 count grep added in v2.32.3** — the second real defect that phase has caught, after the root README's "7 user-invocable skills" in v2.32.3. Notably, this one was hiding *inside the noise the phase told readers to skip*: both `skills/bump-version/SKILL.md` and the v2.32.3 CHANGELOG entry cite `"5 key agents"` by name as an example of unrelated prose the pattern over-matches. The over-match was a real hit. Those two references are now themselves inaccurate and are left for a follow-up rather than widened into this release.
+
+**Verified counts at this release:** 9 coding skills · 44 coding agents · 38 productivity skills, agreeing across `CLAUDE.md`, the root `README.md`, and `plugins/psd-coding-system/README.md`; the psd-coding-system README command table carries 9 `/skill` rows. No other document states a `memory: project` count (the historical v2.1.x CHANGELOG entry is a point-in-time record and is left alone). `CLAUDE.md`'s "all 15 read-only agents already have allowlists" was re-checked and is accurate — 5 research + 10 review agents carry `Read, Grep, Glob`-only allowlists.
+
 ## [2.32.4] - 2026-09-22
 
 ### Fixed
