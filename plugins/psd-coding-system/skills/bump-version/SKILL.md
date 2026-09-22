@@ -158,7 +158,7 @@ echo "Agents: $AGENT_COUNT"
 
 If counts differ from CLAUDE.md, update them. Otherwise skip.
 
-## Phase 7: Commit, Tag, Push
+## Phase 7: Commit (do NOT tag yet)
 
 ```bash
 # Stage changed files
@@ -169,21 +169,66 @@ git add \
   CHANGELOG.md
   # + plugin-specific files if those plugins changed
 
-git commit -m "chore: Bump version to $NEW_MARKETPLACE — [brief reason]"
+git commit -m "chore: Bump to $NEW_MARKETPLACE — [brief reason]"
+```
 
-# Validate manifests before tagging (catches version mismatches early).
+**Nothing is tagged and nothing is pushed yet.** That is deliberate: Phase 8 may need to amend this commit, which is free before a push and impossible after.
+
+## Phase 8: Verify the release claims — gate, must pass before tagging
+
+The CHANGELOG entry, the commit subject, and the tag message all assert facts: how many files changed, how many surfaces were touched, which versions moved. Verify each against the actual diff before the tag freezes it.
+
+```bash
+# Authoritative file list. Use --name-only, NEVER --stat: --stat truncates
+# long paths (".../skills/<name>/SKILL.md"), so any count grepped from stat
+# output silently undercounts.
+git show --name-only --format="" HEAD
+
+# Recount whatever the CHANGELOG claims, from the tree rather than from memory.
+# Example for a model migration — adapt to the claim being checked:
+grep -rh "^model: " --include="*.md" plugins | sort | uniq -c | sort -rn
+```
+
+Check in order:
+
+1. **Every number** in the CHANGELOG entry and the commit subject — recount from the commands above. A count asserted in prose but never recomputed is the usual defect.
+2. **Version tracks agree** across all locations:
+   ```bash
+   jq -r '.metadata.version' .claude-plugin/marketplace.json
+   jq -r '.plugins[]|"\(.name) \(.version)"' .claude-plugin/marketplace.json
+   jq -r '.version' plugins/psd-coding-system/.claude-plugin/plugin.json
+   jq -r '.version' plugins/psd-productivity/.claude-plugin/plugin.json
+   grep -m1 '^\*\*Version\*\*' CLAUDE.md
+   ```
+3. **Manifests validate:** `claude plugin validate .`
+
+**If anything is wrong, amend — never add a follow-up commit:**
+
+```bash
+git add -A
+git commit --amend -m "chore: Bump to $NEW_MARKETPLACE — [corrected reason]"
+```
+
+A doc fix committed *after* the tag is the exact failure this gate prevents: the tag keeps pointing at the version with the wrong prose, and correcting it then requires a force-retag of a published ref. Amending costs nothing here because nothing has been pushed.
+
+## Phase 9: Tag and push — only after Phase 8 passes
+
+```bash
 # NOTE: do NOT use `claude plugin tag` here — the CLI takes a plugin *path*
 # and creates per-plugin {name}--v{version} tags, which does not match this
 # repo's marketplace-wide vX.Y.Z tag convention.
-claude plugin validate .
-
 git tag -a "v$NEW_MARKETPLACE" -m "Release v$NEW_MARKETPLACE - [brief summary]"
 
 git push origin HEAD
 git push origin "v$NEW_MARKETPLACE"
+
+# Confirm the tag landed where intended
+git ls-remote --tags origin | grep "v$NEW_MARKETPLACE"
 ```
 
-## Phase 8: Summary
+The dereferenced ref (`refs/tags/vX.Y.Z^{}`) must equal the bump commit. If it does not, stop and report it — do not force-retag a pushed tag without asking the user first.
+
+## Phase 10: Summary
 
 ```markdown
 ### Release v$NEW_MARKETPLACE
@@ -194,7 +239,8 @@ git push origin "v$NEW_MARKETPLACE"
 | psd-coding-system | $CODING_VERSION | $NEW_CODING or (unchanged) | ✅ / — |
 | psd-productivity | $PRODUCTIVITY_VERSION | $NEW_PRODUCTIVITY or (unchanged) | ✅ / — |
 
-**Tag:** v$NEW_MARKETPLACE
+**Tag:** v$NEW_MARKETPLACE → <commit sha it points at>
+**Phase 8 gate:** passed (counts recomputed, versions cross-checked, manifests valid)
 **Pushed:** ✅
 **Cache:** Run `/reload-plugins` to activate
 ```

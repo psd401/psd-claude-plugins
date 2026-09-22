@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.1] - 2026-09-22
+
+### Changed
+
+- **`/bump-version` — the release ritual no longer tags before it verifies.** The old Phase 7 ran commit, `claude plugin validate`, `git tag`, and two pushes as a single block, so any error found in the CHANGELOG prose or the commit subject *after* tagging could only be corrected by a follow-up commit that lands after the tag. The tag then permanently points at the version carrying the wrong text. This is not hypothetical — it happened on v2.32.0 and required force-retagging an already-pushed ref. The phase is now split into four:
+  - **Phase 7 — commit only.** Explicitly no tag, no push, with a stated reason: the commit must stay amendable, which it is only before a push.
+  - **Phase 8 — verification gate (new).** Must pass before anything is tagged. Recount every number asserted in the CHANGELOG entry and the commit subject against the real diff, cross-check all three version tracks against each other (`marketplace.json` metadata + both plugin entries, both `plugin.json` files, `CLAUDE.md`), and run `claude plugin validate .`. The file list comes from `git show --name-only`, and the phase says in-line **never `--stat`** — `--stat` elides long paths to `.../skills/<name>/SKILL.md`, so any count grepped out of stat output silently undercounts. On failure the instruction is `git commit --amend`, never a follow-up commit.
+  - **Phase 9 — tag and push**, reachable only after the gate passes, and followed by a `git ls-remote --tags origin` check that the dereferenced tag ref actually points at the bump commit. If it does not, stop and ask rather than force-retagging a published ref.
+  - **Phase 10 — summary**, now reporting the commit SHA the tag resolved to and the gate's pass state alongside the version table.
+- The `claude plugin tag` warning (per-plugin `{name}--v{version}` tags don't match this repo's marketplace-wide `vX.Y.Z` convention) moved with the tagging step into Phase 9.
+
+Versions: **psd-coding-system 3.8.0 → 3.8.1**, **psd-productivity 2.23.0 (unchanged)**, **marketplace 2.32.0 → 2.32.1**.
+
 ## [2.32.0] - 2026-09-22
 
 ### Changed
