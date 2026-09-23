@@ -8,6 +8,7 @@ and write _district/p223_totals.json (per-school grades, totals, TK, RS as print
 Usage:
   uv run split_p223.py --folder ~/Enrollment/P223-September-2026 --date 20260908
 Expects in <folder>/_district: P223_RunA_1Day_Form_<date>.pdf / _Audit_<date>.csv (elementary)
+Also writes _district/P223_District_Audit_<date>.csv — one district-wide audit (ES rows from Run A, secondary rows from Run B).
                              P223_RunB_5Day_Form_<date>.pdf / _Audit_<date>.csv (secondary)
 """
 import argparse, csv, json, re
@@ -44,7 +45,7 @@ def parse_page(txt):
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--folder", required=True); ap.add_argument("--date", required=True)
     a = ap.parse_args(); F = Path(a.folder).expanduser(); D = F / "_district"
-    out = {}
+    out = {}; combined_hdr = None; combined = []
     for tag, keep in (("RunA_1Day", ES), ("RunB_5Day", set(CODE.values()) - ES)):
         pdf_path = D / f"P223_{tag}_Form_{a.date}.pdf"; csv_path = D / f"P223_{tag}_Audit_{a.date}.csv"
         reader = PdfReader(str(pdf_path))
@@ -57,11 +58,17 @@ def main():
                 with open(F / f"{abbr}_P223Form_{a.date}.pdf", "wb") as fh: w.write(fh)
                 out[abbr] = {"src": tag, "page": i, "code": code, "totals": totals, "grades": grades, "form": tk}
         rows = list(csv.reader(open(csv_path))); hdr, body = rows[0], rows[1:]
+        if combined_hdr is None: combined_hdr = hdr
+        combined.extend(r for r in body if r and AUDIT3.get(r[0]) in keep)
         for c3, abbr in AUDIT3.items():
             if abbr not in keep: continue
             with open(F / f"{abbr}_P223Audit_{a.date}.csv", "w", newline="") as fh:
                 wr = csv.writer(fh); wr.writerow(hdr); wr.writerows(r for r in body if r and r[0] == c3)
     D.mkdir(exist_ok=True); (D / "p223_totals.json").write_text(json.dumps(out, indent=1))
+    # One district-wide audit CSV that matches the EDS file: elementary rows from Run A, secondary rows from Run B.
+    with open(D / f"P223_District_Audit_{a.date}.csv", "w", newline="") as fh:
+        wr = csv.writer(fh); wr.writerow(combined_hdr); wr.writerows(combined)
+    print("district audit rows:", len(combined), "->", D / f"P223_District_Audit_{a.date}.csv")
     missing = sorted(set(CODE.values()) - set(out)); print("schools split:", len(out), "missing:", missing or "none")
     print("district HC:", sum(v["totals"]["hc"] for v in out.values()), "FTE:", round(sum(v["totals"]["fte"] for v in out.values()), 2))
     if missing: raise SystemExit(1)

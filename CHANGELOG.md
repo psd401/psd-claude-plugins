@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.8] - 2026-09-23
+
+### psd-productivity 2.23.1
+
+- `/enrollment`: building contacts get **Content manager** (`fileOrganizer`) on their school's run folder instead of commenter, so office managers and registrars can rename files to note what they reviewed (business-office request). `drive_layout.py --share` defaults to that role, upgrades an existing lower direct grant in place, and takes `--share-role` to override.
+- `/enrollment`: `split_p223.py` also writes `_district/P223_District_Audit_<date>.csv`, one district-wide audit CSV that matches the EDS file (elementary rows from the 1-day run, secondary rows from the 5-day run), uploaded to the District folder with the rest.
+
 ## [2.32.7] - 2026-09-22
 
 ### Changed
