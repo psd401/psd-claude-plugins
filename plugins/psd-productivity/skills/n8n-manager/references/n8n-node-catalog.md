@@ -120,7 +120,7 @@ Call any REST API. The workhorse node for custom integrations.
   "typeVersion": 4.2,
   "position": [500, 300],
   "parameters": {
-    "url": "https://psd401.freshservice.com/api/v2/tickets",
+    "url": "https://<your-domain>.freshservice.com/api/v2/tickets",
     "method": "GET",
     "authentication": "predefinedCredentialType",
     "nodeCredentialType": "httpHeaderAuth",
@@ -455,7 +455,7 @@ Canonical shape for creating a Documenso envelope from n8n. The `type: 'DOCUMENT
   "typeVersion": 4.2,
   "parameters": {
     "method": "POST",
-    "url": "=https://documenso.psd401.net/api/v2/envelope/create",
+    "url": "=https://<your-documenso-host>/api/v2/envelope/create",
     "sendHeaders": true,
     "headerParameters": { "parameters": [
       { "name": "Authorization", "value": "=api_xxxxxxxxxxxxxxx" }
@@ -502,7 +502,7 @@ return [{ json: { payload: JSON.stringify(payload) }, binary: $input.first().bin
   "typeVersion": 4.2,
   "parameters": {
     "method": "POST",
-    "url": "https://documenso.psd401.net/api/v2/envelope/distribute",
+    "url": "https://<your-documenso-host>/api/v2/envelope/distribute",
     "sendHeaders": true,
     "headerParameters": { "parameters": [
       { "name": "Authorization", "value": "api_xxxxxxxxxxxxxxx" },

@@ -54,7 +54,7 @@ Multipart upload: send the JSON above as a `payload` form field plus the PDF as 
 The distribute endpoint is `/api/v2/envelope/distribute` with body `{"envelopeId":"envelope_xxx"}`. **NOT** `/api/v2/envelope/{id}/distribute` — that path returns 404. Common porting mistake from other signing-service patterns.
 
 ```bash
-curl -X POST https://documenso.psd401.net/api/v2/envelope/distribute \
+curl -X POST https://$DOCUMENSO_HOST/api/v2/envelope/distribute \
   -H "Authorization: api_xxx" \
   -H "Content-Type: application/json" \
   -d '{"envelopeId":"envelope_abc123"}'

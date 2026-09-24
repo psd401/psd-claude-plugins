@@ -4,7 +4,7 @@
 
 | System | n8n Node/Method | Credential Type | Auth Method | Base URL |
 |--------|----------------|-----------------|-------------|----------|
-| Freshservice | HTTP Request | httpHeaderAuth | API Key in Authorization header | `https://psd401.freshservice.com/api/v2` |
+| Freshservice | HTTP Request | httpHeaderAuth | API Key in Authorization header | `https://<your-domain>.freshservice.com/api/v2` |
 | PowerSchool | HTTP Request | httpHeaderAuth | Plugin OAuth → Bearer token | `https://<ps-host>/ws/v1` |
 | Google Sheets | Google Sheets node | googleSheetsOAuth2Api | OAuth2 | Built-in |
 | Gmail | Gmail node | gmailOAuth2 | OAuth2 | Built-in |

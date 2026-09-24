@@ -65,10 +65,11 @@ Visit [claude.ai/code/routines](https://claude.ai/code/routines) and click **New
 - **Name**: `psd-automation` (or whatever you want — you'll reuse this for all three routines)
 - **Network access**: Custom
   - Check "Also include default list of common package managers"
-  - **Allowed domains**: add `psd401.freshservice.com` (or your FreshService domain) so the triage routine can reach it
+  - **Allowed domains**: add `<your-domain>.freshservice.com` so the triage routine can reach it
 - **Environment variables** (only if using triage):
   - `FRESHSERVICE_API_KEY` = your API key
-  - `FRESHSERVICE_DOMAIN` = your domain prefix (e.g., `psd401`)
+  - `FRESHSERVICE_DOMAIN` = your domain prefix (e.g., `example-org`)
+  - `FRESHSERVICE_WORKSPACE_ID` = the workspace the triage routine reads (see `routines/triage/README.md` step 4)
 - **Setup script**: paste the entire contents of [`routines/shared/env-setup.sh`](../../routines/shared/env-setup.sh) from this repo
 
 Save the environment.
@@ -189,7 +190,7 @@ FreshService workspace ID may not match. Verify with:
 curl -u "$FRESHSERVICE_API_KEY:X" \
   "https://your-domain.freshservice.com/api/v2/workspaces" | jq '.workspaces[] | {id, name}'
 ```
-Then update Step 2 of `routines/triage/routine-prompt.md` with the correct workspace ID.
+Then set `FRESHSERVICE_WORKSPACE_ID` in the routine env config to the correct workspace ID.
 
 **Issue was triaged but LFG won't pick it up**
 Check labels. The issue likely has `lfg-skip` (set by triage when the fix lives in protected paths) or `lfg-in-progress` left over from a cancelled run.

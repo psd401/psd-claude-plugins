@@ -311,12 +311,12 @@ Generate comprehensive validation report + EDS import data for the entire distri
 4. **Human reviews report and uploads to EDS**
 5. After the human confirms EDS submission, trigger the n8n notification workflow (one internal "count submitted" confirmation email to the enrollment notification list; it also marks `EDSSubmitted`/`NotificationsSent` on the `DistrictStatus` tab):
 ```bash
-curl -sf -X POST "https://n8n.psd401.net/webhook/enrollment-notify" \
+curl -sf -X POST "$ENROLLMENT_NOTIFY_URL" \
   -H "X-Enrollment-Token: $ENROLLMENT_NOTIFY_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"month":"<Month YYYY>","countDate":"<YYYY-MM-DD>","totals":{"headcount":<HC>,"fte":<FTE>},"highlights":"<one-paragraph summary>","confirmedBy":"<name>"}'
 ```
-`ENROLLMENT_NOTIFY_TOKEN` is a per-machine env var (see `references/machine-setup.md`). If it is unset or the call fails, say so and fall back to updating `DistrictStatus` directly via `gws` — never fake the notification step.
+`ENROLLMENT_NOTIFY_TOKEN` and `ENROLLMENT_NOTIFY_URL` (the full webhook URL — kept out of the repo) are per-machine values (see `references/machine-setup.md`; resolve both as in step 7d of the run workflow below). If either is unset or the call fails, say so and fall back to updating `DistrictStatus` directly via `gws` — never fake the notification step.
 
 **Script**: `scripts/validation_report.py`
 ```bash
@@ -425,7 +425,7 @@ Failed reports/schools are retried in the next pass of the loop.
       Also upload the `.md` itself to the folder. Verify the doc rendered (`gws docs documents get` → headings + table count) before emailing a link to it.
    c. Fire the n8n notifications webhook with `event: collection_complete` — the same endpoint and token step 9 uses. n8n holds the recipient list, sends the email, and writes `FindingsDoc` (col L) + `CompletionEmailSent` (col M) on the month's `DistrictStatus` row. The skill never sends mail itself and never touches columns I/J here.
       ```bash
-      curl -sf -X POST "https://n8n.psd401.net/webhook/enrollment-notify" \
+      curl -sf -X POST "$ENROLLMENT_NOTIFY_URL" \
         -H "X-Enrollment-Token: $ENROLLMENT_NOTIFY_TOKEN" -H "Content-Type: application/json" \
         -d '{"event":"collection_complete","month":"<Month YYYY>","countDate":"<YYYY-MM-DD>",
              "totals":{"headcount":<HC>,"fte":<FTE>},
@@ -435,7 +435,7 @@ Failed reports/schools are retried in the next pass of the loop.
              "runBy":"<machine/user>"}'
       ```
       Expect `{"success":true,"sheetUpdated":true}`. A 400 names the missing field. `findingsDocUrl` is required for this event; omitting `event` means `eds_submitted` and would mark the count as submitted — never do that here.
-   d. Resolve the token in this order, in a script that never prints it: the `ENROLLMENT_NOTIFY_TOKEN` env var → the login Keychain (`security find-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w`; this is how operator machines hold it, see `references/machine-setup.md`) → the live workflow's `Validate Token and Payload` node via the n8n-manager `get_workflow.js` (admin machines only — needs `N8N_API_KEY`). If none resolves or the call fails, say so, leave column M blank, and hand the user the payload — never fake the send and never fall back to `gws gmail`.
+   d. Resolve `ENROLLMENT_NOTIFY_URL` in this order: the env var → the login Keychain (`security find-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_URL -w`) → `https://$N8N_HOST/webhook/enrollment-notify` (admin machines, `N8N_HOST` from the Keychain). Resolve the token in this order, in a script that never prints it: the `ENROLLMENT_NOTIFY_TOKEN` env var → the login Keychain (`security find-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w`; this is how operator machines hold it, see `references/machine-setup.md`) → the live workflow's `Validate Token and Payload` node via the n8n-manager `get_workflow.js` (admin machines only — needs `N8N_API_KEY`). If none resolves or the call fails, say so, leave column M blank, and hand the user the payload — never fake the send and never fall back to `gws gmail`.
    e. Verify `DistrictStatus!L<row>:M<row>` came back populated (URL + ISO timestamp with recipient count). First done live for September 2026 on 2026-09-09.
    f. **Building follow-ups (every run).** `findings_doc.py` also writes `_district/building_followups.json` (per school: folder link, students outside the P223 headcount with reasons, zero-FTE students, TK without FTE, Section Enrollment Audit conflicts). POST it to the same webhook with `event: building_followups` (add `month`, `countDate`, `totals`, `dueDate`, `runDate`, `findingsDocUrl`): n8n looks each school's contact up on the `Buildings` tab, sends one email per school (reply-to the enrollment officer, CC the internal list), then one summary to the internal list, and stamps `DistrictStatus!N` (`BuildingFollowupsSent`). Schools with no contact on the tab are named in the summary.
 8. **STOP — Human reviews, signs, uploads to EDS**

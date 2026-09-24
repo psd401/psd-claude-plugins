@@ -1,6 +1,6 @@
 # Documenso Self-Hosting Operations Guide
 
-Operational knowledge for the PSD self-hosted Documenso instance at `documenso.psd401.net`. Captures the gotchas around teams, webhooks, billing limits, email delivery, and API key rotation that have bitten real workflows.
+Operational knowledge for the PSD self-hosted Documenso instance at `<your-documenso-host>`. Captures the gotchas around teams, webhooks, billing limits, email delivery, and API key rotation that have bitten real workflows.
 
 ---
 
@@ -63,11 +63,11 @@ A key issued from a personal user account has that user's quota and visibility. 
 Documenso has no API to list, create, or delete webhook subscriptions. They are managed in the UI at `Settings → Webhooks` (per-team).
 
 **When creating a new team OR issuing a new team key:**
-The webhook subscription does NOT carry over from the old context. The router at `https://n8n.psd401.net/webhook/documenso-completed` must be re-added in the new team's webhook settings:
+The webhook subscription does NOT carry over from the old context. The router at `https://<your-n8n-host>/webhook/documenso-completed` must be re-added in the new team's webhook settings:
 
 | Field | Value |
 |-------|-------|
-| URL | `https://n8n.psd401.net/webhook/documenso-completed` |
+| URL | `https://<your-n8n-host>/webhook/documenso-completed` |
 | Event | `DOCUMENT_COMPLETED` (older versions) or `ENVELOPE_COMPLETED` (newer) |
 | Active | yes |
 | Secret | optional but recommended; if used, n8n must validate signature |
@@ -78,7 +78,7 @@ The webhook subscription does NOT carry over from the old context. The router at
 
 ```bash
 # Are envelopes actually reaching COMPLETED state?
-curl -s "https://documenso.psd401.net/api/v2/envelope?status=COMPLETED" \
+curl -s "https://$DOCUMENSO_HOST/api/v2/envelope?status=COMPLETED" \
   -H "Authorization: api_xxx" | jq '.data[] | {id, title, completedAt}'
 
 # Has the router seen any executions in the last 24 hours?
@@ -121,7 +121,7 @@ Send this URL via another channel (Slack, n8n Gmail node, etc.) and the signer c
 
 ```bash
 # Check what Documenso thinks happened
-curl -s "https://documenso.psd401.net/api/v2/envelope/{id}" -H "Authorization: api_xxx" \
+curl -s "https://$DOCUMENSO_HOST/api/v2/envelope/{id}" -H "Authorization: api_xxx" \
   | jq '.recipients[] | {role, email, sendStatus, signingStatus, token}'
 
 # All sendStatus: SENT but recipients aren't getting emails → SMTP broken.

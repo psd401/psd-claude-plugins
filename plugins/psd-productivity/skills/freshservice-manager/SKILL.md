@@ -21,32 +21,14 @@ version: 0.1.0
 
 ## Configuration
 
-- **Domain**: psd401.freshservice.com
+- **Domain**: `FRESHSERVICE_DOMAIN` (via `scripts/secrets.js`)
 - **Agent ID**: 6000130414 (Kris Hagel)
 - **Primary Workspace**: 2 (Technology)
 - **API Key**: Stored in `~/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env`
 
 ## Workspaces
 
-| ID | Name |
-|----|------|
-| 2 | Technology (primary) |
-| 3 | Employee Support Services |
-| 4 | Business Services |
-| 5 | Teaching & Learning |
-| 6 | Maintenance |
-| 8 | Investigations |
-| 9 | Transportation |
-| 10 | Safety & Security |
-| 11 | Communications |
-| 13 | Software Development |
-
-## Team Context
-
-- **TSD Generic Account** (6000875582) - Shared by high school interns for Chromebook repairs
-- **David Edwards** - Desktop Support Tech, handles most varied workload including incidents
-- **Carol Winget** - Student Database Admin, PowerSchool specialist
-- **Laura Durkin** - Admin Secretary, handles new students and badges
+List the workspaces the agent can see (IDs and names) with `bun get_workspaces.js`.
 
 ## Reports & Summaries
 
@@ -184,14 +166,14 @@ bun get_approvals.js [status]
 Status: `requested` (default), `approved`, `rejected`, `cancelled`
 
 **Note:** Freshservice API does not support approving service requests programmatically. User must approve via:
-- Web UI: `https://psd401.freshservice.com/helpdesk/tickets/<id>`
+- Web UI: `https://<your-domain>.freshservice.com/helpdesk/tickets/<id>`
 - Email reply to approval request
 
 ## Common Workflows
 
 ### "Add a note to Jodi on ticket 151501"
-1. Find Jodi's agent ID: `bun list_agents.js jodi` → 6000542935
-2. Add note: `bun add_note.js 151501 '{"body": "...", "notify_emails": ["miloj@psd401.net"]}'`
+1. Find Jodi's agent ID: `bun list_agents.js jodi` → `<agent-id>`
+2. Add note: `bun add_note.js 151501 '{"body": "...", "notify_emails": ["requester@example.org"]}'`
 
 ### "Assign ticket to Mark"
 1. Find Mark's ID: `bun list_agents.js mark`

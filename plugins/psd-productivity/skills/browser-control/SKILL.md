@@ -72,7 +72,7 @@ Before any browser interaction, ensure the debug browser is running (script live
 bash <skill-dir>/scripts/launch-chrome.sh
 ```
 
-New machine? Full setup checklist: `../enrollment/references/machine-setup.md` (sibling skill).
+A visible launch opens `https://$POWERSCHOOL_HOST/admin/pw.html` (host from env or the login Keychain; `PSD_BROWSER_START_URL` overrides). New machine? Full setup checklist: `../enrollment/references/machine-setup.md` (sibling skill).
 
 **Tool naming note**: in current Claude Code the plugin's MCP tools are namespaced `mcp__plugin_psd-productivity_chrome-devtools__*`; older versions used `mcp__chrome-devtools__*`. Both are allowlisted — use whichever this session exposes.
 

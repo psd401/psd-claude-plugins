@@ -7,8 +7,8 @@
 // Workflows must have a Webhook trigger node to be triggered programmatically.
 //
 // Examples:
-//   bun trigger_workflow.js http://10.0.70.61:5678/webhook/abc123
-//   bun trigger_workflow.js http://10.0.70.61:5678/webhook/abc123 '{"name":"test"}'
+//   bun trigger_workflow.js https://<your-n8n-host>/webhook/abc123
+//   bun trigger_workflow.js https://<your-n8n-host>/webhook/abc123 '{"name":"test"}'
 
 const webhookUrl = process.argv[2];
 if (!webhookUrl) {

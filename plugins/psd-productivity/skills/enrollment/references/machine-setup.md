@@ -16,11 +16,16 @@
 
 ## 2. Debug Browser (one-time)
 
-1. Launch it: `bash <plugin>/skills/browser-control/scripts/launch-chrome.sh`
+1. Store the PowerSchool host so visible launches open the admin login (kept out of the public repo):
+   ```bash
+   security add-generic-password -a "$USER" -s POWERSCHOOL_HOST -w   # host only, e.g. powerschool.example.org
+   ```
+   Without it the browser opens its default page. `PSD_BROWSER_START_URL` overrides both.
+2. Launch it: `bash <plugin>/skills/browser-control/scripts/launch-chrome.sh`
    - Creates the persistent profile at `~/.psd-browser-automation`, debug port 9222
-2. In the launched browser window, **log into PowerSchool admin** with the operator's account. The persistent profile keeps the session across restarts — but PowerSchool sessions do expire server-side, which is why `daily-check` probes session health and alerts when a re-login is needed.
-3. Open `brave://settings/downloads` and turn **OFF** "Ask where to save each file before downloading" (persists in the profile).
-4. Verify: `bash .../launch-chrome.sh --status` → `running`, and the session probe in `report-checklist.md` returns `true`.
+3. In the launched browser window, **log into PowerSchool admin** with the operator's account. The persistent profile keeps the session across restarts — but PowerSchool sessions do expire server-side, which is why `daily-check` probes session health and alerts when a re-login is needed.
+4. Open `brave://settings/downloads` and turn **OFF** "Ask where to save each file before downloading" (persists in the profile).
+5. Verify: `bash .../launch-chrome.sh --status` → `running`, and the session probe in `report-checklist.md` returns `true`.
 
 ## 3. Google Workspace auth (one-time)
 
@@ -33,21 +38,23 @@ Verify: `gws sheets +read --spreadsheet 1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO
 ## 4. Webhook token (one-time)
 
 The monthly completion email and the post-EDS confirmation both go through the n8n
-`BUS - Enrollment Notifications` webhook, which needs `ENROLLMENT_NOTIFY_TOKEN`. There
-are two machine profiles; pick one.
+`BUS - Enrollment Notifications` webhook, which needs `ENROLLMENT_NOTIFY_TOKEN` and the
+webhook URL (`ENROLLMENT_NOTIFY_URL`, never committed — this repo is public). There are
+two machine profiles; pick one.
 
 **Operator machine** (enrollment officer's computer, the office Mac mini) — holds only
-the webhook token, in the login Keychain:
+the webhook token and URL, in the login Keychain:
 ```bash
 security add-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_TOKEN -w   # prompts for the value
+security add-generic-password -a "$USER" -s ENROLLMENT_NOTIFY_URL -w     # full https://…/webhook/enrollment-notify URL
 ```
-Get the value from the CIO. That is the only secret an operator machine needs.
+Get both values from the CIO. Those are the only secrets an operator machine needs.
 
 **Admin machine** (the CIO's laptop) — also manages the n8n workflows, so it holds the
 n8n API key in the Keychain and the skill reads the webhook token from the live
 workflow instead of storing it:
 ```bash
-security add-generic-password -a "$USER" -s N8N_HOST -w      # e.g. n8n.psd401.net
+security add-generic-password -a "$USER" -s N8N_HOST -w      # e.g. n8n.example.org
 security add-generic-password -a "$USER" -s N8N_API_KEY -w
 ```
 Never put either value in a committed file, the sheet, or an email.

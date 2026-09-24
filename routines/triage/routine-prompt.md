@@ -42,8 +42,8 @@ for d in aistudio psd-workflow-automation psd-claude-plugins; do
   echo "  $d → ${found:-not found}"
 done
 
-if [ -z "${FRESHSERVICE_API_KEY:-}" ] || [ -z "${FRESHSERVICE_DOMAIN:-}" ]; then
-  echo "FATAL: FRESHSERVICE_API_KEY or FRESHSERVICE_DOMAIN not set in routine env."
+if [ -z "${FRESHSERVICE_API_KEY:-}" ] || [ -z "${FRESHSERVICE_DOMAIN:-}" ] || [ -z "${FRESHSERVICE_WORKSPACE_ID:-}" ]; then
+  echo "FATAL: FRESHSERVICE_API_KEY, FRESHSERVICE_DOMAIN, or FRESHSERVICE_WORKSPACE_ID not set in routine env."
   exit 1
 fi
 echo "FreshService env vars: present"
@@ -59,14 +59,14 @@ Query the software-dev workspace for tickets in Open or Pending status:
 # and returns tickets from the agent's default/other workspace instead
 # (observed 2026-07-11 — it returned Maintenance-workspace tickets: ant bait
 # requests, water fountains, door locks — while the request claimed to be
-# scoped to workspace 13). Fetch by workspace_id alone, paginate, then filter
+# scoped to the software-dev workspace). Fetch by workspace_id alone, paginate, then filter
 # to Open(2)/Pending(3) client-side.
 rm -f /tmp/fs-open-tickets-raw.jsonl
 page=1
 while true; do
   curl -s -u "${FRESHSERVICE_API_KEY}:X" \
     -H "Content-Type: application/json" \
-    "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/tickets?workspace_id=13&per_page=100&page=${page}&order_by=created_at&order_type=asc" \
+    "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/tickets?workspace_id=${FRESHSERVICE_WORKSPACE_ID}&per_page=100&page=${page}&order_by=created_at&order_type=asc" \
     -o /tmp/fs-page-${page}.json
   count=$(jq '.tickets | length' /tmp/fs-page-${page}.json)
   if [ "$count" -eq 0 ]; then break; fi
@@ -78,9 +78,9 @@ done
 jq -c 'select(.status==2 or .status==3)' /tmp/fs-open-tickets-raw.jsonl > /tmp/fs-open-tickets.jsonl
 ```
 
-(Workspace ID 13 = Software Development, confirmed 2026-05-12. If FreshService API returns no tickets and the workspace exists, re-verify with `/api/v2/workspaces`.)
+(`FRESHSERVICE_WORKSPACE_ID` = the Software Development workspace, set in the routine env. If FreshService API returns no tickets and the workspace exists, re-verify with `/api/v2/workspaces`.)
 
-**Safety check — verify workspace scoping before trusting results**: spot-check at least one returned ticket's actual `workspace_id` field via `GET /api/v2/tickets/{id}` and confirm it equals `13`. Also eyeball a few subjects: software-bug shape (error messages, feature names, "not working", stack traces, page/UI references) versus a clearly different department's shape (rooms, doors, lights, keys, HVAC, HR forms). If the returned tickets don't look like software bugs, STOP — do not triage any of them — and re-verify workspace scoping via `/api/v2/workspaces` and a fresh single-ticket fetch before proceeding.
+**Safety check — verify workspace scoping before trusting results**: spot-check at least one returned ticket's actual `workspace_id` field via `GET /api/v2/tickets/{id}` and confirm it equals `$FRESHSERVICE_WORKSPACE_ID`. Also eyeball a few subjects: software-bug shape (error messages, feature names, "not working", stack traces, page/UI references) versus a clearly different department's shape (rooms, doors, lights, keys, HVAC, HR forms). If the returned tickets don't look like software bugs, STOP — do not triage any of them — and re-verify workspace scoping via `/api/v2/workspaces` and a fresh single-ticket fetch before proceeding.
 
 For each ticket in the filtered response, fetch its conversations and look for an existing `[claude-routine-triaged]` marker in any private note. Skip any ticket that has the marker. Build a list of untriaged tickets, ordered by priority (Urgent → High → Medium → Low) then by created_at ascending.
 

@@ -25,8 +25,22 @@ async function getWorkspace(id) {
   return data.workspace;
 }
 
-// Known workspace IDs from agent profile
-const workspaceIds = [2, 3, 4, 5, 6, 8, 9, 10, 11, 13];
+async function listWorkspaces() {
+  const response = await fetch(`${baseUrl}/workspaces?per_page=100`, {
+    headers: {
+      'Authorization': 'Basic ' + Buffer.from(`${apiKey}:X`).toString('base64'),
+      'Content-Type': 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`API error ${response.status}: ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  return data.workspaces;
+}
+
 const specificId = process.argv[2];
 
 try {
@@ -34,9 +48,7 @@ try {
     const workspace = await getWorkspace(parseInt(specificId));
     console.log(JSON.stringify(workspace, null, 2));
   } else {
-    const results = await Promise.all(workspaceIds.map(getWorkspace));
-    const workspaces = results
-      .filter(w => !w.error)
+    const workspaces = (await listWorkspaces())
       .map(w => ({
         id: w.id,
         name: w.name,

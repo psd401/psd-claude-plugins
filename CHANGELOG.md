@@ -17,6 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.9] - 2026-09-24
+
+Internal-infrastructure scrub. This repo is public; skills, references, scripts, and routine docs had accumulated PSD-specific hostnames, a private LAN IP, a Freshservice tenant/workspace/agent ID, and staff names in worked examples. Every one of those is now an env var, a Keychain lookup, or a `<placeholder>`. No skill logic changed except where a literal had to become a lookup (three cases, listed below).
+
+### Changed
+
+- **`/browser-control`** — the visible-launch start URL no longer hardcodes the PowerSchool host. `launch-chrome.sh` resolves `POWERSCHOOL_HOST` from the env, then the login Keychain; with neither set it opens Brave's default page instead of a dead URL. `PSD_BROWSER_START_URL` still overrides both. SKILL.md documents the resolution order.
+- **`/enrollment`** — the n8n notification webhook URL is now `ENROLLMENT_NOTIFY_URL` (env → Keychain → `https://$N8N_HOST/webhook/enrollment-notify` on admin machines) rather than a literal in two `curl` blocks. `references/machine-setup.md` adds the `ENROLLMENT_NOTIFY_URL` and `POWERSCHOOL_HOST` Keychain entries to the operator-machine setup and renumbers the debug-browser steps.
+- **`/freshservice-manager`** — `get_workspaces.js` now calls `GET /workspaces?per_page=100` instead of fanning out over a hardcoded list of ten tenant-specific workspace IDs; it returns whatever workspaces the API key can see. SKILL.md drops the workspace-ID table and the named Team Context roster, pointing at `bun get_workspaces.js` instead, and the domain is sourced from `FRESHSERVICE_DOMAIN` via `scripts/secrets.js`. Example ticket/agent IDs and email addresses in the worked examples are now placeholders.
+- **`/documenso-manager`, `/n8n-manager`** — reference docs and example `curl`/node payloads use `$DOCUMENSO_HOST`, `<your-documenso-host>`, `<your-n8n-host>`, and `<your-domain>.freshservice.com` in place of the real hosts. `trigger_workflow.js` usage examples no longer print the internal LAN address.
+- **`scripts/secrets.js`** — the `ATRIUM_HOST` comment no longer names the dev host.
+- **`routines/triage`** — the Software Development workspace ID moves from a hardcoded `13` in the routine prompt to a required `FRESHSERVICE_WORKSPACE_ID` env var. The prompt's Step 1 preflight now fails fast when it is unset, the ticket fetch and the workspace-scoping safety check both read it, and `routines/README.md`, `routines/shared/env-setup.sh`, `routines/triage/README.md`, and `docs/routines/GETTING-STARTED.md` document it as a third required variable.
+- **`psd-coding-system/.freshservice.env.example`** — the example domain in a comment is now `example-org`. Comment-only; the file is not referenced by any skill, agent, script, or hook.
+
+Historical CHANGELOG entries are left at their original values per this repo's standing precedent — the `[Unreleased]` routines entry still records "workspace (ID 13)" as the shape that shipped at the time.
+
+Versions: **marketplace 2.32.8 → 2.32.9**, **psd-coding-system 3.8.7 → 3.8.8**, **psd-productivity 2.23.1 → 2.23.2**.
+
 ## [2.32.8] - 2026-09-23
 
 ### psd-productivity 2.23.1

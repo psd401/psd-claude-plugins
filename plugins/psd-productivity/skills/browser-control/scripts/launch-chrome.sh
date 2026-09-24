@@ -41,7 +41,10 @@ HEADLESS=""
 # On a fresh visible launch, open the PowerSchool admin login so the operator
 # can sign in immediately (session expired = this is the page they need anyway;
 # session alive = PS just shows the start page).
-START_URL="${PSD_BROWSER_START_URL:-https://powerschool.psd401.net/admin/pw.html}"
+# The host comes from POWERSCHOOL_HOST (env, then login Keychain) so it stays out
+# of this public repo; with neither set, Brave opens its default page.
+PS_HOST="${POWERSCHOOL_HOST:-$(security find-generic-password -a "$USER" -s POWERSCHOOL_HOST -w 2>/dev/null)}"
+START_URL="${PSD_BROWSER_START_URL:-${PS_HOST:+https://$PS_HOST/admin/pw.html}}"
 [ -n "$HEADLESS" ] && START_URL=""
 
 # Fully detach Brave from this shell: an inherited stdout/stderr pipe makes the

@@ -26,7 +26,7 @@ Form Trigger (page 1 — email or login)
 ### Required configurations (each step)
 
 **Form Trigger (page 1):**
-- First field MUST be the PSD logo iframe HTML (`<iframe src="https://n8n.psd401.net/webhook/psd-logo">`)
+- First field MUST be the PSD logo iframe HTML (`<iframe src="https://<your-n8n-host>/webhook/psd-logo">`)
 - Set `options.customCss` with the standard PSD CSS (--container-width: 900px, Pacific colors, etc.)
 - Set `options.appendAttribution: false`
 - After ANY change to `customCss`, deactivate + reactivate the workflow to bust the cached form HTML
@@ -118,7 +118,7 @@ Execute Workflow Trigger (typeVersion 1)
 
 **Find Envelope String ID (HTTP):**
 ```
-GET https://documenso.psd401.net/api/v2/envelope?query={{ $json.title }}
+GET https://<your-documenso-host>/api/v2/envelope?query={{ $json.title }}
 Authorization: api_xxx
 ```
 Returns up to N envelopes matching the title. Filter for `status === 'COMPLETED'` in the next Code node.
@@ -248,7 +248,7 @@ See `documenso-manager/references/documenso-self-hosting-ops.md` for the full br
 When a user submits a form, signs the envelope, and nothing downstream fires:
 
 1. **Check Documenso UI** — is the envelope at COMPLETED status?
-   - No → signing flow is broken (email delivery? signing URL?). Use the recipient's `token` to bypass: `https://documenso.psd401.net/sign/{token}`
+   - No → signing flow is broken (email delivery? signing URL?). Use the recipient's `token` to bypass: `https://<your-documenso-host>/sign/{token}`
    - Yes → continue
 2. **Check the router workflow's executions**
    - No execution at the completion timestamp → Documenso webhook subscription is missing for this team. Re-add in UI.

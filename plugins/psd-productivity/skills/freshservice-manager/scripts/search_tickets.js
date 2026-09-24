@@ -13,7 +13,7 @@ const query = process.argv[2];
 const workspaceId = process.argv[3] || '0';
 
 if (!query) {
-  console.error(JSON.stringify({ error: 'Query required. Example: "responder_id:6000130414"' }));
+  console.error(JSON.stringify({ error: 'Query required. Example: "responder_id:<agent-id>"' }));
   process.exit(1);
 }
 

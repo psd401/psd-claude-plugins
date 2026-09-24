@@ -156,7 +156,7 @@ const SECRETS = {
 
   // AI Studio Atrium. The host defaults to production because AI Studio ships no
   // prod/dev switch of its own — the origin is pinned in every first-party client
-  // — so ATRIUM_HOST exists only to point the skill at dev.aistudio.psd401.ai.
+  // — so ATRIUM_HOST exists only to point the skill at a dev AI Studio host.
   get atrium() {
     return {
       host: getSecret('ATRIUM_HOST') || 'aistudio.psd401.ai',

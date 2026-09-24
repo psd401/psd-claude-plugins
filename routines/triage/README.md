@@ -13,10 +13,11 @@ Visit <https://claude.ai/code/routines> → New routine → Environment dropdown
 - **Name**: `psd-automation`
 - **Network access**: Custom
   - Check "Also include default list of common package managers"
-  - **Allowed domains**: add `psd401.freshservice.com`
+  - **Allowed domains**: add `<your-domain>.freshservice.com`
 - **Environment variables**:
   - `FRESHSERVICE_API_KEY` = your FreshService API key
-  - `FRESHSERVICE_DOMAIN` = `psd401`
+  - `FRESHSERVICE_DOMAIN` = your Freshservice subdomain
+  - `FRESHSERVICE_WORKSPACE_ID` = the Software Development workspace ID (see step 4)
 - **Setup script**: paste the contents of [`routines/shared/env-setup.sh`](../shared/env-setup.sh)
 - Save
 
@@ -46,14 +47,14 @@ done
 
 ### 4. FreshService workspace ID
 
-Confirmed Software Development workspace ID = 13 (verified 2026-05-12). The prompt has this hardcoded. If FreshService is ever reorganized:
+The prompt reads the Software Development workspace ID from `FRESHSERVICE_WORKSPACE_ID` in the routine env (kept out of this public repo). Look it up, or re-check it if FreshService is ever reorganized:
 
 ```bash
 curl -u "$FRESHSERVICE_API_KEY:X" \
-  "https://psd401.freshservice.com/api/v2/workspaces" | jq '.workspaces[] | {id, name}'
+  "https://${FRESHSERVICE_DOMAIN}.freshservice.com/api/v2/workspaces" | jq '.workspaces[] | {id, name}'
 ```
 
-Then edit `routine-prompt.md` Step 2 and re-paste into the routine.
+Then update `FRESHSERVICE_WORKSPACE_ID` in the routine env config.
 
 ## First-run testing
 

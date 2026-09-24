@@ -15,15 +15,16 @@
 #      set (without printing them).
 #
 # Env vars required by the SESSION (not this setup script):
-#   - FRESHSERVICE_API_KEY — API key for psd401.freshservice.com
-#   - FRESHSERVICE_DOMAIN  — should be "psd401"
+#   - FRESHSERVICE_API_KEY      — API key for <domain>.freshservice.com
+#   - FRESHSERVICE_DOMAIN       — the Freshservice subdomain
+#   - FRESHSERVICE_WORKSPACE_ID — Software Development workspace ID
 # Set these in the routine env config. They are injected into the session,
 # not the setup phase — so this script does NOT validate them. The session
 # prompt's Step 1 verifies them at session start instead.
 #
 # Required network access (set in env config):
 #   - Trusted is fine for github.com / api.github.com
-#   - Add psd401.freshservice.com to Allowed domains (it's not in the default
+#   - Add <domain>.freshservice.com to Allowed domains (it's not in the default
 #     trusted allowlist). Without it, FreshService API calls fail with 403.
 
 set -uo pipefail

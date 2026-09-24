@@ -18,10 +18,10 @@ All routines share one cloud environment (`psd-automation`) whose setup script c
 │         → ~/.claude/agents/  (user-scope, auto-discovered)    │
 │    3. cp plugins/*/skills/**                                  │
 │         → ~/.claude/skills/  (user-scope, auto-discovered)    │
-│    4. validate FRESHSERVICE_API_KEY / FRESHSERVICE_DOMAIN     │
+│    4. validate FRESHSERVICE_* env vars                        │
 │                                                                │
-│  Env vars:  FRESHSERVICE_API_KEY, FRESHSERVICE_DOMAIN         │
-│  Network:   Trusted + psd401.freshservice.com allowed         │
+│  Env vars:  FRESHSERVICE_API_KEY, _DOMAIN, _WORKSPACE_ID      │
+│  Network:   Trusted + <domain>.freshservice.com allowed       │
 └──────────────────────────────────────────────────────────────┘
          │                    │                    │
          ▼                    ▼                    ▼
