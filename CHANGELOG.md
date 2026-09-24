@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.10] - 2026-09-24
+
+Orphan cleanup follow-up to the v2.32.9 infrastructure scrub.
+
+### Removed
+
+- **`plugins/psd-coding-system/.freshservice.env.example`** — deleted. The file was the credential-setup template for the `/triage` skill, which was removed in v3.0.0 when triage intake moved to the cloud routine. Nothing in the repo reads it: no skill, agent, script, or hook references `.freshservice.env.example` or the `~/.claude/freshservice.env` file it told operators to create. Its last edit (v2.32.9) only genericized an example domain in a comment, which confirmed it was dead weight rather than retiring it. The `.gitignore` entries for `*.freshservice.env`, `plugins/psd-coding-system/.freshservice.env`, and `.freshservice.env` stay in place as a guard against a real credential file ever being committed. Freshservice credentials for the live `/freshservice-manager` skill are unaffected — they come from `FRESHSERVICE_DOMAIN` / `FRESHSERVICE_API_KEY` via `plugins/psd-productivity/scripts/secrets.js`, which this deletion does not touch.
+
+Versions: **marketplace 2.32.9 → 2.32.10**, **psd-coding-system 3.8.8 → 3.8.9**, **psd-productivity unchanged at 2.23.2**.
+
 ## [2.32.9] - 2026-09-24
 
 Internal-infrastructure scrub. This repo is public; skills, references, scripts, and routine docs had accumulated PSD-specific hostnames, a private LAN IP, a Freshservice tenant/workspace/agent ID, and staff names in worked examples. Every one of those is now an env var, a Keychain lookup, or a `<placeholder>`. No skill logic changed except where a literal had to become a lookup (three cases, listed below).
