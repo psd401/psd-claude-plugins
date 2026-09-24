@@ -9,13 +9,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **Cloud routines for triage, lfg, and pr-fix** (no plugin version bump — routines are infrastructure, not part of `/plugin install` distribution):
-  - **`routines/triage`** — autonomous FreshService → GitHub triage. Runs twice daily (cron `0 6,18 * * *`). Polls software-dev workspace (ID 13), filters by `[claude-routine-triaged]` private-note marker, classifies tickets to `psd401/aistudio` / `psd401/psd-workflow-automation` / `psd401/psd-claude-plugins`, runs full Phase 1.5 diagnosis fan-out (`repo-research-analyst` + `git-history-analyzer` + `bug-reproduction-validator`), files an issue, posts private note (with diagnosis brief) + public reply to FreshService. Per-fire cap of 5 tickets.
-  - **`routines/lfg`** — autonomous end-to-end implementation for issues labeled `lfg-ready`. Runs every 6 hours (cron `0 */6 * * *`). Label state machine: `lfg-ready` → `lfg-in-progress` → `lfg-pr-open` / `lfg-blocked`. Branches `claude/lfg-issue-<N>-<slug>` from `dev` (PSD convention), runs research + implement + test + validate + security-audit, opens PR targeting `dev`. One issue per fire. Honors `lfg-skip` opt-out label.
-  - **`routines/pr-fix`** — autonomous PR review-feedback handler for open PRs across the three target repos. Runs every 4 hours at `:30` (cron `30 */4 * * *`), staggered from lfg. Uses the same `<!-- review-pr:round:N:timestamp:T:sha:S -->` marker convention as the `/review-pr` skill so interactive and routine runs interleave without re-processing comments. Detects "no actionable info" situations (only discussion/already-addressed/stylistic comments + no failing CI) and tags `pr-fix-stuck` to stop re-checking. Marks `pr-fix-done` when fully clean. Honors `pr-fix-skip` opt-out.
+  - **`routines/triage`** — autonomous FreshService → GitHub triage. Runs once a day (cron `0 10 * * *`). Polls software-dev workspace (ID 13), filters by `[claude-routine-triaged]` private-note marker, classifies tickets to `psd401/aistudio` / `psd401/psd-workflow-automation` / `psd401/psd-claude-plugins`, runs full Phase 1.5 diagnosis fan-out (`repo-research-analyst` + `git-history-analyzer` + `bug-reproduction-validator`), files an issue, posts private note (with diagnosis brief) + public reply to FreshService. Per-fire cap of 5 tickets.
+  - **`routines/lfg`** — autonomous end-to-end implementation for issues labeled `lfg-ready`. Runs every 6 hours at `:41` (cron `41 */6 * * *`). Label state machine: `lfg-ready` → `lfg-in-progress` → `lfg-pr-open` / `lfg-blocked`. Branches `claude/lfg-issue-<N>-<slug>` from `dev` (PSD convention), runs research + implement + test + validate + security-audit, opens PR targeting `dev`. One issue per fire. Honors `lfg-skip` opt-out label.
+  - **`routines/pr-fix`** — autonomous PR review-feedback handler for open PRs across the three target repos. Runs every 3 hours at `:30` (cron `30 */3 * * *`), staggered from lfg by minute. Uses the same `<!-- review-pr:round:N:timestamp:T:sha:S -->` marker convention as the `/review-pr` skill so interactive and routine runs interleave without re-processing comments. Detects "no actionable info" situations (only discussion/already-addressed/stylistic comments + no failing CI) and tags `pr-fix-stuck` to stop re-checking. Marks `pr-fix-done` when fully clean. Honors `pr-fix-skip` opt-out.
   - **`routines/shared/bootstrap.sh`** — in-session bootstrap invoked as Step 1 of every routine prompt. Locates the already-cloned `psd-claude-plugins`, copies all plugin agents into `$HOME/.claude/agents/` and skills into `$HOME/.claude/skills/`. Bypasses cloud-env setup-script caching by running in-session every fire, writing to the session user's own HOME — no user/HOME mismatch.
   - **`routines/shared/env-setup.sh`** — cloud env setup script for the shared `psd-automation` environment. Installs `gh` CLI from the official `cli.github.com` apt repo (stable tools belong in cached setup; agents do not).
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
+
+## [2.32.11] - 2026-09-24
+
+Sync of the repo's routine prompts and cadence documentation with the three live cloud routines. Documentation/infrastructure only — no plugin skill or agent changed, so both plugin versions stay put.
+
+### Changed
+
+- **`routines/lfg/routine-prompt.md`** — backported from the live `psd-lfg` routine, which was hand-edited on claude.ai on 2026-07-25. The `## ANTI-DEFERRAL MANDATE` heading and its shouty body are now `## No deferral` with the same rules stated once in plain prose: a review-agent finding, a failing test, or a warning gets fixed in the run rather than deferred to a TODO or a follow-up GitHub issue, and `lfg-blocked` with an explanation remains the only acceptable exit without a PR. Separately, the Phase-8 handoff note now says the `pr-fix` routine runs "every ~3h" instead of "every ~4h", matching pr-fix's actual cron.
+- **`routines/pr-fix/routine-prompt.md`** — backported from the live `psd-pr-fix` routine (same 2026-07-25 hand-edit): opening line now reads "running autonomously every ~3 hours" instead of "~4 hours".
+- **`routines/triage/routine-prompt.md`** — opening line now reads "running autonomously once a day" instead of "on a 12-hour schedule". The live routine's cron is `0 10 * * *`; the prompt had never been updated after the schedule changed.
+- **Cadence documentation synced to the live cron expressions** across `routines/README.md`, `routines/triage/README.md`, `routines/lfg/README.md`, `routines/pr-fix/README.md`, and `docs/routines/GETTING-STARTED.md`:
+
+  | Routine | Documented before | Live cron (now documented) |
+  |---------|-------------------|----------------------------|
+  | triage | every 12h (`0 6,18 * * *`) | daily — `0 10 * * *` |
+  | lfg | every 6h (`0 */6 * * *`) | every 6h at :41 — `41 */6 * * *` |
+  | pr-fix | every 4h (`30 */4 * * *`) | every 3h at :30 — `30 */3 * * *` |
+
+  The pr-fix README's stagger note was rewritten accordingly: the two routines no longer stagger by interval (6h vs 4h) but by minute (`:41` vs `:30`), so they never start in the same minute. The triage README's "Before enabling the 12-hour schedule" first-run heading now says "daily schedule", and the pr-fix README's daily-workflow line now promises pickup "within 3 hours".
+
+- **Live routine model upgrade — recorded here, not a repo change.** The `psd-lfg` and `psd-pr-fix` routines were switched on claude.ai from `claude-opus-5` to `claude-opus-5-5`. That is routine configuration held in the cloud console, not a file in this repo, so nothing in `routines/` encodes it; this entry is the only record. `psd-triage`'s model was not part of this change.
+
+### Fixed
+
+- **`CHANGELOG.md` `[Unreleased]` routines entry** — its triage, lfg, and pr-fix schedule lines now state the live crons above instead of the original `0 6,18 * * *` / `0 */6 * * *` / `30 */4 * * *`, so the two sections no longer contradict each other.
+- **Repo/live routine-prompt drift** — all three live routine prompts were re-pasted from the repo after these edits and verified byte-identical to `routines/{triage,lfg,pr-fix}/routine-prompt.md`. The drift had two sources: hand-edits made in the claude.ai console that were never backported (lfg, pr-fix), and cadence text in the repo that went stale when the schedules were changed in the console (all three). Repo and live are now the same text.
+
+Versions: **marketplace 2.32.10 → 2.32.11**, **psd-coding-system unchanged at 3.8.9**, **psd-productivity unchanged at 2.23.2**.
 
 ## [2.32.10] - 2026-09-24
 

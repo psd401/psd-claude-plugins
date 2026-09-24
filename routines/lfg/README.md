@@ -21,7 +21,7 @@ At <https://claude.ai/code/routines> → New routine:
   - `psd401/psd-workflow-automation`
   - `psd401/psd-claude-plugins`
 - **Environment**: `psd-automation`
-- **Trigger**: Schedule → Daily preset (closest), then `/schedule update` in CLI → cron `0 */6 * * *` (every 6 hours, on the hour)
+- **Trigger**: Schedule → Daily preset (closest), then `/schedule update` in CLI → cron `41 */6 * * *` (every 6 hours at :41)
 - **Permissions** → **Allow unrestricted branch pushes**: **NO**. The routine uses `claude/` prefix branches by design, which require no extra permission.
 
 ### 3. Pre-create lfg labels in each target repo

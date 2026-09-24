@@ -32,7 +32,7 @@ Same page, fill the routine form:
   - `psd401/psd-workflow-automation`
   - `psd401/psd-claude-plugins`
 - **Environment**: `psd-automation` (from step 1)
-- **Trigger**: Schedule → every 12 hours (or pick whatever cadence — the routine self-throttles to 5 tickets per fire)
+- **Trigger**: Schedule → daily, cron `0 10 * * *` (or pick whatever cadence — the routine self-throttles to 5 tickets per fire)
 - **Permissions** → enable **Allow unrestricted branch pushes**: NO (triage only files issues, never pushes)
 - Save
 
@@ -58,7 +58,7 @@ Then update `FRESHSERVICE_WORKSPACE_ID` in the routine env config.
 
 ## First-run testing
 
-Before enabling the 12-hour schedule:
+Before enabling the daily schedule:
 
 1. Run the routine with **Run now** while having at least one untriaged ticket in FreshService
 2. Watch the session transcript — Step 1 should pass agent inventory, Step 2 should return tickets

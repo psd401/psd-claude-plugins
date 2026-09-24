@@ -20,9 +20,9 @@ Three routines work together to take a bug report from "someone filed a ticket" 
 
 | Routine | What it does | How often |
 |---------|--------------|-----------|
-| **triage** | Finds new FreshService tickets, diagnoses each one with three research agents (codebase, git history, reproduction), files a well-researched GitHub issue in the correct repo | every 12 hours |
+| **triage** | Finds new FreshService tickets, diagnoses each one with three research agents (codebase, git history, reproduction), files a well-researched GitHub issue in the correct repo | daily |
 | **lfg** | Picks up GitHub issues you've labeled `lfg-ready`, implements the fix, writes tests, runs a security audit, opens a PR targeting `dev` | every 6 hours |
-| **pr-fix** | Scans open PRs for unaddressed review comments or failing CI, addresses what it can, marks PRs `pr-fix-done` or `pr-fix-stuck` | every 4 hours |
+| **pr-fix** | Scans open PRs for unaddressed review comments or failing CI, addresses what it can, marks PRs `pr-fix-done` or `pr-fix-stuck` | every 3 hours |
 
 Each one is **independent**. You can turn on just one, all three, or any combination.
 
@@ -105,7 +105,7 @@ For each routine you want, go to [claude.ai/code/routines](https://claude.ai/cod
 | Repositories | Your target repos | Your target repos | Your target repos |
 | Environment | `psd-automation` | `psd-automation` | `psd-automation` |
 | Allow unrestricted branch pushes | No | No | **Yes** |
-| Schedule | Daily preset, then customize via `/schedule update` to cron `0 6,18 * * *` | Daily preset → cron `0 */6 * * *` | Daily preset → cron `30 */4 * * *` |
+| Schedule | Daily preset → cron `0 10 * * *` | Daily preset → cron `41 */6 * * *` | Daily preset → cron `30 */3 * * *` |
 
 For each, paste the prompt content into the **Instructions** box.
 

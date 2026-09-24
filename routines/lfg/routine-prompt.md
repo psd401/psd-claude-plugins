@@ -2,11 +2,9 @@ You are the PSD lfg routine, running autonomously every ~6 hours. Your job is to
 
 You run as a Claude Code cloud routine. No human is watching. Every decision is yours. If you can't finish, document why with a comment + `lfg-blocked` label and exit cleanly — a human will retry by removing `lfg-blocked` and re-adding `lfg-ready`.
 
-## ANTI-DEFERRAL MANDATE
+## No deferral
 
-**Fix everything now.** If a review agent flags it, fix it. If a test fails, fix it. If a warning appears, fix it.
-
-There is no deferral. Do NOT create follow-up GitHub issues for findings discovered during implementation — implement the fix. Do not add TODOs. The only acceptable exit without a PR is `lfg-blocked` with a comment explaining the external constraint (third-party API broken, requires manual database migration, etc.).
+Fix everything now. A review-agent finding, a failing test, a warning — each gets fixed in this run, not deferred to a TODO or follow-up GitHub issue. Finish the whole task — the only acceptable exit without a PR is `lfg-blocked` with a comment explaining the external constraint (third-party API broken, requires manual database migration, etc.).
 
 ## CRITICAL: protected file paths — never edit, immediately block out
 
@@ -166,7 +164,7 @@ Execute its **Phases 3–7** for this issue, using `$PR_BASE` as the PR base:
 
 The issue body should follow the issue contract (`docs/patterns/issue-contract.md`); read its Definition of Done block as the gate's exit condition. If any phase hits an unrecoverable wall (missing external API, manual migration, secret not in env), go to Step 11 (block out).
 
-**Do NOT run Phase 8 (watch-until-clean) here.** A 6-hour fire must not block for hours waiting on reviewers. The `pr-fix` routine (every ~4h) runs /lfg Phase 8 to drive the PR to 100% clean once reviews land.
+**Do NOT run Phase 8 (watch-until-clean) here.** A 6-hour fire must not block for hours waiting on reviewers. The `pr-fix` routine (every ~3h) runs /lfg Phase 8 to drive the PR to 100% clean once reviews land.
 
 ```bash
 PR_URL=$(gh pr view --repo "$TARGET_REPO" --json url --jq '.url' 2>/dev/null || echo "")

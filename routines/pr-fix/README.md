@@ -18,7 +18,7 @@ At <https://claude.ai/code/routines> → New routine:
 - **Prompt**: paste [`routine-prompt.md`](./routine-prompt.md)
 - **Repositories**: same three as the other routines
 - **Environment**: `psd-automation`
-- **Trigger**: Schedule → Daily preset, then `/schedule update` → cron `30 */4 * * *` (every 4 hours at :30, staggered from lfg's `:00`)
+- **Trigger**: Schedule → Daily preset, then `/schedule update` → cron `30 */3 * * *` (every 3 hours at :30, staggered from lfg's `:41`)
 - **Permissions** → **Allow unrestricted branch pushes**: **YES** for this one. Unlike lfg (which only opens new claude/-prefix branches), pr-fix pushes to existing PR branches, which can have any name.
 
 ### 3. Pre-create labels
@@ -33,13 +33,13 @@ done
 
 ## Daily workflow (yours)
 
-- **Review a PR, leave comments**. Routine picks it up within 4 hours.
+- **Review a PR, leave comments**. Routine picks it up within 3 hours.
 - **You see `pr-fix-stuck` on a PR**: read the routine's comment. Either remove the label (re-queues) or do the work yourself.
 - **You want to opt a PR out entirely**: add `pr-fix-skip`. Routine never touches it.
 
 ## Concurrency notes
 
-- Stagger from lfg (cron `0 */6 * * *`) by using `:30` and a different interval. Cron `30 */4 * * *` runs at xx:30 every 4 hours so two routines never start the same minute.
+- Stagger from lfg (cron `41 */6 * * *`) by using a different minute. Cron `30 */3 * * *` runs at xx:30 every 3 hours so the two routines never start the same minute.
 - If lfg just opened a PR, this routine will see it on its next fire. That's fine — the PR has no comments yet so the filter excludes it.
 - Branch pushes are allowed (see Permissions setting above). The routine only pushes to the PR's existing head branch, never main/dev.
 
