@@ -32,6 +32,7 @@ def main():
     rows = {r["school"]: r for r in V["rows"]}; detail = V.get("detail", {})
     sec = json.load(open(D / "section_audit.json")) if (D / "section_audit.json").exists() else {}
     gaps = json.load(open(D / "collection_gaps.json")) if (D / "collection_gaps.json").exists() else []
+    consec = json.load(open(D / "consec_abs.json")) if (D / "consec_abs.json").exists() else {}
     eds_changes = (D / "eds_txt_changes.md").read_text() if (D / "eds_txt_changes.md").exists() else ""
     checks = [c for s in S.values() for c in s["validation_results"]]
     fails = [c for c in checks if c["status"] == "FAIL"]; warns = [c for c in checks if c["status"] == "WARN"]
@@ -90,8 +91,16 @@ def main():
         A(f"- **{NAME[c['school']]} — {c['name']}.** {c['message']}" + (" Students: " + ", ".join(c["details"]) if c["details"] else ""))
     A(""); A("### 5.3 Section Enrollment Audit findings"); A("")
     for c in S: A(f"- **{NAME[c]}:** {sec.get(c, 'no conflicts identified')}")
+    A(""); A("### 5.4 Students absent 20+ consecutive school days through the count date"); A("")
+    if consec:
+        A("From each school's Consecutive Absence report (all codes, 20-day scan, first day of school through count day). A student absent 20 consecutive school days is excluded from enrollment under the 20-consecutive-day rule (WAC 392-121-108). Each building confirms the student's status; if the student was withdrawn, the exit date must fall before the count day for the P223 to be right.")
+        A("")
+        for c in [c for c in rows if c in consec] + [c for c in consec if c not in rows]:
+            A(f"- **{NAME.get(c, c)}**: " + "; ".join(f"{x['id']} (gr {x['grade']}, {x['first']} to {x['last']}, {x['days']} days)" for x in consec[c]))
+    else:
+        A("None at any school.")
     A(""); A("## 6. EDS upload file"); A("")
-    A("PowerSchool's own state-format export is incomplete (verified against the OSPI 2026-27 User Guide §M): it never emits TK (fields 223-225) or Open Doors (218-220) and writes zeros for Running Start (163-167), and each run carries one FTE window. "
+    A("PowerSchool's own state-format export is incomplete (verified against the OSPI 2026-27 User Guide §M): it never emits TK (fields 223-225) or Open Doors (218-220) and writes zeros for Running Start in September (correct by rule; from October it fills the RS fields by Student Type) (163-167), and each run carries one FTE window. "
       "The run builds the upload file from the two runs (elementary from the 1-day run, secondary from the 5-day run) and fills those fields from the audit extract. K-12 totals in the file are asserted against the form pages.")
     if eds_changes: A(""); A("\n".join(eds_changes.splitlines()[4:]))
     A(""); A("## 7. Scope gaps"); A("")
@@ -106,6 +115,7 @@ def main():
     n = 0
     for c in fails: n += 1; A(f"| {n} | {NAME[c['school']]}: {c['name']} — {c['message'][:90]} | Registrar / enrollment officer |")
     n += 1; A(f"| {n} | Send each building its section 5.1 list and its section 5.3 conflicts | Enrollment officer |")
+    if consec: n += 1; A(f"| {n} | Confirm withdrawal status of the {sum(len(v) for v in consec.values())} students absent 20+ consecutive days (section 5.4) | Buildings, then enrollment officer |")
     n += 1; A(f"| {n} | Collect GVA / Fresh Start / CTP; restate ALE in the SAFS ALE application | Enrollment officer |")
     n += 1; A(f"| {n} | Review the EDS file (section 6), upload by {a.due_date}, then tell Claude \"EDS is submitted for {month}\" | Enrollment officer |")
     A(""); A(f"## Tracking"); A(""); A(f"Tracking sheet: {a.tracking_url}. Rows for every school on `SchoolStatus`; the district row on `DistrictStatus` carries the findings doc link and the completion email timestamp.")
@@ -125,6 +135,7 @@ def main():
         if gl: items.append({"title": "Students on your Enrollment Summary but outside the P223 headcount", "lines": [f"{g['id']} (gr {g['grade']}) — {g['reason']}" for g in gl], "ask": "TK and pre-K are expected. Students marked 'excluded' are Running Start (college-only) or Open Doors students that PowerSchool leaves out of the building headcount on purpose; for them, only confirm the Student Type is right. For any other student, confirm the enrollment and schedule are correct in PowerSchool."})
         if zero: items.append({"title": "Students in headcount with 0.00 FTE", "lines": zero, "ask": "Each of these has no section generating minutes on the count date. Add the schedule or confirm the student should not be enrolled."})
         if tk0: items.append({"title": "TK students with 0.00 FTE", "lines": tk0, "ask": "No TK section generated minutes on the count date."})
+        if consec.get(c): items.append({"title": "Students absent 20+ consecutive school days through the count date", "lines": [f"{x['id']} (gr {x['grade']}) — {x['first']} to {x['last']}, {x['days']} days" for x in consec[c]], "ask": "Confirm each student's status. A student absent 20 consecutive school days is excluded from enrollment (WAC 392-121-108): if withdrawn, make sure the exit date is before the count day; if the student has returned, note the return date."})
         if sec.get(c): items.append({"title": "Section Enrollment Audit", "lines": [sec[c]], "ask": "Fix in PowerSchool (students not in any class, or course dates that do not match the enrollment date)."})
         fol.append({"school": c, "schoolName": NAME[c], "folderUrl": ("https://drive.google.com/drive/folders/" + layout["folders"][c]) if c in layout.get("folders", {}) else a.run_folder_url, "items": items})
     (D / "building_followups.json").write_text(json.dumps({"month": month, "countDate": cd, "dueDate": a.due_date, "runDate": a.run_date, "findingsDocUrl": "", "schools": fol}, indent=1))

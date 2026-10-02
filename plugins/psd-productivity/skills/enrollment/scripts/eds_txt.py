@@ -5,7 +5,7 @@
 """Build the EDS Enrollment (P223) upload file from the two PowerSchool state files plus the audit CSVs.
 
 Why: PowerSchool's WA_P223 export (checked 2026-09-15 against the OSPI 2026-27 User Guide, section M)
-never emits TK (fields 223-225) or Open Doors (218-220), and writes zeros for Running Start (163-167).
+never emits TK (fields 223-225) or Open Doors (218-220); its Running Start fields (163-167) are zero in September, which is correct by rule, and type-based from October on.
 It also has one FTE window per run, so elementary must come from the 1-day run and secondary from the
 5-day run. This script merges the right run per school and fills the omitted fields from the audit CSVs,
 marks expected-ALE schools' K-12 enrollment in the ALE fields (30-57, 76-77), and writes a correctly
@@ -79,12 +79,15 @@ def main():
         rd = list(csv.DictReader(open(F / f"{abbr}_P223Audit_{a.date}.csv")))
         inc = [r for r in rd if yes(r["Include In Headcount"])]
         # Running Start (October-June only)
-        rs = [r for r in rd if f(r["Non-Vocational Running Start FTE"]) + f(r["Vocational Running Start FTE"]) > 0]
+        # Running Start (October-June only). PowerSchool's own state file defines the RS headcount by Student Type
+        # (RunningStart*), RS-only as the college-only types, and sums RS FTE over those students; match it exactly,
+        # so a student with RS FTE but no RS Student Type (or the reverse) shows up in the checks, not the file.
+        rs = [r for r in rd if "RunningStart" in (r.get("Student Type") or "")]
         if september: rs = []
-        setf(school, RS_HC, len(rs), "RS headcount (zero in September by rule)" if september else "RS headcount from audit")
-        setf(school, RS_ONLY, len([r for r in rs if f(r["Total FTE"]) == 0]), "RS-only headcount")
-        setf(school, RS_NV, sum(f(r["Non-Vocational Running Start FTE"]) for r in rs), "RS non-voc FTE")
-        setf(school, RS_V, sum(f(r["Vocational Running Start FTE"]) for r in rs), "RS voc FTE")
+        setf(school, RS_HC, len(rs), "RS headcount (zero in September by rule)" if september else "RS headcount (Student Type RunningStart*)")
+        setf(school, RS_ONLY, len([r for r in rs if "CollegeOnly" in (r.get("Student Type") or "")]), "RS-only headcount (college-only Student Type)")
+        setf(school, RS_NV, sum(f(r["Non-Vocational Running Start FTE"]) for r in rs), "RS non-voc FTE (capped, RS-type students)")
+        setf(school, RS_V, sum(f(r["Vocational Running Start FTE"]) for r in rs), "RS voc FTE (capped, RS-type students)")
         # Open Doors
         od = [r for r in rd if f(r["Open Doors FTE"]) + f(r["Open Doors Voc FTE"]) > 0]
         setf(school, OD_HC, len(od), "Open Doors headcount"); setf(school, OD_NV, sum(f(r["Open Doors FTE"]) for r in od), "Open Doors non-voc FTE")

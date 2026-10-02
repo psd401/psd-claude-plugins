@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.12] - 2026-10-01
+
+### psd-productivity 2.23.3
+
+- `/enrollment`: the run now records each school's Consecutive Absence hits in `_district/consec_abs.json` (student number, grade, first/last date, days). `district_checks.py` warns per school when a student absent 20+ consecutive school days through the count date is still in the P223 headcount (WAC 392-121-108); `findings_doc.py` adds section 5.4, a building follow-up item and a next-steps row for them.
+- `/enrollment`: Running Start from October on. `eds_txt.py` fills fields 163-167 the way PowerSchool's own state file does (headcount by Student Type RunningStart*, RS-only = college-only types, capped RS FTE over those students) instead of counting students with RS FTE, so missing overrides surface in the checks rather than shrinking the file. `district_checks.py` fails when RS students have no RS FTE override and warns when RS FTE sits on a non-RS student.
+- `/enrollment`: the "PowerSchool zeroes Running Start" note is corrected to September only, which is correct by rule; from October PowerSchool fills the RS fields.
+
 ## [2.32.11] - 2026-09-24
 
 Sync of the repo's routine prompts and cadence documentation with the three live cloud routines. Documentation/infrastructure only — no plugin skill or agent changed, so both plugin versions stay put.

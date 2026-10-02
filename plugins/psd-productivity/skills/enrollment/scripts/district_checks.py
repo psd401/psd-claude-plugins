@@ -52,6 +52,8 @@ def main():
     a = ap.parse_args(); F = Path(a.folder).expanduser(); D = F / "_district"
     kx_path = Path(a.known_exclusions) if a.known_exclusions else Path(__file__).resolve().parent.parent / "references" / "known-exclusions.csv"
     known = {}
+    consec_path = F / "_district" / "consec_abs.json"
+    CONSEC = json.load(open(consec_path)) if consec_path.exists() else {}
     if kx_path.exists():
         for kr in csv.DictReader(open(kx_path, newline="", encoding="utf-8")):
             ksid = (kr.get("student_number") or "").strip()
@@ -115,10 +117,29 @@ def main():
             add("High school share of a Running Start student <= 1.00", "PASS" if not hs_over else "FAIL",
                 f"{len(hs_over)} RS student(s) carry more than 1.00 district FTE" if hs_over else "ok", [f"{n} gr {g}: district FTE {v}" for n, g, v in hs_over])
         # 4 zero-FTE non-RS in headcount
+        # 3b Running Start data quality (October-June): every RS student needs the college's FTE; RS FTE belongs only on RS students
+        if month_name != "September":
+            rs_type = [r for r in rd if "RunningStart" in (r.get("Student Type") or "")]
+            no_fte = [r for r in rs_type if f(r["Non-Vocational Running Start FTE"]) + f(r["Vocational Running Start FTE"]) == 0]
+            if rs_type:
+                add("Running Start students without RS FTE", "PASS" if not no_fte else "FAIL",
+                    (f"{len(no_fte)} of {len(rs_type)} Running Start students (by Student Type) have no RS FTE override; the college-reported FTE must be entered before EDS (Handbook 6.F)" if no_fte else f"all {len(rs_type)} Running Start students carry RS FTE"),
+                    [f"{r['Student Number']} gr {r['Grade']} — {r.get('Student Type','')}" for r in no_fte])
+            stray = [r for r in rs if "RunningStart" not in (r.get("Student Type") or "")]
+            if stray:
+                add("RS FTE on students who are not Running Start", "WARN",
+                    f"{len(stray)} student(s) carry Running Start FTE but their Student Type is not Running Start; PowerSchool's state file leaves them out of the RS fields",
+                    [f"{r['Student Number']} gr {r['Grade']} — {r.get('Student Type','') or 'no type'}" for r in stray])
         zero = [r for r in inc if f(r["Total FTE"]) == 0 and f(r["Non-Vocational Running Start FTE"]) + f(r["Vocational Running Start FTE"]) == 0]
         add("Zero-FTE students included in headcount", "PASS" if not zero else "WARN",
             f"{len(zero)} student(s) in headcount with 0.00 FTE and no Running Start FTE (usually no schedule on the count date)" if zero else "none",
             [f"{r['Student Number']} gr {r['Grade']}" for r in zero])
+        # 4b students absent 20+ consecutive school days through the count date but still counted
+        ca = CONSEC.get(c, []); ca_in = [x for x in ca if x["id"] in inc_ids]
+        add("Students with 20+ consecutive absences still in headcount", "PASS" if not ca_in else "WARN",
+            (f"{len(ca_in)} of {len(ca)} student(s) absent 20+ consecutive school days through the count date are still in the P223 headcount; the building confirms whether each should have been withdrawn (20-consecutive-day rule, WAC 392-121-108)" if ca_in
+             else ("none" if not ca else f"{len(ca)} student(s) with 20+ consecutive absences are already outside the headcount")),
+            [f"{x['id']} gr {x['grade']} — {x['first']} to {x['last']}, {x['days']} days" for x in ca_in])
         # 5 expected ALE
         ale_rows = [r for r in rd if f(r["Total ALE FTE"]) > 0]
         if c in expected_ale:
