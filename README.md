@@ -38,7 +38,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 
 ### psd-productivity
 
-38 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
+37 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -49,7 +49,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 | **Productivity** (4) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` · `/google-workspace-cli` |
 | **Content & Docs** (15) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/psd-atrium` |
 | **Communications** (2) | `/parentsquare` · `/class-intercom` |
-| **E-Signature** (2) | `/documenso-manager` · `/docusign-manager` |
+| **E-Signature** (1) | `/documenso-manager` |
 | **Automation** (2) | `/n8n-manager` · `/browser-control` |
 | **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
 | **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
@@ -116,7 +116,7 @@ psd-claude-plugins/
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
 │   └── psd-productivity/          # Productivity workflows
-│       ├── skills/                # 38 productivity skills
+│       ├── skills/                # 37 productivity skills
 │       └── agents/                # enrollment-validator
 ├── CLAUDE.md
 ├── CHANGELOG.md

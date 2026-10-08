@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.33.3] - 2026-10-08
+
+### psd-productivity 2.24.3
+
+- **Removed: the `docusign-manager` skill.** PSD no longer uses DocuSign (migration to Documenso complete). Also removed: the `SECRETS.docusign` getter and the five `DOCUSIGN_*` names from `scripts/secrets.js`, DocuSign rows in both READMEs, the skill from the `paths:` table in `CLAUDE.md`, and "DocuSign migration/export" from the plugin descriptions. Skill count 38 -> 37. `api_client.js` keeps the generic `fetchAllOffset` helper (no current caller). Historical references to the DocuSign -> Documenso migration in n8n-manager references and the triage routine are unchanged.
+
 ## [2.33.2] - 2026-10-08
 
 ### psd-productivity 2.24.2

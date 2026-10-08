@@ -82,7 +82,7 @@ class BaseApiClient {
 
   // -- Override these in subclasses ------------------------------------------
 
-  /** SECRETS key for this service (e.g., 'n8n', 'documenso', 'docusign'). */
+  /** SECRETS key for this service (e.g., 'n8n', 'documenso'). */
   get serviceName() {
     throw new Error('Subclass must define serviceName');
   }
@@ -94,7 +94,7 @@ class BaseApiClient {
 
   /**
    * Build the API base URL from service config.
-   * May be async to support dynamic URL discovery (e.g., DocuSign OAuth).
+   * May be async to support dynamic URL discovery.
    * @param {object} config - The SECRETS[serviceName] object
    * @returns {string|Promise<string>} Base URL (e.g., 'https://host/api/v1')
    */
@@ -295,7 +295,7 @@ class BaseApiClient {
 
   /**
    * Offset-based pagination (start_position/count).
-   * Used by: DocuSign.
+   * No current caller (its only user, docusign-manager, was removed in 2.24.3).
    *
    * @param {string} path     - API path
    * @param {object} params   - Extra query parameters

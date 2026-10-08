@@ -191,16 +191,6 @@ const SECRETS = {
   get elevenlabs() {
     return { apiKey: requireSecret('ELEVENLABS_API_KEY') };
   },
-
-  get docusign() {
-    return {
-      integrationKey: requireSecret('DOCUSIGN_INTEGRATION_KEY'),
-      userId: requireSecret('DOCUSIGN_USER_ID'),
-      accountId: requireSecret('DOCUSIGN_ACCOUNT_ID'),
-      rsaKeyPath: requireSecret('DOCUSIGN_RSA_KEY_PATH'),
-      environment: getSecret('DOCUSIGN_ENVIRONMENT') || 'production',
-    };
-  },
 };
 
 module.exports = { SECRETS, getSecret, requireSecret };
@@ -217,8 +207,6 @@ if (require.main === module) {
     'N8N_HOST', 'N8N_API_KEY', 'N8N_MCP_TOKEN',
     'DOCUMENSO_HOST', 'DOCUMENSO_API_KEY',
     'ATRIUM_HOST', 'ATRIUM_API_KEY',
-    'DOCUSIGN_INTEGRATION_KEY', 'DOCUSIGN_USER_ID', 'DOCUSIGN_ACCOUNT_ID',
-    'DOCUSIGN_RSA_KEY_PATH', 'DOCUSIGN_ENVIRONMENT',
   ];
 
   console.log('Secret availability:');

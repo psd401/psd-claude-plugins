@@ -245,7 +245,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 |---------|---------|------------|-------|
 | `effort:` frontmatter | v2.1.68 | All skills/agents | `high` default, `xhigh` on plan/evolve/meta-reviewer, `medium` on lfg |
 | `initialPrompt:` agent auto-submit | v2.1.83 | 4 agents | learning-writer, work-researcher, meta-reviewer, work-validator |
-| `paths:` file access scoping | v2.1.84 | 10 skills | board-policy-formatter, class-intercom, documenso-manager, docusign-manager, enrollment, html-artifact, n8n-manager, parentsquare, pdf-builder, psd-atrium |
+| `paths:` file access scoping | v2.1.84 | 9 skills | board-policy-formatter, class-intercom, documenso-manager, enrollment, html-artifact, n8n-manager, parentsquare, pdf-builder, psd-atrium |
 | `if` hook conditionals | v2.1.85 | PostToolUse hook | Only fires for .py/.json files (ts/tsx dropped in v3.3.1, issue #77) |
 | `keep-coding-instructions:` | v2.1.94 | 11 skills/agents | 7 skills + learning-writer, runtime-verifier, test-specialist, work-researcher |
 | `PreCompact` hook | v2.1.105 | hooks.json | Preserves branch, commits, active issue before compaction |
