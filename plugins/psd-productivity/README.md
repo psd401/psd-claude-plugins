@@ -1,6 +1,6 @@
 # PSD Productivity
 
-**38 productivity workflows + 1 agent for Peninsula School District**
+**37 productivity workflows + 1 agent for Peninsula School District**
 
 Version: 2.24.2
 
@@ -63,7 +63,6 @@ Author: Kris Hagel (hagelk@psd401.net)
 | Skill | Description |
 |-------|-------------|
 | `/documenso-manager` | Manage document signing with Documenso — envelopes, recipients, fields, templates, signed PDF download |
-| `/docusign-manager` | Export and archive DocuSign envelopes, templates, and documents for Documenso migration (read-only) |
 
 ### Automation (2)
 
@@ -137,7 +136,6 @@ psd-productivity/
     chief-of-staff/
     class-intercom/
     documenso-manager/
-    docusign-manager/
     docx/
     elevenlabs-tts/
     enrollment/
