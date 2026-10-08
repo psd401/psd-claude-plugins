@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Fixed: the `n8n-instance` and `documenso` MCP servers failed to start ("Connection closed") unless Claude Code was launched from the root of this repo.** `plugin.json` gave each proxy script a path relative to the working directory (`plugins/psd-productivity/skills/...`). Both now use `${CLAUDE_PLUGIN_ROOT}/skills/...`.
 - **Fixed: the n8n and Documenso proxies built `http://` URLs from a bare host name.** `mcp-remote` rejects non-HTTPS URLs except for localhost, so `n8n-instance` exited even with the right path. A bare host now gets `https://`, which also keeps the bearer token off the wire in cleartext. A host stored with an explicit scheme is used as is.
+- **Changed: the Documenso proxy reads `DOCUMENSO_HOST` and `DOCUMENSO_API_KEY` from the macOS login Keychain** (service = variable name, account = `$USER`) before falling back to the legacy Geoffrey `.env`, matching the n8n proxy.
 
 ## [2.32.12] - 2026-10-01
 
