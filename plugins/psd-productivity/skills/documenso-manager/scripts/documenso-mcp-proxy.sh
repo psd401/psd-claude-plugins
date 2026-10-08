@@ -1,12 +1,21 @@
 #!/usr/bin/env bash
 
 # Wrapper script for Documenso MCP server (official SDK).
-# Reads DOCUMENSO_API_KEY from environment or .env file,
-# then launches the SDK's built-in MCP server.
+# Reads DOCUMENSO_API_KEY and DOCUMENSO_HOST from the environment, then the
+# macOS Keychain, then the legacy .env file, then launches the SDK's built-in
+# MCP server.
 
 ENV_FILE="$HOME/Library/Mobile Documents/com~apple~CloudDocs/Geoffrey/secrets/.env"
 
-# Load from .env if vars not already set
+# Prefer the macOS login Keychain (service = var name, account = $USER)
+for var in DOCUMENSO_HOST DOCUMENSO_API_KEY; do
+  if [[ -z "${!var}" ]]; then
+    kc="$(/usr/bin/security find-generic-password -a "$USER" -s "$var" -w 2>/dev/null || true)"
+    [[ -n "$kc" ]] && export "$var"="$kc"
+  fi
+done
+
+# Fall back to the legacy .env if still unset (being retired)
 if [[ -z "$DOCUMENSO_API_KEY" || -z "$DOCUMENSO_HOST" ]]; then
   if [[ -f "$ENV_FILE" ]]; then
     while IFS='=' read -r key value; do
@@ -33,7 +42,7 @@ if [[ -n "$DOCUMENSO_HOST" ]]; then
   if [[ "$DOCUMENSO_HOST" == http* ]]; then
     API_URL="$DOCUMENSO_HOST"
   else
-    API_URL="http://$DOCUMENSO_HOST"
+    API_URL="https://$DOCUMENSO_HOST"
   fi
 fi
 
