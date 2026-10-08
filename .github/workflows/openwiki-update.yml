@@ -1,0 +1,25 @@
+name: OpenWiki Update
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 8 * * 1"
+
+# Several merges in a row would otherwise queue a full wiki regeneration each;
+# only the last one's output survives anyway.
+concurrency:
+  group: openwiki
+  cancel-in-progress: true
+
+jobs:
+  openwiki:
+    permissions:
+      contents: write # caller must grant; org default token is read-only
+      pull-requests: write
+    # @main is deliberate: org-owned reusable; central bumps must propagate
+    # (drift-kill design, psd-dev-standards standards/06). zizmor: ignore[unpinned-uses]
+    uses: PSD401/.github/.github/workflows/reusable-openwiki.yml@main # zizmor: ignore[unpinned-uses]
+    with:
+      base_branch: main
+    secrets: inherit
