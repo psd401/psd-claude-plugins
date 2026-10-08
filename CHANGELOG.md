@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.33.1] - 2026-10-08
+
+### psd-productivity 2.24.1
+
+- **`/enrollment` — Student Schedule Report also becomes a Google Doc.** The 2.33.0 rule uploaded it as a plain `.html` on the assumption it was too large to convert; a 3.4 MB, 509-table page converted with every table intact, so every rendered report now follows the same path (page serializer → `.html` locally → Google Doc in the school's folder). Download path re-validated end to end after allowing multiple automatic downloads for the PowerSchool site in Chrome: blob download, ReportWorks ZIP, 3.4 MB serialized page.
+
 ## [2.33.0] - 2026-10-08
 
 ### psd-productivity 2.24.0

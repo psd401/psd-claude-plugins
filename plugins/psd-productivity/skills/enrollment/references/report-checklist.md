@@ -25,7 +25,7 @@
 >
 > **Pre-flight (once per machine — persists in Chrome):** `chrome://settings/downloads` → "Ask where to save each file before downloading" **off**; `chrome://settings/content/automaticDownloads` → the PowerSchool host under "Allowed to automatically download multiple files" (otherwise Chrome silently drops every scripted download after the first one). Verify both before the first run on a new machine.
 >
-> **Save pattern**: there is no print-to-PDF. Rendered report pages (Enrollment Summary, Entry/Exit, Consecutive Absence result, Section Enrollment Audit, Student Schedule Report) are saved with the **page serializer** below: in-page JavaScript that strips the PowerSchool chrome and hidden elements, inlines a small stylesheet, and downloads a self-contained `<name>.html` to `~/Downloads`; then `mv` it into `<folder>` (= the local staging folder `~/Enrollment/P223-<Month>-<Year>/`). On upload, those `.html` files become **Google Docs** (`mimeType: application/vnd.google-apps.document`, `--upload-content-type text/html`, name without the extension) so the building reads them in Drive — Drive previews a raw `.html` as source code. Exception: the Student Schedule Report (3–4 MB, hundreds of tables) is uploaded as a plain `.html` file. The only PDFs are PowerSchool's own: the P223 form page and the Class Attendance Audit.
+> **Save pattern**: there is no print-to-PDF. Rendered report pages (Enrollment Summary, Entry/Exit, Consecutive Absence result, Section Enrollment Audit, Student Schedule Report) are saved with the **page serializer** below: in-page JavaScript that strips the PowerSchool chrome and hidden elements, inlines a small stylesheet, and downloads a self-contained `<name>.html` to `~/Downloads`; then `mv` it into `<folder>` (= the local staging folder `~/Enrollment/P223-<Month>-<Year>/`). On upload, those `.html` files become **Google Docs** (`mimeType: application/vnd.google-apps.document`, `--upload-content-type text/html`, name without the extension) so the building reads them in Drive — Drive previews a raw `.html` as source code. This includes the Student Schedule Report: a 3.4 MB, 509-table page converted with every table intact (validated 2026-10-08). The only PDFs are PowerSchool's own: the P223 form page and the Class Attendance Audit.
 >
 > ```javascript
 > // javascript_tool — SAVE PAGE: serialize the rendered report and download it as <name>.html (validated 2026-10-08)
@@ -215,7 +215,7 @@
   ```
   Leave "Show Dropped Enrollments in Separate List" and "Bell Schedule" at their defaults. If the `UF-…` names differ on a page, map them by the label in the same table row (Report Title, Max Students per Page, Sort Order, Include Active Enrollments As Of, Color Sections By).
 - **Readiness**: `computer` `wait` 10 s, then poll `location.pathname.includes('studschedmatrix.html') && document.readyState === 'complete'` (≤ 35 s per call). Sanity: `new Set(document.body.innerText.match(/\b\d{7}\b/g)).size` ≈ the school's enrollment.
-- **Save**: page serializer → `<SCHOOL>_StudentSchedule_<date>`; upload it as a plain `.html` file (too large for a Google Doc).
+- **Save**: page serializer → `<SCHOOL>_StudentSchedule_<date>` (`.html` locally, Google Doc in Drive — a 509-student page converts with all tables).
 
 ### Post-Count
 

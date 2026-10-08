@@ -54,7 +54,7 @@ This skill runs on **multiple machines** (Hagel's laptop, the office Mac mini on
    - **P223 Enrollment Tracking 2026-2027**: `1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`
    - Tabs: `Calendar` (count dates, `ReminderDate`, and `RerunDate` — a date in `RerunDate` makes the next `daily-check` on that day run the month in rerun mode), `SchoolStatus` (per school per month), `DistrictStatus` (per month phases; cols I/J written by the `eds_submitted` webhook event, cols L/M `FindingsDoc` / `CompletionEmailSent` written by the `collection_complete` event). Notification addresses live ONLY in the live n8n workflow — never in this skill, the sheet, or any committed file
    - Read/write via `gws` CLI, `valueInputOption=RAW` always
-5. **Saving rendered reports**: there is no print-to-PDF. The page serializer in `references/report-checklist.md` (in-page JavaScript through Claude in Chrome) downloads each rendered report as a self-contained `<name>.html` to `~/Downloads`; `mv` it into the month folder and upload it to Drive as a Google Doc (the Student Schedule Report as a plain `.html`). The only PDFs are PowerSchool's own: the P223 form page and the Class Attendance Audit.
+5. **Saving rendered reports**: there is no print-to-PDF. The page serializer in `references/report-checklist.md` (in-page JavaScript through Claude in Chrome) downloads each rendered report as a self-contained `<name>.html` to `~/Downloads`; `mv` it into the month folder and upload it to Drive as a Google Doc (the Student Schedule Report included). The only PDFs are PowerSchool's own: the P223 form page and the Class Attendance Audit.
 6. **New machine?** Follow `references/machine-setup.md` — Chrome + the Claude in Chrome extension, two Chrome download settings, one-time PowerSchool login by a person, `gws` auth, bun/uv.
 
 ## Reference Knowledge
@@ -136,7 +136,7 @@ Run all required backup reports for a school on a count date through the **Claud
    **STEP 5**: Class Attendance Audit (all — Period 1 for ES, Periods 1-6 for MS/HS)
    **STEP 6**: Student List Export (all) — downloads to `~/Downloads/student.export.text`, move immediately
    **STEP 7**: Section Enrollment Audit (all)
-   **STEP 8** (MS/HS only): Student Schedule Report (privilege granted 2026-10-08; saved as `.html`)
+   **STEP 8** (MS/HS only): Student Schedule Report (privilege granted 2026-10-08)
 5. Save rendered pages with the page serializer (report-checklist.md) and PowerSchool's own PDFs/exports as downloaded, all into `~/Enrollment/P223-<Month>-<Year>/`
 6. Upload the school's files to its Drive folder (`gws drive files create` with `supportsAllDrives`; `.html` reports become Google Docs — see the Google Workspace section)
 7. Append the school's row to the `SchoolStatus` tab (Month, School, Level, ReportsComplete=Y, Headcount, Issues, UpdatedAt ISO timestamp, UpdatedBy = machine/user)
@@ -360,7 +360,7 @@ Loop:
   5. Switch to that school in PowerSchool
   6. Run all MISSING reports for that school (skip any already saved from Phase 1)
   7. After each report, save to staging folder (rendered pages through the page serializer as `.html`). The Consecutive Absence report runs with every attendance code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH (report-checklist.md Report 5); append its listed students to `_district/consec_abs.json` as {id, grade, first, last, days} under the school code; one entry per student even when several sections are listed
-  8. After all reports for this school: upload the school's files to ITS folder from `_district/drive_layout.json` (`.html` reports as Google Docs, the Student Schedule Report as a plain `.html`, PDFs/CSV/TXT as files),
+  8. After all reports for this school: upload the school's files to ITS folder from `_district/drive_layout.json` (`.html` reports as Google Docs, PDFs/CSV/TXT as files),
      append its SchoolStatus row, output one-line status:
      ✓ [SCHOOL] — HC: [N], Issues: [none/description] ([completed]/[total] schools done)
   9. GOTO step 1
