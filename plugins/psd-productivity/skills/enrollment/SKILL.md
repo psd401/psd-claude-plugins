@@ -132,7 +132,7 @@ Run all required backup reports for a school on a count date through the **Claud
    - If P223 fails, STOP and report the error. Do not continue to other reports.
    **STEP 2**: Enrollment Summary (all)
    **STEP 3**: Entry/Exit Report — previous month then current month (all)
-   **STEP 4**: Consecutive Absence Report (all) — every code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH; ALWAYS verify daysToScan=20 and the header's code list
+   **STEP 4**: Consecutive Absence Report (all) — every code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH and the present code P; ALWAYS verify daysToScan=20 and the header's code list
    **STEP 5**: Class Attendance Audit (all — Period 1 for ES, Periods 1-6 for MS/HS)
    **STEP 6**: Student List Export (all) — downloads to `~/Downloads/student.export.text`, move immediately
    **STEP 7**: Section Enrollment Audit (all)
@@ -359,7 +359,7 @@ Loop:
   4. Pick next school from REMAINING
   5. Switch to that school in PowerSchool
   6. Run all MISSING reports for that school (skip any already saved from Phase 1)
-  7. After each report, save to staging folder (rendered pages through the page serializer as `.html`). The Consecutive Absence report runs with every attendance code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH (report-checklist.md Report 5); append its listed students to `_district/consec_abs.json` as {id, grade, first, last, days} under the school code; one entry per student even when several sections are listed
+  7. After each report, save to staging folder (rendered pages through the page serializer as `.html`). The Consecutive Absence report runs with every attendance code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH and the present code P (report-checklist.md Report 5); append its listed students to `_district/consec_abs.json` as {id, grade, first, last, days} under the school code; one entry per student even when several sections are listed
   8. After all reports for this school: upload the school's files to ITS folder from `_district/drive_layout.json` (`.html` reports as Google Docs, PDFs/CSV/TXT as files),
      append its SchoolStatus row, output one-line status:
      ✓ [SCHOOL] — HC: [N], Issues: [none/description] ([completed]/[total] schools done)

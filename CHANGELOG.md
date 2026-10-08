@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.33.2] - 2026-10-08
+
+### psd-productivity 2.24.2
+
+- **`/enrollment` — Consecutive Absence also excludes `P (Present First Five Days)`** (CIO, 2026-10-08). The scan now runs with every attendance code except TDY, TDX, LU, LVE, LBR, OTH and P. Validated at AES on the October window: result header `Code(s): ACT,AES,CUT,EXC,EXDN,EXP,HDE,HMBD,HOS,IHS,ILL,INX,SUS,UNV,UNX,VAC`, same single hit as before. Wording updated in `report-checklist.md`, SKILL.md, `school-config.md`, `p223-process.md` and `findings_doc.py`.
+
 ## [2.33.1] - 2026-10-08
 
 ### psd-productivity 2.24.1

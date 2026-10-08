@@ -171,12 +171,12 @@
 
 #### Report 5: Consecutive Absence Report
 - **URL**: `/admin/reports_engine/report_w_param.html?ac=reports_get_using_ID;repo_ID=PSPRE_ConsecAbsences`
-- **Attendance codes (enrollment officer, 2026-10-08)**: every code **except the partial-day codes TDY, TDX, LU, LVE, LBR and OTH** — those mark a student who was in the building for part of the day, and with "ALL CODES" the report listed them as absent. `Param_Att_Codes` is a `<select multiple>`; "ALL CODES" is one option whose value is the comma-joined list of every code id, and each code is its own option (`<id>|<CODE> (<description>)`), so select every option that is not ALL CODES and not on the exclusion list. The form only renders the code list in a **school** context (empty at District Office). Validated live at AES on the October window: the result header read `Code(s): ACT,AES,CUT,EXC,EXDN,EXP,HDE,HMBD,HOS,IHS,ILL,INX,P,SUS,UNV,UNX,VAC`.
+- **Attendance codes (enrollment officer + CIO, 2026-10-08)**: every code **except the partial-day codes TDY, TDX, LU, LVE, LBR and OTH, and the present code P (Present First Five Days)** — those mark a student who was in the building, and with "ALL CODES" the report listed them as absent. `Param_Att_Codes` is a `<select multiple>`; "ALL CODES" is one option whose value is the comma-joined list of every code id, and each code is its own option (`<id>|<CODE> (<description>)`), so select every option that is not ALL CODES and not on the exclusion list. The form only renders the code list in a **school** context (empty at District Office). Validated live at AES on the October window: the result header read `Code(s): ACT,AES,CUT,EXC,EXDN,EXP,HDE,HMBD,HOS,IHS,ILL,INX,SUS,UNV,UNX,VAC`.
 - **JS parameters** (after `navigate`, poll until `select[name="Param_Att_Codes"]` exists):
   ```javascript
   // javascript_tool
   (() => {
-    const EXCLUDE = ['TDY', 'TDX', 'LU', 'LVE', 'LBR', 'OTH'];
+    const EXCLUDE = ['TDY', 'TDX', 'LU', 'LVE', 'LBR', 'OTH', 'P'];
     const sel = document.querySelector('select[name="Param_Att_Codes"]');
     const picked = [];
     [...sel.options].forEach(o => { const code = o.text.trim().split(/\s+/)[0].toUpperCase(); o.selected = !/ALL CODES/i.test(o.text) && !EXCLUDE.includes(code); if (o.selected) picked.push(code); });
@@ -187,8 +187,8 @@
     return JSON.stringify({picked, excluded: EXCLUDE});
   })()
   ```
-  `picked` must list every code except the six (and never `ALL`). Record the BASELINE before this call.
-- **CRITICAL**: The `daysToScan` field defaults to 3 (not 20) in some school contexts. ALWAYS explicitly set it to 20 via JS. After running, verify the report header says "Occurrences of 20 consecutive absences" not "Occurrences of 3 consecutive absences", and that its `Code(s):` list contains none of TDY, TDX, LU, LVE, LBR, OTH. If wrong, re-run with the explicit JS override.
+  `picked` must list every code except the seven (and never `ALL`). Record the BASELINE before this call.
+- **CRITICAL**: The `daysToScan` field defaults to 3 (not 20) in some school contexts. ALWAYS explicitly set it to 20 via JS. After running, verify the report header says "Occurrences of 20 consecutive absences" not "Occurrences of 3 consecutive absences", and that its `Code(s):` list contains none of TDY, TDX, LU, LVE, LBR, OTH, P. If wrong, re-run with the explicit JS override.
 - **Begin date**: the first day of school (2026-27: 09/02/2026) so the scan covers every school day through the count date.
 - **Poll**: the POLL snippet (top of this section) until the "Consecutive Absences" row for this school's code is complete; take its job id
 - **Read + save**: navigate the tab to `/admin/reportqueue/PSPRE_ConsecAbsences.html?ac=report_batch_getresult&report_batch_jobID=<job>`, then

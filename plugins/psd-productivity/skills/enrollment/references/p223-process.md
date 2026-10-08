@@ -77,7 +77,7 @@ If running the P223 after the count date:
 | 2 | Student List Export | Click All Students > Group Function: Export Using Template > (Dist) Enrollment - Monthly Backup Student List | Submit > Save |
 | 3 | Attendance Audit | Data and Reporting > Reports > System Reports > Class Attendance Audit | Count Date for Begin/End, All Teachers, Period 1, Header Month Date = Count Date |
 | 4 | Entry/Exit Report | `/admin/reports/CRB/enrollment/EntryExitReport.html` (interactive, auto-refreshes on month change — no submit button) | Previous Month — verify prev HC + entries - exits = current HC |
-| 5 | Consecutive Absence | Attendance > Consecutive Absence Report | All absence codes except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH (enrollment officer, 2026-10-08), Begin Date = first day of school, End = Count Date, 20 consecutive days |
+| 5 | Consecutive Absence | Attendance > Consecutive Absence Report | All absence codes except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH and the present code P (2026-10-08), Begin Date = first day of school, End = Count Date, 20 consecutive days |
 
 ### Middle & High Schools (6 reports — adds Student Schedule)
 
