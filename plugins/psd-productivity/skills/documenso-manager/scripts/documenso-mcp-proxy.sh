@@ -33,7 +33,7 @@ if [[ -n "$DOCUMENSO_HOST" ]]; then
   if [[ "$DOCUMENSO_HOST" == http* ]]; then
     API_URL="$DOCUMENSO_HOST"
   else
-    API_URL="http://$DOCUMENSO_HOST"
+    API_URL="https://$DOCUMENSO_HOST"
   fi
 fi
 

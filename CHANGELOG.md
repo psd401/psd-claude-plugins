@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.32.13] - 2026-10-08
+
+### psd-productivity 2.23.4
+
+- **Fixed: the `n8n-instance` and `documenso` MCP servers failed to start ("Connection closed") unless Claude Code was launched from the root of this repo.** `plugin.json` gave each proxy script a path relative to the working directory (`plugins/psd-productivity/skills/...`). Both now use `${CLAUDE_PLUGIN_ROOT}/skills/...`.
+- **Fixed: the n8n and Documenso proxies built `http://` URLs from a bare host name.** `mcp-remote` rejects non-HTTPS URLs except for localhost, so `n8n-instance` exited even with the right path. A bare host now gets `https://`, which also keeps the bearer token off the wire in cleartext. A host stored with an explicit scheme is used as is.
+
 ## [2.32.12] - 2026-10-01
 
 ### psd-productivity 2.23.3

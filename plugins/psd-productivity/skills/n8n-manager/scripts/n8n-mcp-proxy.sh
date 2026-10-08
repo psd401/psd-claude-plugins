@@ -46,11 +46,12 @@ if [[ -z "$N8N_MCP_TOKEN" ]]; then
   exit 1
 fi
 
-# Build the URL — support both "host:port" and "http://host:port" formats
+# Build the URL. A bare host gets https:// (mcp-remote refuses plain http except
+# for localhost, and the bearer token must not travel in cleartext).
 if [[ "$N8N_HOST" == http* ]]; then
   MCP_URL="${N8N_HOST}/mcp-server/http"
 else
-  MCP_URL="http://${N8N_HOST}/mcp-server/http"
+  MCP_URL="https://${N8N_HOST}/mcp-server/http"
 fi
 
 exec npx -y mcp-remote "$MCP_URL" --header "Authorization: Bearer $N8N_MCP_TOKEN"
