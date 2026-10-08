@@ -93,7 +93,7 @@ def main():
     for c in S: A(f"- **{NAME[c]}:** {sec.get(c, 'no conflicts identified')}")
     A(""); A("### 5.4 Students absent 20+ consecutive school days through the count date"); A("")
     if consec:
-        A("From each school's Consecutive Absence report (all codes, 20-day scan, first day of school through count day). A student absent 20 consecutive school days is excluded from enrollment under the 20-consecutive-day rule (WAC 392-121-108). Each building confirms the student's status; if the student was withdrawn, the exit date must fall before the count day for the P223 to be right.")
+        A("From each school's Consecutive Absence report (20-day scan, first day of school through count day, every attendance code except the partial-day codes TDY, TDX, LU, LVE, LBR and OTH, so a student who was in the building for part of a day is not listed). A student absent 20 consecutive school days is excluded from enrollment under the 20-consecutive-day rule (WAC 392-121-108). Each building confirms the student's status; if the student was withdrawn, the exit date must fall before the count day for the P223 to be right.")
         A("")
         for c in [c for c in rows if c in consec] + [c for c in consec if c not in rows]:
             A(f"- **{NAME.get(c, c)}**: " + "; ".join(f"{x['id']} (gr {x['grade']}, {x['first']} to {x['last']}, {x['days']} days)" for x in consec[c]))

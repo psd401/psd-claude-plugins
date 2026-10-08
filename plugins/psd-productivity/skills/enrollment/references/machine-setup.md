@@ -1,45 +1,45 @@
 # Machine Setup — Running /enrollment on a New Machine
 
 > The enrollment skill is designed to run on any Mac with Claude Code — Hagel's laptop,
-> the office Mac mini (scheduled), or a future operator's machine. This is the complete
-> setup checklist. Everything here is one-time per machine.
+> the office Mac mini, or the enrollment officer's machine. This is the complete setup
+> checklist. Everything here is one-time per machine.
 
 ## 1. Prerequisites
 
 | Tool | Install | Why |
 |------|---------|-----|
-| Claude Code + psd-productivity plugin | `/plugin marketplace add psd401/psd-claude-plugins` then `/plugin install psd-productivity` | The skill itself |
-| Brave Browser Nightly | https://brave.com/download-nightly/ | Debug browser for PowerSchool automation (bypasses district MDM restrictions on Chrome remote debugging) |
-| bun | `curl -fsSL https://bun.sh/install | bash` | `save_pdf.js`, gws CLI runtime |
-| uv | `curl -LsSf https://astral.sh/uv/install.sh | sh` | Python reconciliation scripts (PEP 723 inline deps) |
-| gws CLI | see google-workspace-cli skill's SKILL.md | Drive/Sheets/Gmail access |
+| Claude desktop app (Code tab) + psd-productivity plugin | `/plugin marketplace add psd401/psd-claude-plugins` then `/plugin install psd-productivity` | The skill itself |
+| Google Chrome | The district-managed install is fine; no flags, no special profile | The browser the skill drives |
+| Claude in Chrome extension | Chrome Web Store → "Claude in Chrome"; sign in with the same Claude account as the desktop app | Lets the skill act in that Chrome (its tools are `mcp__claude-in-chrome__*`) |
+| bun | `curl -fsSL https://bun.sh/install \| bash` | gws CLI runtime, n8n-manager scripts |
+| uv | `curl -LsSf https://astral.sh/uv/install.sh \| sh` | Python scripts (PEP 723 inline deps) |
+| gws CLI | see google-workspace-cli skill's SKILL.md | Drive/Sheets access |
 
-## 2. Debug Browser (one-time)
+Brave Nightly, the debug profile and port 9222 are gone (2026-10-08). Nothing is launched by script any more.
 
-1. Store the PowerSchool host so visible launches open the admin login (kept out of the public repo):
-   ```bash
-   security add-generic-password -a "$USER" -s POWERSCHOOL_HOST -w   # host only, e.g. powerschool.example.org
-   ```
-   Without it the browser opens its default page. `PSD_BROWSER_START_URL` overrides both.
-2. Launch it: `bash <plugin>/skills/browser-control/scripts/launch-chrome.sh`
-   - Creates the persistent profile at `~/.psd-browser-automation`, debug port 9222
-3. In the launched browser window, **log into PowerSchool admin** with the operator's account. The persistent profile keeps the session across restarts — but PowerSchool sessions do expire server-side, which is why `daily-check` probes session health and alerts when a re-login is needed.
-4. Open `brave://settings/downloads` and turn **OFF** "Ask where to save each file before downloading" (persists in the profile).
-5. Verify: `bash .../launch-chrome.sh --status` → `running`, and the session probe in `report-checklist.md` returns `true`.
+## 2. Chrome + Claude in Chrome (one-time)
+
+1. Open Chrome, install the Claude in Chrome extension, sign in to it with the operator's Claude account, and connect it to the Claude desktop app (the app's browser setting lists it; in a session, `list_connected_browsers` shows it).
+2. In Chrome, **log into PowerSchool admin** as the operator's PowerSchool account (the PSD Enrollment service account on an operator machine). PowerSchool sessions expire server-side; the skill probes session health and tells you when a re-login is needed. **The automation never types a password and never retries a login.**
+3. `chrome://settings/downloads` → "Ask where to save each file before downloading" **off**.
+4. `chrome://settings/content/automaticDownloads` → add the PowerSchool host under "Allowed to automatically download multiple files". Without this Chrome silently drops every scripted download after the first one from a page (seen 2026-10-08). If a run's first download works and the rest never appear, this is why — the address-bar icon on the PowerSchool tab also offers "Always allow".
+5. The first time the skill touches a site, Chrome/the extension asks the person to allow it (PowerSchool, drive.google.com if used). Allow once.
+6. Verify: in a session, `tabs_context_mcp` lists a tab, and the session probe in `report-checklist.md` returns `true`.
 
 ## 3. Google Workspace auth (one-time)
 
 Authenticate `gws` per the google-workspace-cli skill with an account that can:
 - Read/write the tracking sheet `1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`
 - Write the Drive BACKUP folder (Shared Google Drive > ESC Business Services > Enrollment)
+- Share folders (Content Manager of the shared drive) if this machine runs Phase 0 with `--share`
 
 Verify: `gws sheets +read --spreadsheet 1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0 --range 'Calendar!A1:B3'`
 
 ## 4. Webhook token (one-time)
 
-The monthly completion email and the post-EDS confirmation both go through the n8n
-`BUS - Enrollment Notifications` webhook, which needs `ENROLLMENT_NOTIFY_TOKEN` and the
-webhook URL (`ENROLLMENT_NOTIFY_URL`, never committed — this repo is public). There are
+The monthly completion email, the building follow-ups and the post-EDS confirmation all go
+through the n8n `BUS - Enrollment Notifications` webhook, which needs `ENROLLMENT_NOTIFY_TOKEN`
+and the webhook URL (`ENROLLMENT_NOTIFY_URL`, never committed — this repo is public). There are
 two machine profiles; pick one.
 
 **Operator machine** (enrollment officer's computer, the office Mac mini) — holds only
@@ -59,9 +59,6 @@ security add-generic-password -a "$USER" -s N8N_API_KEY -w
 ```
 Never put either value in a committed file, the sheet, or an email.
 
-Unattended runs (Mac mini): the login Keychain is readable only while the operator
-account is logged in. Keep it logged in with the screen locked.
-
 ## 5. Local staging directory
 
 ```bash
@@ -69,41 +66,15 @@ mkdir -p ~/Enrollment
 ```
 Month folders (`~/Enrollment/P223-<Month>-<Year>/`) are created by the skill as needed. Local files are staging only — Drive is the home of record.
 
-## 6. Scheduled operation (Mac mini)
+## 6. Running it
 
-Create a Claude Code scheduled task on the machine (local schedule, NOT a cloud routine — the browser runs on this machine):
+The count is an attended run: the operator opens the Claude desktop app, makes sure Chrome is open with the extension connected and PowerSchool logged in, and types `/enrollment run <month>`. The skill drives the browser in a tab of its own; the operator can watch.
 
-- **Task**: run `/enrollment daily-check` weekday mornings (e.g. 06:30)
-- The check reads the tracking sheet's `Calendar` tab, and:
-  - normal day → probes PowerSchool session health, alerts by email if a re-login is needed, exits
-  - T-1 → readiness summary (session + Drive folder)
-  - count day → runs the full `/enrollment run`
-  - a month's `RerunDate` (Calendar tab, column G) equals today → runs `/enrollment run <month> rerun`. This is how a re-collection is requested on an unattended machine: type the date in the sheet, nothing else.
-- Keep the machine awake for the window (System Settings → Energy → prevent sleep, or `caffeinate`), and leave the debug browser running (the launch script is idempotent — `daily-check` may call it safely).
+**Scheduled / unattended operation is not validated with Claude in Chrome.** `daily-check` and the count-day kickoff were designed for a scheduled task on a Mac mini driving a debug browser; with the extension, a scheduled session needs the desktop app running, Chrome open, the extension connected and PowerSchool logged in, and none of that has been tested unattended. Until it is, treat `daily-check` as something a person starts. The one human dependency that never goes away is the PowerSchool login: sessions expire, and **automation must never retry logins** — a failed attempt is recorded, and a lockout before a count day is the worst available failure. Long-term exit: PowerSchool plugin API / ODBC access for backup data, and PowerSchool's own report scheduler for the P223 runs.
 
-## 7. Unattended operation — running with nobody at the computer
+## 7. Handoff to a new operator
 
-The only human dependency in the whole pipeline is the **PowerSchool session** — everything else (calendar, reminders, folders, uploads, tracking, notifications) already runs without a person. Treat it as four layers, adopted in order:
-
-**Layer 1 — machine always ready** (do this once on the mini):
-- macOS auto-login for the operator account (requires FileVault off on this machine — district decision), Screen Sharing enabled
-- Prevent sleep: `sudo pmset -a sleep 0 displaysleep 10` (or Energy settings)
-- Launch the debug browser at login (Login Item or LaunchAgent running `launch-chrome.sh`) — the script opens the PowerSchool login page on fresh starts, so any human touch is just "type password, walk away"
-
-**Layer 2 — detection (already built)**: `daily-check` probes the session every weekday morning and emails when it's dead. Worst case, someone spends 30 seconds in Screen Sharing the day before count day. The T-1 reminder doubles as the prompt.
-
-**Layer 3 — keep-alive (recommended next step)**: PowerSchool expires sessions on inactivity; the probe request itself counts as activity. Schedule the probe frequently (e.g., every 15 minutes during business hours via a second scheduled task or launchd job) and the session may stay alive indefinitely between server restarts. Measure the real lifetime for a week before trusting it — if PS enforces an absolute expiry, Layer 2 still catches it.
-
-**Layer 4 — automated login (deliberate CIO decision, not built)**. Tested and ruled out 2026-08-31: **Brave's saved login is NOT reachable by automation** — no autofill on page load, none on a trusted CDP click, and keyboard-selecting the suggestion submitted an empty form (PowerSchool recorded a failed attempt). Password autofill requires real human interaction with browser-chrome UI by design. **Automation must NEVER retry logins** — failed attempts are recorded and lockout before a count day is the worst possible failure. Remaining options if the monthly human touch must go:
-- **PowerSchool's own report scheduler** (the P223 form's `schedulerEnableOption`) — schedule the two district runs server-side inside PS for each count date; the browser session is then only needed to download results, shrinking the login dependency to collection time. Explore first; no credentials involved.
-- A keychain-based login script the operator provisions locally (stored credential on an office machine — audit/security tradeoff). Never store the credential in a repo, sheet, or env file.
-- Accept the 30-second monthly login (Layer 2's alert makes it deterministic).
-
-**Long-term exit**: PowerSchool plugin API / ODBC access (both exist for PSD) would remove the browser for backup data entirely — surfaced through psd-data-mcp. The P223 form itself still comes from the PS report engine, so the browser path never fully disappears until OSPI/EDS accepts data another way.
-
-## 8. Handoff to a new operator
-
-1. New operator installs the plugin and follows steps 1–4 with **their own** PowerSchool + Google accounts
+1. New operator installs the plugin and follows steps 1–4 with **their own** Claude, PowerSchool and Google accounts
 2. Share the tracking sheet and the Drive Enrollment folder with them
 3. The `UpdatedBy` column on SchoolStatus rows identifies which machine/person ran what
 4. Nothing else moves — no scripts, no config files, no Desktop folders
@@ -112,8 +83,10 @@ The only human dependency in the whole pipeline is the **PowerSchool session** �
 
 | Symptom | Cause | Fix |
 |---------|-------|-----|
-| Browser tools error "connection refused 9222" | Debug browser not running / crashed | `launch-chrome.sh` (idempotent); kill orphan Brave processes if stuck |
-| Reports run but every XHR 302s to `pw.html` | PowerSchool session expired | Human logs in once in the debug browser window |
+| Browser tools say the extension is not connected / no response | Chrome closed, extension signed out, or not connected to the app | Open Chrome, check the extension, retry once; never loop |
+| Reports run but every XHR 302s to `pw.html` | PowerSchool session expired | Human logs in once in Chrome |
+| First download of a run works, later ones never appear | Chrome blocked multiple automatic downloads from the site | Step 2.4 above |
+| Downloads prompt for location each time | Chrome setting not applied | `chrome://settings/downloads`, disable ask-where-to-save |
+| `javascript_tool` result shows `[BLOCKED: Cookie/query string data]` | The script returned a URL-like string | Return ids and counts; navigate from inside the script |
 | `gws` errors about auth/keyring | gws not authenticated on this machine | Re-run google-workspace-cli auth setup |
-| Downloads prompt for location each time | Profile setting not applied | `brave://settings/downloads`, disable ask-where-to-save |
 | n8n API calls 403 with `server: Caddy` | Machine's egress IP not in the n8n allowlist | Needs PSD network/VPN — but the skill only needs the tracking sheet (Google), not the n8n API |

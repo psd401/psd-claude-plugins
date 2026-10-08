@@ -20,40 +20,20 @@ allowed-tools:
   - Agent
   - WebFetch
   - WebSearch
-  - mcp__plugin_psd-productivity_chrome-devtools__navigate_page
-  - mcp__plugin_psd-productivity_chrome-devtools__click
-  - mcp__plugin_psd-productivity_chrome-devtools__hover
-  - mcp__plugin_psd-productivity_chrome-devtools__fill
-  - mcp__plugin_psd-productivity_chrome-devtools__type_text
-  - mcp__plugin_psd-productivity_chrome-devtools__fill_form
-  - mcp__plugin_psd-productivity_chrome-devtools__press_key
-  - mcp__plugin_psd-productivity_chrome-devtools__take_screenshot
-  - mcp__plugin_psd-productivity_chrome-devtools__take_snapshot
-  - mcp__plugin_psd-productivity_chrome-devtools__wait_for
-  - mcp__plugin_psd-productivity_chrome-devtools__evaluate_script
-  - mcp__plugin_psd-productivity_chrome-devtools__list_console_messages
-  - mcp__plugin_psd-productivity_chrome-devtools__list_pages
-  - mcp__plugin_psd-productivity_chrome-devtools__select_page
-  - mcp__plugin_psd-productivity_chrome-devtools__new_page
-  - mcp__plugin_psd-productivity_chrome-devtools__handle_dialog
-  - mcp__plugin_psd-productivity_chrome-devtools__upload_file
-  - mcp__chrome-devtools__navigate_page
-  - mcp__chrome-devtools__click
-  - mcp__chrome-devtools__hover
-  - mcp__chrome-devtools__fill
-  - mcp__chrome-devtools__type_text
-  - mcp__chrome-devtools__fill_form
-  - mcp__chrome-devtools__press_key
-  - mcp__chrome-devtools__take_screenshot
-  - mcp__chrome-devtools__take_snapshot
-  - mcp__chrome-devtools__wait_for
-  - mcp__chrome-devtools__evaluate_script
-  - mcp__chrome-devtools__list_console_messages
-  - mcp__chrome-devtools__list_pages
-  - mcp__chrome-devtools__select_page
-  - mcp__chrome-devtools__new_page
-  - mcp__chrome-devtools__handle_dialog
-  - mcp__chrome-devtools__upload_file
+  - mcp__claude-in-chrome__tabs_context_mcp
+  - mcp__claude-in-chrome__tabs_create_mcp
+  - mcp__claude-in-chrome__tabs_close_mcp
+  - mcp__claude-in-chrome__navigate
+  - mcp__claude-in-chrome__javascript_tool
+  - mcp__claude-in-chrome__browser_batch
+  - mcp__claude-in-chrome__computer
+  - mcp__claude-in-chrome__read_page
+  - mcp__claude-in-chrome__find
+  - mcp__claude-in-chrome__form_input
+  - mcp__claude-in-chrome__get_page_text
+  - mcp__claude-in-chrome__read_console_messages
+  - mcp__claude-in-chrome__read_network_requests
+  - mcp__claude-in-chrome__list_connected_browsers
 extended-thinking: true
 ---
 
@@ -74,8 +54,8 @@ This skill runs on **multiple machines** (Hagel's laptop, the office Mac mini on
    - **P223 Enrollment Tracking 2026-2027**: `1t10gPECTUd2s9kMrm2jsOIvMHKnRpTcbhJGq-hO7Yg0`
    - Tabs: `Calendar` (count dates, `ReminderDate`, and `RerunDate` — a date in `RerunDate` makes the next `daily-check` on that day run the month in rerun mode), `SchoolStatus` (per school per month), `DistrictStatus` (per month phases; cols I/J written by the `eds_submitted` webhook event, cols L/M `FindingsDoc` / `CompletionEmailSent` written by the `collection_complete` event). Notification addresses live ONLY in the live n8n workflow — never in this skill, the sheet, or any committed file
    - Read/write via `gws` CLI, `valueInputOption=RAW` always
-5. **PDF saving**: `bun <skill-dir>/scripts/save_pdf.js <path> [title_filter]` (env `CDP_PORT` overrides the default 9222). The script ships with the skill — never copy it to month folders or the Desktop.
-6. **New machine?** Follow `references/machine-setup.md` — Brave Nightly, debug profile, one-time PowerSchool login, `gws` auth, bun/uv.
+5. **Saving rendered reports**: there is no print-to-PDF. The page serializer in `references/report-checklist.md` (in-page JavaScript through Claude in Chrome) downloads each rendered report as a self-contained `<name>.html` to `~/Downloads`; `mv` it into the month folder and upload it to Drive as a Google Doc (the Student Schedule Report as a plain `.html`). The only PDFs are PowerSchool's own: the P223 form page and the Class Attendance Audit.
+6. **New machine?** Follow `references/machine-setup.md` — Chrome + the Claude in Chrome extension, two Chrome download settings, one-time PowerSchool login by a person, `gws` auth, bun/uv.
 
 ## Reference Knowledge
 
@@ -126,30 +106,25 @@ Lightweight scheduled entry point — designed to run every weekday morning on t
 5. **T-1** → session health probe + confirm the Drive BACKUP folder for the month exists + report readiness summary
 6. **Count day** → run `/enrollment run [month]` end to end
 
-**Session health probe** (in `evaluate_script`):
+**Session health probe** (in `javascript_tool`, on a PowerSchool tab):
 ```javascript
-const r = await fetch('/admin/tech/notifications/json/activenotificationOther.json.html');
-return r.ok && !r.redirected; // false = session expired, human must re-login
+await fetch('/admin/tech/notifications/json/activenotificationOther.json.html').then(r => r.ok && !r.redirected) // false = session expired, a person must re-login
 ```
 
 ### `/enrollment reports [school] [date]`
 
-Run all required backup reports for a school on a count date using Chrome DevTools MCP browser automation.
+Run all required backup reports for a school on a count date through the **Claude in Chrome** extension (tools `mcp__claude-in-chrome__*`; conventions in the browser-control sibling skill).
 
-**Prerequisites**: The debug browser must be running. Launch it with the browser-control skill's script (sibling skill directory):
-```bash
-bash "$(dirname <skill-dir>)/browser-control/scripts/launch-chrome.sh"
-```
-The user must be logged into PowerSchool in the debug browser (persistent profile keeps the session across restarts; verify with the session health probe rather than assuming).
+**Prerequisites**: Chrome is open with the Claude in Chrome extension connected, and the operator is already logged into PowerSchool in that Chrome (as the PSD Enrollment account on an operator machine). Start with `tabs_context_mcp` (`createIfEmpty: true`) and work in that tab for the whole run. Verify the session with the health probe rather than assuming; if it is dead, a person logs in — the automation never does.
 
 **Pre-flight (verify once per machine, not per session)**:
-1. `brave://settings/downloads` — "Ask where to save each file before downloading" must be OFF (persists in the debug profile once set)
+1. `chrome://settings/downloads` — "Ask where to save each file before downloading" is OFF, and `chrome://settings/content/automaticDownloads` allows the PowerSchool host (otherwise only the first scripted download of a page arrives)
 2. Session health probe passes
 
 **Workflow**:
 1. Read `references/school-config.md` to determine school level (ES/MS/HS) and P223 parameters
 2. Read `references/report-checklist.md` for direct URLs and JS patterns for each report
-3. Use `evaluate_script` for all form interactions — UID-based clicks are unreliable (UIDs change between renders)
+3. Use `javascript_tool` for all form interactions — `read_page` refs and screenshot clicks are unreliable and expensive; return small JSON, never hrefs
 4. Reports to generate — **IN THIS ORDER, DO NOT SKIP ANY**:
    **STEP 1 [REQUIRED]**: P223 Form and Audit ⚑ PRIMARY DELIVERABLE
    - This is the report submitted to EDS. It MUST be generated first.
@@ -157,21 +132,21 @@ The user must be logged into PowerSchool in the debug browser (persistent profil
    - If P223 fails, STOP and report the error. Do not continue to other reports.
    **STEP 2**: Enrollment Summary (all)
    **STEP 3**: Entry/Exit Report — previous month then current month (all)
-   **STEP 4**: Consecutive Absence Report (all) — ALWAYS verify daysToScan=20
+   **STEP 4**: Consecutive Absence Report (all) — every code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH; ALWAYS verify daysToScan=20 and the header's code list
    **STEP 5**: Class Attendance Audit (all — Period 1 for ES, Periods 1-6 for MS/HS)
    **STEP 6**: Student List Export (all) — downloads to `~/Downloads/student.export.text`, move immediately
    **STEP 7**: Section Enrollment Audit (all)
-   **STEP 8** (MS/HS only): Student Schedule Report
-5. Save all PDFs using: `bun <skill-dir>/scripts/save_pdf.js <path> <title_filter>` into `~/Enrollment/P223-<Month>-<Year>/`
-6. Upload the school's files to the month's Drive BACKUP folder (`gws drive +upload`)
+   **STEP 8** (MS/HS only): Student Schedule Report (privilege granted 2026-10-08; saved as `.html`)
+5. Save rendered pages with the page serializer (report-checklist.md) and PowerSchool's own PDFs/exports as downloaded, all into `~/Enrollment/P223-<Month>-<Year>/`
+6. Upload the school's files to its Drive folder (`gws drive files create` with `supportsAllDrives`; `.html` reports become Google Docs — see the Google Workspace section)
 7. Append the school's row to the `SchoolStatus` tab (Month, School, Level, ReportsComplete=Y, Headcount, Issues, UpdatedAt ISO timestamp, UpdatedBy = machine/user)
 8. Report back what was generated and flag any issues
 
 **Key automation patterns** (see report-checklist.md for full JS snippets):
-- Report engine forms: `document.getElementById('btnSubmit').click()`
-- Report queue: submit → navigate to `detail.html?frn=<id>` → `wait_for(["Result File"])` → save PDF
-- Entry/Exit: change `#m` value → dispatch `change` event → auto-refreshes (no submit)
-- Enrollment Summary: set date input → press Tab → auto-reloads
+- Report engine forms: `document.getElementById('btnSubmit').click()` as the last thing in the call
+- Report queue: record the baseline job id → submit → poll `/admin/reportqueue/home.html` with in-page `fetch` (≤ 40 s per call) for a completed job above the baseline for this report + school code → fetch the result by job id
+- Entry/Exit: fire the page's own jQuery change handlers for `showN`/`showX`/`pause`, then `#m` last → poll the results table
+- Enrollment Summary: reset the datepicker's `lastVal` and call its `onSelect` → poll for "Total In Grade"
 
 **Browser automation must run in the main session** — subagents cannot access MCP tools; never delegate browser steps to an agent.
 
@@ -336,9 +311,8 @@ Full monthly workflow with human checkpoints. Orchestrates all steps.
 After completing each school, immediately output a one-line status, append the school's `SchoolStatus` row, and proceed to the next school. Do not summarize, do not ask if the user wants to continue, do not pause for any reason.
 
 **Context management** (prevents mid-run stops from context window pressure):
-- Do NOT take full page snapshots (`take_snapshot`) unless actively debugging a failure. Use `evaluate_script` to extract only the data needed (headcount numbers, student names, report status).
-- Use `take_screenshot` with `filePath` for archival — screenshots don't consume context.
-- Do NOT use `wait_for` at all in the run loop — chrome-devtools-mcp ≥1.8 attaches a full page snapshot to every `wait_for` result, which floods the context window. Poll with in-page `fetch` loops inside `evaluate_script` (`waitForStableDom: false`) returning tiny JSON — patterns in report-checklist.md.
+- Do NOT use `read_page`, `get_page_text` or screenshots in the run loop — they put whole pages into the context window. Use `javascript_tool` to extract only the data needed (headcount numbers, student numbers, job ids) as small JSON; never return hrefs (URL-like results are blocked by the extension) and never return page text that carries student names.
+- One `javascript_tool` call stays under ~40 s and never spans a navigation; poll with in-page `fetch` loops returning tiny JSON and chain calls — patterns in report-checklist.md. Predictable sequences go in one `browser_batch`.
 - When a report result is predictable (e.g., Entry/Exit with 0 rows), save screenshot and move on without inspecting the DOM.
 
 **Execution model — completion loop, not step list**:
@@ -385,8 +359,8 @@ Loop:
   4. Pick next school from REMAINING
   5. Switch to that school in PowerSchool
   6. Run all MISSING reports for that school (skip any already saved from Phase 1)
-  7. After each report, save to staging folder (for the Consecutive Absence result, also append the listed students to `_district/consec_abs.json` as {id, grade, first, last, days} under the school code; one entry per student even when several sections are listed)
-  8. After all reports for this school: upload the school's files to ITS folder from `_district/drive_layout.json`,
+  7. After each report, save to staging folder (rendered pages through the page serializer as `.html`). The Consecutive Absence report runs with every attendance code except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH (report-checklist.md Report 5); append its listed students to `_district/consec_abs.json` as {id, grade, first, last, days} under the school code; one entry per student even when several sections are listed
+  8. After all reports for this school: upload the school's files to ITS folder from `_district/drive_layout.json` (`.html` reports as Google Docs, the Student Schedule Report as a plain `.html`, PDFs/CSV/TXT as files),
      append its SchoolStatus row, output one-line status:
      ✓ [SCHOOL] — HC: [N], Issues: [none/description] ([completed]/[total] schools done)
   9. GOTO step 1
@@ -407,7 +381,7 @@ Failed reports/schools are retried in the next pass of the loop.
 5. ALE (`/enrollment ale`) and RS (`/enrollment rs`, October–June) reconciliations when their inputs exist; update `DistrictStatus` (ValidationDone, ALEReconDone, RSReconDone)
 6. Present results with human review checklist
 7. **Findings doc + completion email — runs every month, never skipped.** This is how the enrollment officer learns the run is done and what needs fixing; it is not optional and does not wait for a human prompt. The email goes through the n8n `BUS - Enrollment Notifications` workflow (`event: collection_complete`), which owns the recipient list.
-   a. `uv run <skill-dir>/scripts/findings_doc.py --folder … --date … --month … --due-date <Calendar!DueDate> --run-date <today> --run-folder-url <run folder> --tracking-url <sheet> [--correction <md>] [--deltas <md> --original-run-date <date>]` writes `_district/<Month><Year>_Findings.md` + `.html`. It already produces every section below; only add prose the data cannot know. The sections, for reference: summary + status line; district totals table; per-school table (Enrollment Summary HC, P223 HC, gap, FTE, RS, TBIP, zero-FTE, RS flags); **critical findings** with per-student tables (student numbers only, never names); warnings (zero-FTE-in-headcount list, Enrollment Summary vs P223 gaps explained, Section Enrollment Audit findings per school); scope gaps (GVA/Fresh Start/CTP under PAP 5707 are NOT in the district batch — say so every month; RS vs TCC; ALE); collection gaps with the reason (e.g. Student Schedule Report privilege); what was collected (file inventory); next-steps table with an owner per row; tracking-sheet state.
+   a. `uv run <skill-dir>/scripts/findings_doc.py --folder … --date … --month … --due-date <Calendar!DueDate> --run-date <today> --run-folder-url <run folder> --tracking-url <sheet> [--correction <md>] [--deltas <md> --original-run-date <date>]` writes `_district/<Month><Year>_Findings.md` + `.html`. It already produces every section below; only add prose the data cannot know. The sections, for reference: summary + status line; district totals table; per-school table (Enrollment Summary HC, P223 HC, gap, FTE, RS, TBIP, zero-FTE, RS flags); **critical findings** with per-student tables (student numbers only, never names); warnings (zero-FTE-in-headcount list, Enrollment Summary vs P223 gaps explained, Section Enrollment Audit findings per school); scope gaps (GVA/Fresh Start/CTP under PAP 5707 are NOT in the district batch — say so every month; RS vs TCC; ALE); collection gaps with the reason (e.g. a report that failed to render); what was collected (file inventory); next-steps table with an owner per row; tracking-sheet state.
    b. Convert to a Google Doc **in the month's Drive folder** (HTML import works; markdown extraction alone does not):
       ```bash
       uv run - <<'EOF'   # md → html (PEP 723: markdown)
@@ -473,7 +447,6 @@ All scripts live in this skill's `scripts/` directory. Python via `uv run`, JS v
 
 | Script | Phase | Purpose |
 |--------|-------|---------|
-| `save_pdf.js` | Collection | Save active debug-browser tab as PDF via CDP printToPDF |
 | `fte_calculator.py` | 2 | FTE calculation engine (ES/MS/HS/GVA) |
 | `enrollment_validator.py` | 2 | Data validation suite (9 checks) |
 | `month_comparison.py` | 2 | Month-over-month diff detector |
@@ -503,6 +476,11 @@ gws sheets spreadsheets values append \
 gws drive files create --params '{"supportsAllDrives":true}' \
   --json '{"name":"GHHS_EnrollmentSummary_20260908.pdf","parents":["<month folder id>"]}' \
   --upload ./GHHS_EnrollmentSummary_20260908.pdf
+
+# Upload a saved report page as a Google Doc (rendered reports are .html; Drive previews a raw .html as source code)
+gws drive files create --params '{"supportsAllDrives":true,"fields":"id"}' \
+  --json '{"name":"GHHS_EnrollmentSummary_20261001","mimeType":"application/vnd.google-apps.document","parents":["<school folder id>"]}' \
+  --upload ./GHHS_EnrollmentSummary_20261001.html --upload-content-type text/html
 
 # Create the monthly findings Google Doc in the month folder from HTML
 gws drive files create --params '{"supportsAllDrives":true,"fields":"id,webViewLink"}' \
@@ -546,5 +524,5 @@ gws drive files create --params '{"supportsAllDrives":true,"fields":"id,webViewL
 - **Retain reports 4 years** after submission (OSPI audit requirement)
 - **Never auto-submit to EDS** — always generate file + validation report for human review
 - **Student List Export**: Always downloads as `~/Downloads/student.export.text` — move and rename immediately after each school
-- **evaluate_script over UID clicks**: Use `evaluate_script` + `querySelector`/`getElementById` for all form interactions — snapshot UIDs are unreliable
+- **javascript_tool over refs and clicks**: `querySelector`/`getElementById` in `javascript_tool` for all form interactions — `read_page` refs are unreliable and pull whole pages into context
 - **Browser automation runs in the main session only** — subagents cannot access MCP tools

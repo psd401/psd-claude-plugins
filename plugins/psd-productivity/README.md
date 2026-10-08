@@ -2,7 +2,7 @@
 
 **38 productivity workflows + 1 agent for Peninsula School District**
 
-Version: 2.23.3
+Version: 2.24.0
 
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -70,7 +70,7 @@ Author: Kris Hagel (hagelk@psd401.net)
 | Skill | Description |
 |-------|-------------|
 | `/n8n-manager` | Build, deploy, and manage n8n workflow automations on PSD's internal server |
-| `/browser-control` | Browser automation for authenticated web apps via Chrome DevTools MCP — PowerSchool, forms, report downloads |
+| `/browser-control` | Browser automation for authenticated web apps through the Claude in Chrome extension — PowerSchool, forms, report downloads |
 
 ### Research & Intelligence (3)
 

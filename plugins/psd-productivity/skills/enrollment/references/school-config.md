@@ -100,7 +100,7 @@ Pass the list as `--expected-ale HBHS` (comma-separated if it grows).
 2. Student List Export (template: "(Dist) Enrollment - Monthly Backup Student List")
 3. Class Attendance Audit (Period 1 only)
 4. Entry/Exit Report (current + previous month)
-5. Consecutive Absence Report (20 days, all codes)
+5. Consecutive Absence Report (20 days, all codes except the partial-day codes TDY, TDX, LU, LVE, LBR, OTH — see `report-checklist.md` Report 5)
 
 ### Middle & High School (6 reports)
 All 5 elementary reports PLUS:
