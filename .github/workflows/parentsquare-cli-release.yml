@@ -31,7 +31,9 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version: '1.26.x'
-          cache-dependency-path: plugins/psd-productivity/skills/parentsquare/cli/go.sum
+          # No dependency cache in a release build: a poisoned cache would ship in
+          # the published binaries (zizmor cache-poisoning).
+          cache: false
       - name: Cross-build binaries
         run: |
           set -euo pipefail
