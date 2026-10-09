@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.33.4] - 2026-10-09
+
+### psd-productivity 2.24.4
+
+- **`/enrollment` — `machine-setup.md`: the n8n API key must not go through the interactive Keychain prompt.** `security add-generic-password -w` with no value silently truncates at 128 characters (verified: 267 sent, 128 stored), and the key is longer than that. The admin-machine step now uses `read -s KEY && security add-generic-password … -w "$KEY"` and a length check. The webhook token and URL are short enough for the prompt.
+
 ## [2.33.3] - 2026-10-08
 
 ### psd-productivity 2.24.3
