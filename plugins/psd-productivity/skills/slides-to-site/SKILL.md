@@ -1,12 +1,14 @@
 ---
 name: slides-to-site
 description: >-
-  Convert a Google Slides presentation into a psd401.ai presentation page.
-  Takes a Google Slides URL, reads all slide content, asks for metadata,
-  and generates the markdown file. Use when adding presentations to the
-  psd401.ai website. Triggers on: add presentation to site, slides to site,
-  publish presentation, psd401.ai presentation.
-argument-hint: "<google-slides-url>"
+  Publish a Google Slides presentation on psd401.ai from just its link. Reads
+  every slide, the speaker notes and a PDF of the deck, works out the title,
+  date, presenters, audience and format, asks only for what the deck does not
+  say, writes the page, opens a PR, waits for CI, merges, and confirms the
+  page is live. Use when adding a presentation or talk to the psd401.ai
+  website. Triggers on: add presentation to site, slides to site, publish
+  presentation, psd401.ai presentation, put this deck on the website.
+argument-hint: "<google-slides-url> [more urls]"
 model: claude-opus-5-5
 effort: high
 allowed-tools:
@@ -19,197 +21,80 @@ allowed-tools:
 extended-thinking: true
 ---
 
-# Slides to Site
+# Slides to site
 
-Convert a Google Slides presentation into a psd401.ai presentation page. Reads the full presentation via `gws slides`, collects metadata from the user, and generates a properly formatted markdown file.
+Turns a Google Slides link into a live page at
+`https://psd401.ai/presentations/<slug>`, with the deck embedded, a thumbnail
+and a written summary.
 
-## Constants
+The site's repository holds the detailed, current instructions, next to the
+code they describe. This skill gets a checkout and follows them, so the two
+cannot drift apart. **If anything here disagrees with the repository's
+playbook, the playbook wins.**
 
-- **psd401.ai repo**: `/Users/hagelk/non-ic-code/psd401.ai`
-- **Presentations dir**: `/Users/hagelk/non-ic-code/psd401.ai/src/content/presentations/`
-- **Thumbnails dir**: `/Users/hagelk/non-ic-code/psd401.ai/public/images/thumbnails/`
+## What you need
 
-## Workflow
+- `git`, `jq`, `curl`, and Node.js 20.9 or later with npm.
+- `gh`, signed in with write access to `psd401/psd401.ai`. Check with
+  `gh auth status`.
+- Read access to the deck from the account you run as: the `gws` CLI
+  (`gws auth login -s slides,drive`), or another Google Workspace tool that can
+  read the Slides API and export Drive files.
 
-Process each presentation URL the user provides. After each one, ask if they have more. When done, commit and push.
+If anything is missing, say what and stop before changing anything.
 
-### Step 1: Parse the Google Slides URL
+## 1. Get a checkout of the site
 
-Extract the presentation ID from the user-provided URL argument (`$ARGUMENTS`).
+Use the first of these that applies:
 
-Supported URL formats:
-- `https://docs.google.com/presentation/d/PRESENTATION_ID/edit` → extract `PRESENTATION_ID`
-- `https://docs.google.com/presentation/d/PRESENTATION_ID/pub` → extract `PRESENTATION_ID`
-- `https://docs.google.com/presentation/d/e/2PACX-.../pub` → this is a **published** URL; extract the `2PACX-...` portion after `/e/`
-- Just a bare presentation ID
+1. `$PSD401_AI_REPO` is set: use that directory.
+2. The current directory is inside a checkout whose `origin` is
+   `psd401/psd401.ai` (`git remote get-url origin`): use it.
+3. Otherwise clone one:
 
-Validate the extracted ID is non-empty. If no URL was provided, ask the user for one.
+   ```bash
+   gh repo clone psd401/psd401.ai "${TMPDIR:-/tmp}/psd401.ai-$(date +%s)"
+   ```
 
-### Step 2: Read the Presentation Content
+   Clone the full history. The bundle's `log.md` is generated from it, and a
+   shallow clone writes a wrong one.
 
-Run:
-```bash
-gws slides presentations get --params '{"presentationId": "PRESENTATION_ID"}' --format json
-```
+Run `npm ci` in the checkout if `node_modules/` is missing. Never commit on
+whatever branch an existing checkout is on; the ship steps make a new branch.
 
-Parse the JSON response to extract:
-- **Title**: from `title` field at the top level
-- **All slide text**: walk `slides[].pageElements[].shape.text.textElements[].textRun.content` and concatenate
-- **Speaker notes**: from `slides[].slideProperties.notesPage.pageElements[].shape.text.textElements[].textRun.content`
+## 2. Read the playbook
 
-If gws fails with an auth error, tell the user:
-```
-Auth issue detected. Run: gws auth login -s slides,drive
-Then try again.
-```
+In the checkout, read these in full before starting:
 
-### Step 3: Ask User for Metadata
+- `AGENTS.md`: the site's rules.
+- `.claude/skills/psd401-publish/presentation.md`: this task, step by step.
+- `.claude/skills/psd401-publish/ship.md`: branch, checks, PR, CI, merge,
+  and the live check.
 
-Use AskUserQuestion to collect all metadata in a single prompt. Show the extracted title as a default. Ask for:
+If `presentation.md` is not there, the checkout is out of date. Run
+`git fetch origin` and read the files from `origin/main`
+(`git show origin/main:.claude/skills/psd401-publish/presentation.md`).
 
-```
-I extracted the presentation content. Here's what I need from you:
+## 3. Build the page
 
-**Title**: {extracted_title} (press Enter to keep, or type a new one)
-**Date** the presentation was/will be given (YYYY-MM-DD):
-**Presenters** (comma-separated names):
-**Audience** (e.g., "PSD Community", "PSD Staff", "WTA Conference", "WSSDA Conference"):
-**Type** (e.g., "School Board Presentation", "Public Workshop", "PD Session", "Conference Session"):
-**Description** (1-2 sentences — or type "auto" and I'll generate one from the content):
-**Slug** (kebab-case filename, suggested: {auto_slug}) — press Enter to accept or type a new one:
-```
+Follow `presentation.md` for each link in `$ARGUMENTS`. If no link was given,
+ask for one. Several links go on one branch and one PR.
 
-Where `{auto_slug}` is generated by lowercasing the title, removing non-alphanumeric chars, and converting spaces to hyphens.
+Work out everything the deck says. Ask the person once, with numbered
+questions (1.1, 1.2, …), for whatever it does not: usually the date or a
+presenter's full name. Never ask about something the deck states clearly.
 
-If the user says "auto" for description, synthesize a 1-2 sentence summary from the slide content.
+## 4. Ship and merge
 
-### Step 4: Generate the Embed URL
+Follow `ship.md`. The person asked for the page to be published, so merge once
+every CI check has passed. Never merge with a failing check.
 
-Convert the input URL to embed format:
-- For standard URLs (`/d/PRESENTATION_ID/`): `https://docs.google.com/presentation/d/PRESENTATION_ID/embed`
-- For published URLs (`/d/e/2PACX-.../`): `https://docs.google.com/presentation/d/e/2PACX-.../embed`
+If your environment blocks the merge, stop. Do not look for another way to
+merge. Give the person the exact command from `ship.md` and say that CI
+passed.
 
-### Step 5: Export Thumbnail
+## 5. Report
 
-Auto-generate the thumbnail using the Slides API thumbnail endpoint:
-
-1. Extract the first slide's `objectId` from the presentation JSON fetched in Step 2 (it's `slides[0].objectId`)
-2. Call the thumbnail API:
-```bash
-gws slides presentations pages getThumbnail --params '{"presentationId": "PRESENTATION_ID", "pageObjectId": "FIRST_SLIDE_OBJECT_ID"}' --format json
-```
-3. Parse the `contentUrl` from the JSON response
-4. Download it with curl:
-```bash
-curl -sL -o /Users/hagelk/non-ic-code/psd401.ai/public/images/thumbnails/{slug}.png "CONTENT_URL"
-```
-5. Verify the file was created and is a valid PNG using `file` command
-
-If any step fails (permissions, auth, etc.), inform the user:
-```
-Could not auto-generate thumbnail. Please manually save the first slide as:
-/Users/hagelk/non-ic-code/psd401.ai/public/images/thumbnails/{slug}.png
-```
-
-Set the thumbnail path in frontmatter regardless: `/images/thumbnails/{slug}.png`
-
-### Step 6: Generate Markdown Content
-
-Using the full slide text content, generate the markdown body. Follow the **exact format** used by existing presentations in the repo.
-
-**Structure:**
-1. **Bold title** — repeats the frontmatter title
-2. **Context paragraph** — who presented, when, where, to whom, and a summary of what the presentation covers
-3. **Key Takeaways** — 4-7 bullet points with **bold headers** followed by details, extracted/synthesized from actual slide content
-4. **Actionable Insights** — 3-5 bullet points with **bold headers** and practical recommendations
-5. **Looking Ahead** — 1 paragraph on future directions or implications
-
-### Step 7: Write the File
-
-Assemble the complete markdown file using this exact template:
-
-```markdown
----
-title: '{title}'
-date: '{YYYY-MM-DD}'
-presenters:
-  - '{Presenter 1}'
-  - '{Presenter 2}'
-audience: '{audience}'
-type: '{type}'
-thumbnail: '/images/thumbnails/{slug}.png'
-slides: '{embed_url}'
-description: '{description}'
----
-
-**{Title}**
-
-{Context paragraph — who presented this, when, where, to what audience, and what it covers.}
-
-**Key Takeaways:**
-
-- **{Point 1 Header}:** {Details synthesized from slide content}
-- **{Point 2 Header}:** {Details synthesized from slide content}
-- **{Point 3 Header}:** {Details synthesized from slide content}
-- **{Point 4 Header}:** {Details synthesized from slide content}
-
-**Actionable Insights:**
-
-- **{Insight 1}:** {Practical recommendation}
-- **{Insight 2}:** {Practical recommendation}
-- **{Insight 3}:** {Practical recommendation}
-
-**Looking Ahead:**
-
-{Future directions paragraph — what comes next, implications, or next steps.}
-```
-
-**Critical formatting rules:**
-- Frontmatter values with colons or special chars MUST be wrapped in single quotes
-- Each presenter gets its own `- 'Name'` line under `presenters:`
-- No `tags:` field — the site derives tags from presenters, type, and audience
-- One blank line between each section
-- Use `**bold**` for section headers and bullet point leaders
-
-Write the file to: `/Users/hagelk/non-ic-code/psd401.ai/src/content/presentations/{slug}.md`
-
-After writing, read the file back to verify it was created correctly and frontmatter is valid.
-
-Show the user:
-```
-✓ Created: src/content/presentations/{slug}.md
-  Title: {title}
-  Presenters: {presenters}
-  Slides embed: {embed_url}
-```
-
-### Step 8: Ask for More Presentations
-
-Ask the user:
-```
-Do you have more presentations to add, or should I commit and push?
-```
-
-- If they have more → loop back to Step 1 with the next URL
-- If done → proceed to Step 9
-
-Keep track of all slugs created in this session for the commit.
-
-### Step 9: Commit and Push to Deploy
-
-Once the user confirms they're done:
-
-```bash
-cd /Users/hagelk/non-ic-code/psd401.ai
-git add src/content/presentations/{all-slugs}.md public/images/thumbnails/{all-slugs}.png
-git commit -m "content: add presentation(s) — {title(s)}"
-git push origin main
-```
-
-After pushing, inform the user:
-```
-Pushed to main. AWS Amplify will auto-deploy the changes.
-New presentation(s) will be live at psd401.ai/presentations shortly.
-```
-
-If any thumbnail files don't exist (manual export needed), only `git add` the markdown files and remind the user to add thumbnails later.
+As `ship.md` describes: the live URL, the PR, and the summary and description
+you wrote, since the person has not read them yet. Include any assumption you
+made.
