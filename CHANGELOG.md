@@ -26,7 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Both skills find or clone a psd401.ai checkout (`$PSD401_AI_REPO`, the current directory, or a fresh full clone) and follow the playbooks in that repo's `.claude/skills/psd401-publish/` (`presentation.md`, `post.md`, `ship.md`), so the site's rules live next to the site's code. If the agent's environment blocks the merge, the skill stops and gives the exact `gh pr merge` command.
 - **Requires the psd401.ai publish playbooks on that repo's `main`.** As of this release they are on its `claude/publish-playbooks` branch, not `main`. Until that lands, both skills stop at step 2 and say so instead of working without the playbook's checks and merge gate.
 - Both skills check for student names, identifiable photos, student work and student data before publishing, and ask the person about each one. They clone into a `mktemp -d` directory instead of a predictable `/tmp` path.
-- Skill count 37 -> 38. Also corrects stale counts and versions left by 2.33.3: root `README.md` and `CLAUDE.md` said 2.33.2, the plugin README said 2.24.2, and the root README said 37 skills in two places.
+- Skill count 37 -> 38, including the two places in the root `README.md` that state it.
+
+## [2.33.4] - 2026-10-09
+
+### psd-productivity 2.24.4
+
+- **`/enrollment` — `machine-setup.md`: the n8n API key must not go through the interactive Keychain prompt.** `security add-generic-password -w` with no value silently truncates at 128 characters (verified: 267 sent, 128 stored), and the key is longer than that. The admin-machine step now uses `read -s KEY && security add-generic-password … -w "$KEY"` and a length check. The webhook token and URL are short enough for the prompt.
 
 ## [2.33.3] - 2026-10-08
 
