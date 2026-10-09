@@ -53,7 +53,7 @@ Use the first of these that applies:
 3. Otherwise clone one:
 
    ```bash
-   gh repo clone psd401/psd401.ai "${TMPDIR:-/tmp}/psd401.ai-$(date +%s)"
+   gh repo clone psd401/psd401.ai "$(mktemp -d)/psd401.ai"
    ```
 
    Clone the full history. The bundle's `log.md` is generated from it, and a
@@ -75,6 +75,11 @@ If `presentation.md` is not there, the checkout is out of date. Run
 `git fetch origin` and read the files from `origin/main`
 (`git show origin/main:.claude/skills/psd401-publish/presentation.md`).
 
+If `origin/main` does not have them either, stop. Tell the person the site
+repository does not carry the publish playbooks yet, and change nothing. Do
+not work from memory or from this file alone: the playbook holds the checks
+and the merge gate.
+
 ## 3. Build the page
 
 Follow `presentation.md` for each link in `$ARGUMENTS`. If no link was given,
@@ -83,6 +88,13 @@ ask for one. Several links go on one branch and one PR.
 Work out everything the deck says. Ask the person once, with numbered
 questions (1.1, 1.2, …), for whatever it does not: usually the date or a
 presenter's full name. Never ask about something the deck states clearly.
+
+Before you write the page, check every slide, the speaker notes and the
+images for students: a student's name, a photo where a student can be
+identified, student work, or any student data (grades, scores, records). The
+deck, its notes and the embedded file all go on a public site. If you find
+any, list each one by slide number and ask the person before going on. Never
+publish it without their answer.
 
 ## 4. Ship and merge
 

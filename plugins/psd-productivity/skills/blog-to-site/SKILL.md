@@ -57,7 +57,7 @@ Use the first of these that applies:
 3. Otherwise clone one:
 
    ```bash
-   gh repo clone psd401/psd401.ai "${TMPDIR:-/tmp}/psd401.ai-$(date +%s)"
+   gh repo clone psd401/psd401.ai "$(mktemp -d)/psd401.ai"
    ```
 
    Clone the full history. The bundle's `log.md` is generated from it, and a
@@ -79,6 +79,11 @@ If `post.md` is not there, the checkout is out of date. Run
 `git fetch origin` and read the files from `origin/main`
 (`git show origin/main:.claude/skills/psd401-publish/post.md`).
 
+If `origin/main` does not have them either, stop. Tell the person the site
+repository does not carry the publish playbooks yet, and change nothing. Do
+not work from memory or from this file alone: the playbook holds the checks
+and the merge gate.
+
 ## 3. Build the post
 
 Follow `post.md` with what the person gave you in `$ARGUMENTS` or the
@@ -86,7 +91,9 @@ conversation. If there is no text, ask for it.
 
 Work out the byline, tags and date yourself. Ask only when you can't, with
 numbered questions (1.1, 1.2, …), all in one message. Always ask before
-publishing a photo where a student can be identified.
+publishing a photo where a student can be identified, or text that names a
+student, quotes student work or gives student data (grades, scores,
+records). Ask about those, not to edit the words: the author decides.
 
 Do not ship until the text check in `post.md` prints `BODY TEXT IDENTICAL`.
 
