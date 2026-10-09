@@ -22,4 +22,6 @@ jobs:
     uses: PSD401/.github/.github/workflows/reusable-openwiki.yml@main # zizmor: ignore[unpinned-uses]
     with:
       base_branch: main
-    secrets: inherit
+    secrets:
+      BEDROCK_API_KEY: ${{ secrets.BEDROCK_API_KEY }}
+      PSD_AUTOMATION_APP_PRIVATE_KEY: ${{ secrets.PSD_AUTOMATION_APP_PRIVATE_KEY }}
