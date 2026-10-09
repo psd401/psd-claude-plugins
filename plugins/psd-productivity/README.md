@@ -1,8 +1,8 @@
 # PSD Productivity
 
-**37 productivity workflows + 1 agent for Peninsula School District**
+**38 productivity workflows + 1 agent for Peninsula School District**
 
-Version: 2.24.4
+Version: 2.25.0
 
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -31,7 +31,7 @@ Author: Kris Hagel (hagelk@psd401.net)
 | `/legislative-tracker` | Track WA State K-12 education legislation via SOAP API |
 | `/google-workspace-cli` | Unified Google Workspace integration — email, calendar, files, and communication across multiple accounts |
 
-### Content & Document Generation (15)
+### Content & Document Generation (16)
 
 | Skill | Description |
 |-------|-------------|
@@ -49,7 +49,8 @@ Author: Kris Hagel (hagelk@psd401.net)
 | `/presentation-master` | World-class presentations (Garr Reynolds, Nancy Duarte, Guy Kawasaki, TED) |
 | `/assistant-architect` | Create AI Studio Assistant Architect JSON import files |
 | `/sop-creator` | Generate PSD Standard Operating Procedures using official template |
-| `/slides-to-site` | Convert a Google Slides presentation into a psd401.ai presentation page |
+| `/slides-to-site` | Publish a Google Slides deck on psd401.ai from its link: reads slides, notes and a PDF, writes the page, opens a PR, merges after CI, confirms it is live |
+| `/blog-to-site` | Publish a blog post on psd401.ai from the author's text and images: words kept exactly as written, header image cropped, PR merged after CI, confirms it is live |
 
 ### Communications (2)
 
@@ -131,6 +132,7 @@ psd-productivity/
     plugin.json
   skills/                    # 38 skills
     assistant-architect/
+    blog-to-site/
     board-policy-formatter/
     browser-control/
     chief-of-staff/

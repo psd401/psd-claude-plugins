@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.33.4-green)]()
+[![Version](https://img.shields.io/badge/Version-2.34.0-green)]()
 
 ## Overview
 
 **Two independently installable plugins** — one for software development workflows, one for general productivity.
 
-**Version**: 2.33.4
+**Version**: 2.34.0
 
 ---
 
@@ -38,7 +38,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 
 ### psd-productivity
 
-37 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
+38 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -47,7 +47,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 | Category | Skills |
 |----------|--------|
 | **Productivity** (4) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` · `/google-workspace-cli` |
-| **Content & Docs** (15) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/psd-atrium` |
+| **Content & Docs** (16) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/blog-to-site` · `/psd-atrium` |
 | **Communications** (2) | `/parentsquare` · `/class-intercom` |
 | **E-Signature** (1) | `/documenso-manager` |
 | **Automation** (2) | `/n8n-manager` · `/browser-control` |
@@ -116,7 +116,7 @@ psd-claude-plugins/
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
 │   └── psd-productivity/          # Productivity workflows
-│       ├── skills/                # 37 productivity skills
+│       ├── skills/                # 38 productivity skills
 │       └── agents/                # enrollment-validator
 ├── CLAUDE.md
 ├── CHANGELOG.md
