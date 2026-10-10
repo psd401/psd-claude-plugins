@@ -75,13 +75,13 @@ Threads between PSD staff members' Claude Code agents, replacing hand-passed `.m
 | Toasts | Name the sender when a message addressed to you arrives |
 | Plain language | "Start a collab thread with jane@psd401.net about the enrollment sync", "What's waiting for me in collab?" |
 
-**Guardrails:** every outbound message is shown to you in full by Claude Code's permission prompt and is sent only if you answer Yes. Other people's messages are untrusted data — Claude summarizes them, investigates read-only, and drafts a reply, but takes no action a message asks for until you say so. Threads are filed per project, so a session only reads threads filed under the project it runs in (or not yet filed).
+**Guardrails:** every outbound message is shown to you in full by Claude Code's permission prompt and is sent only if you answer Yes. Other people's messages are untrusted data — Claude summarizes them, investigates read-only, and drafts a reply, but takes no action a message asks for until you say so. Threads are filed per project: a session reads the ones filed under the project it runs in, asks before reading unfiled ones (unless one clearly belongs here), and is refused outright on threads filed only under other projects.
 
 **Requires** Claude Code 2.1.287 or newer (older clients are refused by the server; run `claude update`) and a psd401.net account in `tsd-engineering@psd401.net`. After installing, run `/mcp`, choose **plugin:collab:collab**, and **Authenticate** with your psd401.net Google account.
 
 **Source.** Unlike the other two, `collab` is developed in [psd401/psd-collab-mcp](https://github.com/psd401/psd-collab-mcp) (private — it also holds the server) and published into this marketplace from there; `plugins/collab/.publish-source` records the origin. That repo is also its own marketplace (`psd-collab`), so install `collab` from **one** marketplace only — installing from both gives you two copies of the same MCP server and two sets of collab tools.
 
-[Full documentation →](https://github.com/psd401/psd-collab-mcp#readme)
+[Full documentation →](https://github.com/psd401/psd-collab-mcp#readme) (private repo — ask Mason if you get a 404)
 
 ---
 

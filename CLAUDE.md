@@ -196,7 +196,7 @@ git push origin main
 
 ### Version Management
 
-**CRITICAL**: There are THREE independent version tracks. Never mix them.
+**CRITICAL**: There are THREE independent version tracks you bump here. Never mix them. (`collab` carries a fourth version, but it is never bumped by hand — see the note below the table.)
 
 | Track | Files | When to bump |
 |-------|-------|--------------|
@@ -205,6 +205,8 @@ git push origin main
 | **psd-productivity** | Same pattern for psd-productivity files | Only when psd-productivity skills/agents change |
 
 Each plugin version tracks breaking changes for users of *that specific plugin* independently. Do not copy the marketplace version into a plugin's version field.
+
+**`collab` is not a fourth bump track.** Its version lives in `plugins/collab/.claude-plugin/plugin.json` and `marketplace.json → plugins[name=collab].version`, but both are **set by the publish** from `psd401/psd-collab-mcp` — never edited here. Upstream's own `plugin.json` deliberately carries no `version` field (so installs with auto-update follow its commits); the publish into this marketplace stamps one. `/bump-version` has nothing to do for it.
 
 **The full location list and release workflow live in the `/bump-version` skill — run it rather than enumerating locations by hand.** Two non-negotiables regardless of path: always `claude plugin validate .` before tagging, and tag with plain `git tag -a vX.Y.Z` — **never** `claude plugin tag` (it creates per-plugin `{name}--v{version}` tags from a plugin path, which doesn't match this repo's marketplace-wide `vX.Y.Z` convention).
 
