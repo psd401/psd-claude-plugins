@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.35.0
+**Version**: 2.35.1
 **Status**: Production-Ready
 
 ### Plugins
@@ -211,7 +211,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 **The full location list and release workflow live in the `/bump-version` skill — run it rather than enumerating locations by hand.** Two non-negotiables regardless of path: always `claude plugin validate .` before tagging, and tag with plain `git tag -a vX.Y.Z` — **never** `claude plugin tag` (it creates per-plugin `{name}--v{version}` tags from a plugin path, which doesn't match this repo's marketplace-wide `vX.Y.Z` convention).
 
 ### Git Workflow
-- Branch from `dev`, not `main`
+- Branch from `main` (there is no `dev` branch). `main` requires a pull request (0 approvals), so every change, releases included, lands through a PR
 - Branch naming: `feature/[issue-number]-brief-description` or `fix/brief-description`
 - Detailed commit messages required
 

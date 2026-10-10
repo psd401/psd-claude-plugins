@@ -17,6 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.35.1] - 2026-10-10
+
+### Fixed
+- **psd-coding-system `/bump-version`** (3.8.10) — releases through a PR. `main` requires a pull request, so the skill's direct `git push origin HEAD` was rejected (`GH013`). It now fetches and checks local `main` against `origin/main` before reading versions (a stale clone picked an already-released version for 2.35.0), commits on `chore/bump-<version>`, opens a PR, hands the merge to the user, and tags the merge commit on `main` afterward. It also notes that `collab` isn't a version track here: its folder and entry come from the psd-collab-mcp publish.
+- **CLAUDE.md Git Workflow** — branch from `main`; there is no `dev` branch, and `main` requires a PR.
+
 ## [2.35.0] - 2026-10-09
 
 ### Added
