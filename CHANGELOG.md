@@ -17,6 +17,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.35.0] - 2026-10-09
+
+### Added
+
+- **`collab` 1.0.0 documented as the marketplace's third plugin.** The plugin files and its `marketplace.json` entry landed in "Publish collab 1.0.0" (#99) without any prose, so nothing told a reader it existed or how to turn it on. The root `README.md` gains a `### collab` section covering: what it is (threads between PSD staff members' Claude Code agents, replacing hand-passed `.md` files, with replies summarized back into the session); its surfaces (`/collab` pane for listing, filing, read state, archiving and **Listen here**; `/collab listen` / `/collab unlisten`; the `collab: N waiting` status entry; sender toasts; plain-language requests); its guardrails (every outbound message shown in full in Claude Code's permission prompt and sent only on Yes, inbound messages treated as untrusted data that Claude summarizes and investigates read-only but never acts on unsupervised, per-project thread filing so a session reads only threads filed under its own project or unfiled); and its prerequisites (Claude Code 2.1.287+ — the server refuses older clients — plus a psd401.net account in `tsd-engineering@psd401.net`, and the `/mcp` → **plugin:collab:collab** → **Authenticate** step that install alone does not cover). Overview wording goes from "Two independently installable plugins" to three; Quick Start gains `/plugin install collab` and a note about the sign-in step; the Architecture tree gains `plugins/collab/`.
+- **Upstream provenance recorded in `CLAUDE.md`.** A `collab` row in the plugin table (0 skills, 0 agents — it ships hooks and an MCP server, not skills) plus an explicit note that the plugin is **not developed in this repo**: it is published from `psd401/psd-collab-mcp` (the origin is recorded in `plugins/collab/.publish-source`), which also holds the server, so fixes go upstream and are re-published rather than hand-edited under `plugins/collab/`. The marketplace directory tree gains the same entry.
+- **Double-install warning.** `psd401/psd-collab-mcp` is also its own marketplace (`psd-collab`), and its README tells people to install from there. Both copies declare an `mcpServers.collab` pointing at the same Lambda URL, so installing from both marketplaces yields two copies of the server and two sets of collab tools. The README now says to pick one marketplace.
+- **`collab` versioning recorded as a non-track.** The `/bump-version` ritual's three tracks are unchanged; a note under `CLAUDE.md`'s version-track table explains that `collab`'s version in `plugins/collab/.claude-plugin/plugin.json` and `marketplace.json` is **set by the publish** and never hand-edited — upstream's `plugin.json` deliberately carries no `version` field so auto-update there follows commits, and the publish stamps one. Verified: upstream's `plugin.json` has no `version` key; this marketplace's copy reads `1.0.0`.
+
+### Fixed
+
+- **Read-guard wording in the README made precise.** The first draft said a session "only reads threads filed under the project it runs in (or not yet filed)", which overstates what unfiled means. `plugins/collab/hooks/prompt.ts` instructs Claude to list unfiled threads with their suggested project and **ask before reading them** unless one clearly belongs to this project, and `read_thread` is refused outright for a thread filed only under other projects. The README now says that.
+- **The upstream documentation link is labelled private.** `psd401/psd-collab-mcp` is private, so the "Full documentation" link 404s for anyone without repo access; it now says so rather than looking broken.
+- **The Claude Code 2.1.287 floor is sourced, not assumed.** Verified against upstream: its `README.md` states "2.1.287 or newer" and its `CLAUDE.md` records that every tool call is refused unless `clientInfo` reports `claude-code` 2.1.287+. The gate is the server's, which is why the README phrases it as the server refusing older clients.
+
+### Unchanged
+
+- No plugin versions bumped: `psd-coding-system` stays 3.8.9, `psd-productivity` stays 2.25.0, `collab` stays 1.0.0. This release is marketplace-level documentation for a plugin that shipped in 2.34.0's wake. Counts re-verified against `find … -name SKILL.md`: 9 / 44 for psd-coding-system, 38 / 1 for psd-productivity.
+
 ## [2.34.0] - 2026-10-09
 
 ### psd-productivity 2.25.0

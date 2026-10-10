@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
-    "version": "2.34.0",
+    "version": "2.35.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
