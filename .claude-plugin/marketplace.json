@@ -46,6 +46,13 @@
         "psd",
         "education"
       ]
+    },
+    {
+      "name": "collab",
+      "source": "./plugins/collab",
+      "description": "Threads between people's Claude Code agents: the collab server, a pane for sorting threads by project, and notice of replies",
+      "version": "1.0.0",
+      "category": "productivity"
     }
   ]
 }
