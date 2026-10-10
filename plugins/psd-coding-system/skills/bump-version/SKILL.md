@@ -1,6 +1,6 @@
 ---
 name: bump-version
-description: Automate the version bump ritual — three independent tracks (marketplace, psd-coding-system, psd-productivity)
+description: Automate the version bump ritual — three independent tracks (marketplace, psd-coding-system, psd-productivity), released through a PR to main
 argument-hint: "[patch|minor|major]"
 model: claude-opus-5-5
 effort: high
@@ -18,7 +18,7 @@ extended-thinking: true
 
 # Bump Version Command
 
-You automate the version bump ritual for the PSD Plugin Marketplace. There are **three independent version tracks** — never conflate them.
+You automate the version bump ritual for the PSD Plugin Marketplace. There are **three independent version tracks** — never conflate them. `main` requires a pull request, so the bump lands through a PR and the tag goes on the merge commit.
 
 **Bump type:** $ARGUMENTS
 
@@ -29,6 +29,25 @@ You automate the version bump ritual for the PSD Plugin Marketplace. There are *
 | **Marketplace** | `.claude-plugin/marketplace.json` → `metadata.version`; `CLAUDE.md` → `**Version**`; root `README.md` | Every release |
 | **psd-coding-system** | `plugins/psd-coding-system/.claude-plugin/plugin.json`; `marketplace.json` → `plugins[name=psd-coding-system].version`; `plugins/psd-coding-system/README.md` | Only when coding system skills/agents changed |
 | **psd-productivity** | `plugins/psd-productivity/.claude-plugin/plugin.json`; `marketplace.json` → `plugins[name=psd-productivity].version`; `plugins/psd-productivity/README.md` | Only when productivity skills/agents changed |
+
+**Not a track: `collab`.** `plugins/collab/` and its `marketplace.json` entry are written by the publish workflow from `psd401/psd-collab-mcp` (`plugins/collab/.publish-source`). Never edit or bump them here; its version changes only when that repo publishes.
+
+## Phase 0: Start from current `main` on a branch
+
+A stale clone picks a version that's already released. Fetch first and refuse to continue if local `main` isn't `origin/main`:
+
+```bash
+git fetch origin --tags
+git checkout main
+git pull --ff-only origin main
+[ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || { echo "local main differs from origin/main — stop"; exit 1; }
+git status --short   # must be empty; stop and ask if not
+
+# Work on a branch from here on, so an aborted run never leaves main dirty.
+# Timestamped, so a leftover branch from an earlier aborted run can't collide.
+BRANCH="chore/bump-$(date +%Y%m%d-%H%M%S)"
+git checkout -b "$BRANCH"
+```
 
 ## Phase 1: Determine Bump Type
 
@@ -201,9 +220,10 @@ The **only** verified non-defect is the root README's **"Meta & Validation (6 ag
 
 If every claim matches, skip. Otherwise fix them now — Phase 8 re-checks these, and a mismatch there costs an amend.
 
-## Phase 7: Commit (do NOT tag yet)
+## Phase 7: Commit on the release branch (do NOT tag yet)
 
 ```bash
+# Still on $BRANCH from Phase 0
 # Stage changed files
 git add \
   .claude-plugin/marketplace.json \
@@ -215,7 +235,7 @@ git add \
 git commit -m "chore: Bump to $NEW_MARKETPLACE — [brief reason]"
 ```
 
-**Nothing is tagged and nothing is pushed yet.** That is deliberate: Phase 8 may need to amend this commit, which is free before a push and impossible after.
+**Nothing is tagged and nothing is pushed yet.** That is deliberate: Phase 8 may need to amend this commit, which is free before a push and awkward after.
 
 ## Phase 8: Verify the release claims — gate, must pass before tagging
 
@@ -254,24 +274,47 @@ git commit --amend -m "chore: Bump to $NEW_MARKETPLACE — [corrected reason]"
 
 A doc fix committed *after* the tag is the exact failure this gate prevents: the tag keeps pointing at the version with the wrong prose, and correcting it then requires a force-retag of a published ref. Amending costs nothing here because nothing has been pushed.
 
-## Phase 9: Tag and push — only after Phase 8 passes
+## Phase 9: Open the PR — only after Phase 8 passes
+
+`main` requires a pull request (ruleset, 0 approvals), so never `git push origin main`; it's rejected with `GH013`.
 
 ```bash
+git push -u origin "$(git branch --show-current)"
+gh pr create --base main --title "chore: Bump to $NEW_MARKETPLACE — [brief reason]" --body "[the CHANGELOG entry]"
+gh pr checks --watch
+```
+
+Then **stop and give the user the merge command**; merging to `main` is theirs:
+
+```bash
+gh pr merge <number> --squash --delete-branch
+```
+
+If review comments need fixes, commit them on the branch and re-run the Phase 8 checks before the merge.
+
+## Phase 10: Tag the merge commit — after the user merges
+
+The squash merge makes a new commit on `main`; the tag goes there, not on the branch commit.
+
+```bash
+git checkout main
+git pull --ff-only origin main
+claude plugin validate .
+[ "$(jq -r '.metadata.version' .claude-plugin/marketplace.json)" = "$NEW_MARKETPLACE" ] || { echo "main isn't at $NEW_MARKETPLACE — stop"; exit 1; }
+
 # NOTE: do NOT use `claude plugin tag` here — the CLI takes a plugin *path*
 # and creates per-plugin {name}--v{version} tags, which does not match this
 # repo's marketplace-wide vX.Y.Z tag convention.
 git tag -a "v$NEW_MARKETPLACE" -m "Release v$NEW_MARKETPLACE - [brief summary]"
-
-git push origin HEAD
 git push origin "v$NEW_MARKETPLACE"
 
 # Confirm the tag landed where intended
 git ls-remote --tags origin | grep "v$NEW_MARKETPLACE"
 ```
 
-The dereferenced ref (`refs/tags/vX.Y.Z^{}`) must equal the bump commit. If it does not, stop and report it — do not force-retag a pushed tag without asking the user first.
+The dereferenced ref (`refs/tags/vX.Y.Z^{}`) must equal the merge commit on `main`. If it does not, stop and report it — do not force-retag a pushed tag without asking the user first.
 
-## Phase 10: Summary
+## Phase 11: Summary
 
 ```markdown
 ### Release v$NEW_MARKETPLACE
@@ -282,8 +325,8 @@ The dereferenced ref (`refs/tags/vX.Y.Z^{}`) must equal the bump commit. If it d
 | psd-coding-system | $CODING_VERSION | $NEW_CODING or (unchanged) | ✅ / — |
 | psd-productivity | $PRODUCTIVITY_VERSION | $NEW_PRODUCTIVITY or (unchanged) | ✅ / — |
 
-**Tag:** v$NEW_MARKETPLACE → <commit sha it points at>
+**PR:** <url>, merged as <merge sha>
+**Tag:** v$NEW_MARKETPLACE → <merge sha>
 **Phase 8 gate:** passed (counts recomputed, versions cross-checked, manifests valid)
-**Pushed:** ✅
 **Cache:** Run `/reload-plugins` to activate
 ```
