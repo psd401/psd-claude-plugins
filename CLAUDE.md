@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.34.0
+**Version**: 2.35.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -15,6 +15,9 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 9 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 38 | 1 |
+| `collab` | Threads between people's Claude Code agents — hooks (pane, status entry, toasts, listening) + the hosted `collab` MCP server | 0 | 0 |
+
+`collab` is **not developed here.** It is published into this marketplace from `psd401/psd-collab-mcp` (recorded in `plugins/collab/.publish-source`), which also holds its server and is its own marketplace (`psd-collab`). Fix it upstream and re-publish; do not hand-edit `plugins/collab/`.
 
 ## Architecture
 
@@ -22,10 +25,11 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 
 ```
 psd-claude-plugins/
-  .claude-plugin/marketplace.json   # lists both plugins — see CRITICAL RULES below
+  .claude-plugin/marketplace.json   # lists all three plugins — see CRITICAL RULES below
   plugins/
     psd-coding-system/              # skills/ (9), agents/ (44 in 8 category dirs), hooks/, scripts/, workflows/, docs/patterns/
     psd-productivity/               # skills/ (38), agents/ (enrollment-validator)
+    collab/                         # published from psd401/psd-collab-mcp — hooks/, types/, test/, .publish-source; no skills or agents
   docs/learnings/                   # canonical learnings location (see Learning Data below)
 ```
 
