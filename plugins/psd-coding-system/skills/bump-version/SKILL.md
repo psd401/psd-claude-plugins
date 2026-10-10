@@ -42,9 +42,12 @@ git checkout main
 git pull --ff-only origin main
 [ "$(git rev-parse HEAD)" = "$(git rev-parse origin/main)" ] || { echo "local main differs from origin/main — stop"; exit 1; }
 git status --short   # must be empty; stop and ask if not
-```
 
-The branch is created in Phase 7, once the new version is known.
+# Work on a branch from here on, so an aborted run never leaves main dirty.
+# Timestamped, so a leftover branch from an earlier aborted run can't collide.
+BRANCH="chore/bump-$(date +%Y%m%d-%H%M%S)"
+git checkout -b "$BRANCH"
+```
 
 ## Phase 1: Determine Bump Type
 
@@ -217,11 +220,10 @@ The **only** verified non-defect is the root README's **"Meta & Validation (6 ag
 
 If every claim matches, skip. Otherwise fix them now — Phase 8 re-checks these, and a mismatch there costs an amend.
 
-## Phase 7: Commit on a release branch (do NOT tag yet)
+## Phase 7: Commit on the release branch (do NOT tag yet)
 
 ```bash
-git checkout -b "chore/bump-$NEW_MARKETPLACE"
-
+# Still on $BRANCH from Phase 0
 # Stage changed files
 git add \
   .claude-plugin/marketplace.json \
@@ -277,7 +279,7 @@ A doc fix committed *after* the tag is the exact failure this gate prevents: the
 `main` requires a pull request (ruleset, 0 approvals), so never `git push origin main`; it's rejected with `GH013`.
 
 ```bash
-git push -u origin "chore/bump-$NEW_MARKETPLACE"
+git push -u origin "$(git branch --show-current)"
 gh pr create --base main --title "chore: Bump to $NEW_MARKETPLACE — [brief reason]" --body "[the CHANGELOG entry]"
 gh pr checks --watch
 ```

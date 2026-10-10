@@ -212,7 +212,7 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 
 ### Git Workflow
 - Branch from `main` (there is no `dev` branch). `main` requires a pull request (0 approvals), so every change, releases included, lands through a PR
-- Branch naming: `feature/[issue-number]-brief-description` or `fix/brief-description`
+- Branch naming: `feature/[issue-number]-brief-description`, `fix/brief-description`, or `chore/brief-description` (release bumps use `chore/bump-<timestamp>`)
 - Detailed commit messages required
 
 ### Learning Data & Privacy
