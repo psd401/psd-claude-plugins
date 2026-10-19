@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.35.2] - 2026-10-19
 
 ### Fixed
-- **psd-productivity `n8n-docs` MCP server** (2.25.1) — runs `bunx n8n-mcp@2.94.3` instead of `npx -y n8n-mcp`. The unpinned `npx` call downloaded the package each time the server started and could exceed Claude Code's 30-second MCP startup timeout (reported on 2.17.0). Pinning a version and using `bunx` (the repo's standard runtime, already used by the other servers) removes the per-start registry resolve; a cold-cache `bunx` start answered `initialize` in under a second. `n8n-instance` and `documenso` already used `${CLAUDE_PLUGIN_ROOT}` paths as of 2.25.0, so no change there.
+- **psd-productivity `n8n-docs` MCP server** (2.25.1) — runs `bunx n8n-mcp@2.94.3` instead of `npx -y n8n-mcp`. The unpinned `npx` call downloaded the package each time the server started and could exceed Claude Code's 30-second MCP startup timeout (reported on 2.17.0). Pinning a version and using `bunx` (the repo's standard JS runtime, already required by skills such as `research`) removes the per-start registry resolve; a cold-cache `bunx` start answered `initialize` in under a second. `n8n-instance` and `documenso` already used `${CLAUDE_PLUGIN_ROOT}` paths as of 2.25.0, so no change there.
 
 ## [2.35.1] - 2026-10-10
 
