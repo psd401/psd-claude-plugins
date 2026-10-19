@@ -18,6 +18,8 @@ Author: Kris Hagel (hagelk@psd401.net)
 /plugin install psd-productivity
 ```
 
+**Prerequisite:** [bun](https://bun.sh) on your `PATH`. The `n8n-docs` MCP server starts with `bunx`, and several skills run `bun` scripts; without it, `n8n-docs` fails to start.
+
 ---
 
 ## Skills (38)
