@@ -46,4 +46,4 @@ if [[ -n "$DOCUMENSO_HOST" ]]; then
   fi
 fi
 
-exec npx -y --package @documenso/sdk-typescript -- mcp start --api-key "$DOCUMENSO_API_KEY" ${API_URL:+--server-url "$API_URL/api/v2"}
+exec bunx --package @documenso/sdk-typescript@0.9.1 mcp start --api-key "$DOCUMENSO_API_KEY" ${API_URL:+--server-url "$API_URL/api/v2"}

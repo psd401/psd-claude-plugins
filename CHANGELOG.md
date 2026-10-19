@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.35.3] - 2026-10-19
+
+### Security
+- **psd-productivity `n8n-instance` and `documenso` MCP proxies** (2.25.2) — pin the packages they fetch at start-up. Both scripts loaded an API credential into the environment and then ran an unpinned `npx -y` download, so whatever version the registry served next would start with `N8N_MCP_TOKEN` or `DOCUMENSO_API_KEY` in reach. `n8n-mcp-proxy.sh` now runs `bunx mcp-remote@0.15.1` and `documenso-mcp-proxy.sh` runs `bunx --package @documenso/sdk-typescript@0.9.1 mcp start` (the latest published versions on 2026-10-19), matching the `bunx` + exact-version approach the `n8n-docs` server took in 2.25.1. Checked with an empty Bun cache and placeholder credentials: the Documenso server answered `initialize` (serverInfo `Documenso 0.9.1`) and `tools/list` (89 tools); `mcp-remote 0.15.1`, pointed at a local mock MCP endpoint, sent the bearer header and relayed `initialize` and `tools/list`. Not checked against the live n8n or Documenso instances. Future upgrades are a deliberate one-line edit to each script. Pinning stops silent drift to `latest`; it is not an integrity check, so the pinned artifact itself is still trusted.
+
 ## [2.35.2] - 2026-10-19
 
 ### Fixed

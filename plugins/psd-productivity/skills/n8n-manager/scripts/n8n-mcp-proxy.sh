@@ -54,4 +54,4 @@ else
   MCP_URL="https://${N8N_HOST}/mcp-server/http"
 fi
 
-exec npx -y mcp-remote "$MCP_URL" --header "Authorization: Bearer $N8N_MCP_TOKEN"
+exec bunx mcp-remote@0.15.1 "$MCP_URL" --header "Authorization: Bearer $N8N_MCP_TOKEN"
