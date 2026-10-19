@@ -46,4 +46,9 @@ if [[ -n "$DOCUMENSO_HOST" ]]; then
   fi
 fi
 
+# The API key stays on the command line (visible in `ps`): SDK 0.9.1 (latest as of
+# 2026-10-19) has no non-argv way to pass it. Its `mcp start` sets
+# apiKey = flags["api-key"] ?? "", and that empty string stops the SDK from
+# falling back to DOCUMENSO_API_KEY in the environment; `--env` is argv too.
+# Revisit when a newer SDK release reads the key from the environment.
 exec bunx --package @documenso/sdk-typescript@0.9.1 mcp start --api-key "$DOCUMENSO_API_KEY" ${API_URL:+--server-url "$API_URL/api/v2"}
