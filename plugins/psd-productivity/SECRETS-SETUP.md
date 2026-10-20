@@ -45,9 +45,10 @@ result that an admin must approve.
 ## Option A: macOS Keychain (recommended)
 
 The loaders check the login Keychain right after environment variables, so a key
-stored here works for every script, the opt-in n8n and documenso MCP plugins, and unattended runs on a
-machine where the user is logged in. Nothing is written to disk in clear text and
-nothing lands in shell history — `-w` with no value prompts for it.
+stored here works for every script, the opt-in n8n and documenso MCP plugins, and
+unattended runs on a machine where the user is logged in. Nothing is written to
+disk in clear text and nothing lands in shell history — `-w` with no value
+prompts for it.
 
 ```bash
 security add-generic-password -a "$USER" -s N8N_API_KEY -w
