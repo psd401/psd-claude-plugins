@@ -1,0 +1,29 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
+  "name": "n8n",
+  "version": "1.0.0",
+  "description": "MCP connection to PSD's n8n instance (the n8n-instance server). Opt-in: starts disabled, and needs N8N_HOST and N8N_MCP_TOKEN in the login Keychain or environment. The /n8n-manager skill lives in psd-productivity.",
+  "author": {
+    "name": "Kris Hagel",
+    "email": "hagelk@psd401.net",
+    "organization": "Peninsula School District"
+  },
+  "repository": "https://github.com/psd401/psd-claude-plugins",
+  "keywords": [
+    "n8n",
+    "automation",
+    "mcp",
+    "psd"
+  ],
+  "license": "MIT",
+  "defaultEnabled": false,
+  "mcpServers": {
+    "n8n-instance": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/n8n-mcp-proxy.sh"
+      ]
+    }
+  }
+}

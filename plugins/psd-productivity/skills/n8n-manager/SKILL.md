@@ -22,7 +22,7 @@ extended-thinking: true
 
 - **Server**: Read from `N8N_HOST` environment variable (never hardcoded)
 - **API Auth**: `X-N8N-API-KEY` header via `N8N_API_KEY` env var
-- **Instance MCP**: Native n8n MCP at `N8N_HOST/mcp-server/http` (bearer token from `N8N_MCP_TOKEN`)
+- **Instance MCP**: Native n8n MCP at `N8N_HOST/mcp-server/http` (bearer token from `N8N_MCP_TOKEN`), from the opt-in `n8n` plugin: `/plugin install n8n`, then enable it from the Installed tab of `/plugin`
 - **Docs MCP**: czlonkowski/n8n-mcp for node documentation and templates
 - **Version**: n8n Community Edition v2.14.x
 - **Scripts**: `plugins/psd-productivity/skills/n8n-manager/scripts/`

@@ -45,7 +45,7 @@ result that an admin must approve.
 ## Option A: macOS Keychain (recommended)
 
 The loaders check the login Keychain right after environment variables, so a key
-stored here works for every script, the n8n MCP proxy, and unattended runs on a
+stored here works for every script, the opt-in n8n and documenso MCP plugins, and unattended runs on a
 machine where the user is logged in. Nothing is written to disk in clear text and
 nothing lands in shell history — `-w` with no value prompts for it.
 
