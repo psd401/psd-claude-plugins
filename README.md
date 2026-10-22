@@ -38,7 +38,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 
 ### psd-productivity
 
-38 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
+33 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -47,13 +47,13 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 | Category | Skills |
 |----------|--------|
 | **Productivity** (4) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` · `/google-workspace-cli` |
-| **Content & Docs** (16) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/blog-to-site` · `/psd-atrium` |
+| **Content & Docs** (12) | `/writer` · `/pdf-builder` · `/pdf-to-markdown` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/blog-to-site` · `/psd-atrium` |
 | **Communications** (2) | `/parentsquare` · `/class-intercom` |
 | **E-Signature** (1) | `/documenso-manager` |
 | **Automation** (2) | `/n8n-manager` · `/browser-control` |
 | **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
 | **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
-| **Planning** (2) | `/seven-advisors` · `/skill-creator` |
+| **Planning** (1) | `/seven-advisors` |
 | **PSD-Specific** (3) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` |
 | **Operations** (2) | `/enrollment` · `/chief-of-staff` |
 
@@ -156,7 +156,7 @@ psd-claude-plugins/
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
 │   ├── psd-productivity/          # Productivity workflows
-│   │   ├── skills/                # 38 productivity skills
+│   │   ├── skills/                # 33 productivity skills
 │   │   └── agents/                # enrollment-validator
 │   ├── n8n/                       # Opt-in n8n-instance MCP server (scripts/n8n-mcp-proxy.sh)
 │   ├── documenso/                 # Opt-in documenso MCP server (scripts/documenso-mcp-proxy.sh)
