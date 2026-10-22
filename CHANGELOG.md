@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **Every GitHub Actions `uses:` ref is pinned to a full commit SHA** (CI only, no plugin version bump).
+  - The four callers of the `PSD401/.github` reusable workflows (psd-ci, security-scan, claude-code-review, openwiki-update) moved from `@main` to `@1aa5f5351a78b15f5c71668037f5d35b9613ae41` (`PSD401/.github` main on 2026-10-21). The `@main is deliberate … zizmor: ignore[unpinned-uses]` comments are gone. This closes CodeQL `actions/unpinned-tag` #98–#101.
+  - `actions/checkout@v7` → `@3d3c42e…` (v7.0.1) and `actions/setup-go@v7` → `@b7ad1da…` (v7.0.0) in `claude.yml` and both CLI release workflows. CodeQL didn't flag these because GitHub-owned actions count as trusted, but a tag can still be moved.
+  - New `ci/check-workflow-pins.js` with 7 bun tests, run in psd-ci's `test-command`. It fails on any `uses:` that isn't a 40-character lowercase commit SHA (`./` local refs are exempt; `docker://` refs need an `@sha256:` digest) and names each `file:line`.
+  - Departs from psd-dev-standards standards/06, which still requires `@main` for org reusables. The standard is being changed to match. Until `PSD401/.github` publishes release tags, Dependabot can't bump the four org pins, so they need manual bumps.
+
 ### Added
 - **Cloud routines for triage, lfg, and pr-fix** (no plugin version bump — routines are infrastructure, not part of `/plugin install` distribution):
   - **`routines/triage`** — autonomous FreshService → GitHub triage. Runs once a day (cron `0 10 * * *`). Polls software-dev workspace (ID 13), filters by `[claude-routine-triaged]` private-note marker, classifies tickets to `psd401/aistudio` / `psd401/psd-workflow-automation` / `psd401/psd-claude-plugins`, runs full Phase 1.5 diagnosis fan-out (`repo-research-analyst` + `git-history-analyzer` + `bug-reproduction-validator`), files an issue, posts private note (with diagnosis brief) + public reply to FreshService. Per-fire cap of 5 tickets.

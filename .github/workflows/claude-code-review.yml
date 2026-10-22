@@ -11,6 +11,6 @@ jobs:
       pull-requests: read
       issues: read
       id-token: write
-    uses: PSD401/.github/.github/workflows/reusable-claude-review.yml@main
+    uses: PSD401/.github/.github/workflows/reusable-claude-review.yml@1aa5f5351a78b15f5c71668037f5d35b9613ae41 # PSD401/.github main @ 2026-10-21
     secrets:
       BEDROCK_API_KEY: ${{ secrets.BEDROCK_API_KEY }}
