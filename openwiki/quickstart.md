@@ -14,12 +14,12 @@ openwiki:
 
 # PSD Claude Plugins — quickstart
 
-`psd401/psd-claude-plugins` is Peninsula School District's **plugin marketplace for Claude Code and Claude Cowork** (marketplace version 2.36.0). It is almost entirely Markdown prompts (skills, agents), a few shell/JS/Python helper scripts, two vendored Go CLIs, and a vendored TypeScript plugin. There is no root build; "development" means editing `SKILL.md`/agent files (hot-reloaded) and keeping JSON manifests and version numbers consistent.
+`psd401/psd-claude-plugins` is Peninsula School District's **plugin marketplace for Claude Code and Claude Cowork** (marketplace version 2.37.0). It is almost entirely Markdown prompts (skills, agents), a few shell/JS/Python helper scripts, two vendored Go CLIs, and a vendored TypeScript plugin. There is no root build; "development" means editing `SKILL.md`/agent files (hot-reloaded) and keeping JSON manifests and version numbers consistent.
 
 | Plugin | Purpose | Wiki |
 |---|---|---|
-| `psd-coding-system` v3.8.10 | `/plan` → `/lfg` → `/evolve` dev workflow, 44 agents, Definition-of-Done gate, hooks | [coding system](./architecture/coding-system.md), [DoD gate](./workflows/definition-of-done-gate.md), [workflow](./workflows/plan-lfg-evolve.md) |
-| `psd-productivity` v2.26.0 | 33 district/productivity skills + `enrollment-validator` agent | [productivity plugin](./architecture/productivity-plugin.md), [Go CLI skills](./integrations/go-cli-skills.md) |
+| `psd-coding-system` v3.8.11 | `/plan` → `/lfg` → `/evolve` dev workflow, 44 agents, Definition-of-Done gate, hooks | [coding system](./architecture/coding-system.md), [DoD gate](./workflows/definition-of-done-gate.md), [workflow](./workflows/plan-lfg-evolve.md) |
+| `psd-productivity` v3.0.0 (breaking: docx/pdf/pptx/xlsx/skill-creator removed) | 33 district/productivity skills + `enrollment-validator` agent | [productivity plugin](./architecture/productivity-plugin.md), [Go CLI skills](./integrations/go-cli-skills.md) |
 | `n8n`, `documenso` v1.0.0 | Opt-in MCP connections (start disabled) | [MCP plugins](./integrations/mcp-plugins.md) |
 | `collab` v1.0.0 | Threads between colleagues' agents; **published from upstream, never hand-edit** | [collab](./integrations/collab-plugin.md) |
 
@@ -48,7 +48,8 @@ Run commands from the repo root. Paths are under `plugins/` unless stated.
 | n8n / documenso MCP connection | [MCP plugins](./integrations/mcp-plugins.md) | `n8n/scripts/n8n-mcp-proxy.sh`, `documenso/scripts/documenso-mcp-proxy.sh`, each `plugin.json` | `defaultEnabled: false`, `mcpServers` | none | `shellcheck --severity=error plugins/n8n/scripts/*.sh plugins/documenso/scripts/*.sh` |
 | collab plugin behavior | [collab plugin](./integrations/collab-plugin.md) | change **upstream** `psd401/psd-collab-mcp`; local reference `collab/hooks/register.tsx`, `.publish-source` | `register`, `projectKey`, `statusText`, `sessionSection` | `collab/test/*.test.ts` (upstream runtime only) | none locally; not run in this repo's CI |
 | Edit a cloud routine or its labels | [cloud routines](./operations/cloud-routines.md) | `routines/<name>/routine-prompt.md`, `routines/shared/bootstrap.sh` | label state machines, protected paths | none (first-run checklist in routine README) | `shellcheck --severity=error routines/shared/*.sh` |
-| Change CI, security scan, wiki workflow | [CI and automation](./operations/ci-and-automation.md) | `.github/workflows/psd-ci.yml`, `security-scan.yml`, `openwiki-update.yml`, `.gitleaksignore` | `lint-command`, `test-command` | the four CI suites | `shellcheck --severity=error $(git ls-files '*.sh')` |
+| Change CI, security scan, wiki workflow | [CI and automation](./operations/ci-and-automation.md) | `.github/workflows/psd-ci.yml`, `security-scan.yml`, `openwiki-update.yml`, `.gitleaksignore` | `lint-command`, `test-command` | the CI suites (incl. `ci/check-marketplace-pins.test.js`) | `shellcheck --severity=error $(git ls-files '*.sh')` |
+| Add or change a third-party marketplace entry (object `source` with `github`/`url`/`git-subdir`) | [marketplace structure](./architecture/marketplace-structure.md#invariants) and [CI and automation](./operations/ci-and-automation.md#what-ci-actually-runs-psd-ciyml) | `.claude-plugin/marketplace.json`, `ci/check-marketplace-pins.js` | `plugins[].source.sha` (full 40-char lowercase SHA) | `ci/check-marketplace-pins.test.js` | `bun test ci/` ; `bun ci/check-marketplace-pins.js` |
 
 Boundary checks worth remembering: a new skill/agent is only complete when counts in `README.md`, `CLAUDE.md`, plugin `README.md`, `plugin.json` and `marketplace.json` descriptions agree; a plugin ships nothing from another plugin (no cross-plugin dependencies, skills cannot call skills).
 
@@ -57,5 +58,4 @@ Boundary checks worth remembering: a new skill/agent is only complete when count
 - `plugins/psd-productivity/skills/*` (individual skills such as `enrollment`, `board-policy-formatter`, `n8n-manager`, `documenso-manager`, `multi-model-research`, `html-artifact`) — only mapped at group level in the [productivity plugin](./architecture/productivity-plugin.md); per-skill internals (enrollment FTE rules, Python pipelines) deserve their own pages.
 - `plugins/psd-coding-system/skills/hallmark`, `chad-review`, `psd-sign` — vendored/specialized skills summarized only; internals not documented.
 - `plugins/psd-coding-system/agents/**` — individual agent contracts are summarized by category; `docs/agent-manifest.md` still lists as "orphans" several agents that `/lfg` Phase 6 and `/setup` `review_agents` now wire (likely stale).
-- `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered.
-to-use.md` and its images were not reviewed.
+- `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.

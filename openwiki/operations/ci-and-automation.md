@@ -1,7 +1,7 @@
 ---
 type: Operations
 title: CI, security scan, release and repo automation
-description: "GitHub Actions in this repo: the org-reusable CI (gofmt/vet/shellcheck plus the four runnable test suites), security scan with gitleaks baseline, Claude review and @claude workflows, Go CLI release tags, the weekly OpenWiki update, and the validate-and-tag release ritual."
+description: "GitHub Actions in this repo: the org-reusable CI (gofmt/vet/shellcheck plus the five runnable test suites, including the marketplace SHA-pin check), security scan with gitleaks baseline, Claude review and @claude workflows, Go CLI release tags, the weekly OpenWiki update, and the validate-and-tag release ritual."
 tags: [ci, github-actions, testing, security-scan, release, openwiki, gitleaks, dependabot]
 openwiki:
   roles: [delivery, testing, operations]
@@ -21,8 +21,10 @@ openwiki:
     - plugins/psd-productivity/skills/class-intercom/cli
     - plugins/psd-productivity/skills/psd-atrium/scripts/common.test.js
     - plugins/psd-productivity/skills/psd-brand-guidelines/test_brand.py
+    - ci/check-marketplace-pins.test.js
   invariants:
-    - CI runs exactly four test suites; plugins/collab/test is deliberately not run here.
+    - CI runs exactly five test suites; plugins/collab/test is deliberately not run here.
+    - Object-typed third-party marketplace sources must be SHA-pinned; ci/check-marketplace-pins.js exits 1 and names each unpinned entry.
     - Reusable org workflows are referenced at @main on purpose, with a zizmor ignore comment.
     - gitleaks findings not fingerprinted in .gitleaksignore fail the security scan.
   validation_commands:
@@ -48,7 +50,7 @@ Most workflows are thin callers of PSD401 org reusable workflows (`PSD401/.githu
 Install: `uv` 0.12.17, `bun` 1.4.2, Go from the runner (fetches the `go.mod` toolchain, go1.26.5). No lockfile at root, so no auto runtime install.
 
 - **Lint:** `gofmt -l` clean and `go vet ./...` in both Go CLI dirs; `shellcheck --severity=error` over every tracked `*.sh`.
-- **Tests:** `go test ./...` in `parentsquare/cli` and `class-intercom/cli`; `bun test plugins/psd-productivity/skills/psd-atrium/`; `uv run --with pytest pytest -q test_brand.py` in `psd-brand-guidelines`.
+- **Tests:** `go test ./...` in `parentsquare/cli` and `class-intercom/cli`; `bun test plugins/psd-productivity/skills/psd-atrium/`; `bun test ci/` and `bun ci/check-marketplace-pins.js` (marketplace SHA-pin enforcement, see [marketplace structure](../architecture/marketplace-structure.md#invariants)); `uv run --with pytest pytest -q test_brand.py` in `psd-brand-guidelines`.
 - **Not run:** `plugins/collab/test` (needs the `claude-code/testing` runtime; owned upstream — see [collab plugin](../integrations/collab-plugin.md)); the enrollment Python scripts, `scripts/test_pipeline.js`, and everything in `psd-coding-system` (markdown + shell, no suites). Adding a new test suite means adding it to `test-command`, otherwise it never gates a PR.
 
 ## Release ritual
@@ -58,6 +60,7 @@ Marketplace releases are driven by `/bump-version` ([version tracks](../architec
 ## Change navigation
 
 - New runnable test or lint: add to `psd-ci.yml` `lint-command`/`test-command`; confirm tool install is covered by `install-command`.
+- Marketplace pin rule failing on a `marketplace.json` change: an object-typed `source` lacks a 40-character lowercase `sha`. Pin it to a full commit SHA; the check's own tests live in `ci/check-marketplace-pins.test.js`.
 - Narrow local checks: the per-suite commands above; shellcheck on just the touched scripts.
 - Security-scan failure on a genuine false positive: add the fingerprint line to `.gitleaksignore` with a justification comment; never to hide real secrets.
 - Workflow files are protected paths for [cloud routines](./cloud-routines.md#protected-paths), so routine-authored fixes cannot touch them.

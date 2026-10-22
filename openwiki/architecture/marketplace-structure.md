@@ -6,9 +6,11 @@ tags: [marketplace, claude-code, plugins, versioning, release]
 openwiki:
   roles: [architecture, delivery, repository]
   change_kinds: [plugin-registration, versioning, release]
-  source_paths: [.claude-plugin/marketplace.json, CLAUDE.md, plugins/psd-coding-system/skills/bump-version/SKILL.md, plugins/collab/.publish-source]
+  source_paths: [.claude-plugin/marketplace.json, CLAUDE.md, plugins/psd-coding-system/skills/bump-version/SKILL.md, plugins/collab/.publish-source, ci/check-marketplace-pins.js]
   invariants:
     - marketplace.json plugins[] must match the directories under plugins/ and each source must exist.
+    - Object-typed third-party sources (github, url, git-subdir) must carry a full 40-character lowercase sha.
+    - Object-typed third-party sources (github, url, git-subdir) must carry a full 40-character lowercase sha.
     - Plugins cannot depend on each other and skills cannot invoke other skills.
     - collab is published from upstream and never hand-edited or bumped here.
   validation_commands:
@@ -49,6 +51,7 @@ flowchart TD
 
 - **marketplace.json is critical.** `plugins[]` must match the real directory tree; every `source` must exist; versions should match each `plugin.json`. When structure changes, update marketplace.json first.
 - **Plugin independence.** Plugins cannot declare dependencies on each other; skills cannot invoke other skills (workflows chain through Task delegation to agents); each plugin ships its own agents. The `n8n`/`documenso` plugins only *pair* with `/n8n-manager` / `/documenso-manager` in productivity.
+- **Third-party catalog entries are SHA-pinned.** A `marketplace.json` entry whose `source` is an object of type `github`, `url` or `git-subdir` must carry `sha` as a full 40-character lowercase commit SHA; relative-path sources (`./plugins/...`) are exempt. CI enforces this with [`ci/check-marketplace-pins.js`](../operations/ci-and-automation.md#what-ci-actually-runs-psd-ciyml). The current catalog has only relative-path sources, so the check passes trivially today.
 - **`hooks.json` shape.** Hooks must be nested in a `"hooks"` array inside each event entry (see [coding-system hooks](./coding-system.md#hooks)).
 - **`collab` is not developed here.** `plugins/collab/.publish-source` records `psd401/psd-collab-mcp`; fix upstream and re-publish. Never hand-edit it, and `/bump-version` ignores it.
 - **Agent/skill frontmatter pins `model:` and `effort:` explicitly.** Model-pinned skills use `claude-opus-5-5` (`effort: high`; `xhigh` for `/evolve`); `/plan` uses `claude-fable-5-1` at `xhigh`; `/lfg` runs `claude-opus-5-5` at `medium`; agents default to `claude-sonnet-5` except architect-specialist, meta-reviewer, runtime-verifier, plan-validator (Opus). Bare aliases only, never date-suffixed IDs. Pinning `effort` exists so a model-default shift cannot silently change quality. Skills without `model:` inherit the session.
@@ -71,5 +74,8 @@ Run the `/bump-version` skill (`plugins/psd-coding-system/skills/bump-version/SK
 | Add/remove a plugin | `.claude-plugin/marketplace.json`, new `plugins/<name>/.claude-plugin/plugin.json` | `claude plugin validate .`; `jq '.plugins[].name' .claude-plugin/marketplace.json` |
 | Change skill/agent counts in docs | `CLAUDE.md`, `README.md`, plugin READMEs, `plugin.json` description, marketplace entry | grep the old count; counts live in all of these |
 | Release | `/bump-version` | `claude plugin validate .` |
+| Add a third-party plugin source | `.claude-plugin/marketplace.json` `plugins[].source` | `sha` present and 40-char lowercase; `bun ci/check-marketplace-pins.js` |
 
 Stale-doc warning: `docs/META_LEARNING_GUIDE.md` (v1.9.0) still describes removed `/work`, `/test`, `/review_pr`, `/clean_branch` commands; and `plugins/psd-coding-system/docs/agent-manifest.md` lists several agents as "orphans" that `/lfg` Phase 6 and `/setup`'s `review_agents` config now do wire in. Prefer the skill sources. See also [CI and repo automation](../operations/ci-and-automation.md) for what actually validates PRs.
+actually validates PRs.
+nch` commands; and `plugins/psd-coding-system/docs/agent-manifest.md` lists several agents as "orphans" that `/lfg` Phase 6 and `/setup`'s `review_agents` config now do wire in. Prefer the skill sources. See also [CI and repo automation](../operations/ci-and-automation.md) for what actually validates PRs.

@@ -24,7 +24,7 @@ openwiki:
 
 # psd-coding-system plugin
 
-Version 3.8.10. v3.0.0 consolidated 21 overlapping skills into **three disciplined surfaces** (`/plan`, `/lfg`, `/evolve`) plus utilities. "Done" is a machine-checkable [Definition of Done](../workflows/definition-of-done-gate.md), not agent goodwill. The end-to-end loop is in [plan → lfg → evolve](../workflows/plan-lfg-evolve.md). Registration and versioning rules are in [marketplace structure](./marketplace-structure.md).
+Version 3.8.11. v3.0.0 consolidated 21 overlapping skills into **three disciplined surfaces** (`/plan`, `/lfg`, `/evolve`) plus utilities. "Done" is a machine-checkable [Definition of Done](../workflows/definition-of-done-gate.md), not agent goodwill. The end-to-end loop is in [plan → lfg → evolve](../workflows/plan-lfg-evolve.md). Registration and versioning rules are in [marketplace structure](./marketplace-structure.md).
 
 ## Layout
 

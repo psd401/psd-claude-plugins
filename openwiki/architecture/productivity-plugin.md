@@ -30,7 +30,7 @@ openwiki:
 
 # psd-productivity plugin
 
-Version 2.26.0; 33 skills plus one agent (`agents/enrollment-validator.md`, Sonnet 5, validates P223 enrollment data). Works in Claude Code and Claude Cowork and has no dependency on the [coding system](./coding-system.md). Prerequisite: `bun` on `PATH` (the `n8n-docs` MCP server in `plugin.json` starts via `bunx n8n-mcp@2.94.3`, and many skills run bun scripts). Registration/versioning: [marketplace structure](./marketplace-structure.md).
+Version 3.0.0 (a breaking major release: the built-in-duplicate skills were removed, see below); 33 skills plus one agent (`agents/enrollment-validator.md`, Sonnet 5, validates P223 enrollment data). Works in Claude Code and Claude Cowork and has no dependency on the [coding system](./coding-system.md). Prerequisite: `bun` on `PATH` (the `n8n-docs` MCP server in `plugin.json` starts via `bunx n8n-mcp@2.94.3`, and many skills run bun scripts). Registration/versioning: [marketplace structure](./marketplace-structure.md).
 
 The skill's own `SKILL.md` frontmatter description is the source of truth for what it does; the roster below is only a map.
 
