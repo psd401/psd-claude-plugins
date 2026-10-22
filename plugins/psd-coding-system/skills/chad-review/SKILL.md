@@ -18,7 +18,6 @@ description: >-
 argument-hint: "[file-or-directory-to-review]"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 ---
 
 # Chad Review — strip the showing-off, keep the job

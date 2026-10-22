@@ -4,7 +4,6 @@ description: Go/No-Go checklists for risky deployments (migrations, schema chang
 tools: Bash, Read, Grep, Glob
 model: claude-sonnet-5
 isolation: worktree
-extended-thinking: true
 color: orange
 ---
 

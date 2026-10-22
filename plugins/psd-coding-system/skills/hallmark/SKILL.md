@@ -17,7 +17,6 @@ description: >-
 argument-hint: "[audit|redesign|study] [target]"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 ---
 
 # Hallmark

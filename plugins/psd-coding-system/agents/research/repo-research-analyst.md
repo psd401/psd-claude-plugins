@@ -3,7 +3,6 @@ name: repo-research-analyst
 description: Codebase onboarding and deep research agent for architecture mapping, tech stack identification, and convention discovery
 tools: Read, Grep, Glob, WebSearch
 model: claude-sonnet-5
-extended-thinking: true
 mcpServers:
   - context7
 color: blue

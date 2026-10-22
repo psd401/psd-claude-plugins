@@ -3,7 +3,6 @@ name: documentation-writer
 description: Technical documentation specialist for API docs, user guides, and architectural documentation
 tools: Bash, Read, Edit, Write, WebSearch
 model: claude-sonnet-5
-extended-thinking: true
 color: green
 ---
 

@@ -49,7 +49,7 @@ def validate_skill(skill_path):
         # Geoffrey skill properties
         'triggers', 'allowed-tools', 'version', 'license', 'metadata',
         # Claude Code native skill properties
-        'argument-hint', 'model', 'context', 'agent', 'extended-thinking',
+        'argument-hint', 'model', 'context', 'agent', 'effort', 'paths',
         'compatibility',
     }
 

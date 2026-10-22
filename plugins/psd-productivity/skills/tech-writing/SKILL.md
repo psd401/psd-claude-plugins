@@ -4,7 +4,6 @@ description: "Write and edit technical content in Google developer-documentation
 argument-hint: "[write|edit|review] [target] — e.g., 'review README.md', 'write a how-to for X', 'edit this doc for style'"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 allowed-tools:
   - Read
   - Write

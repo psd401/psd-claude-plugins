@@ -34,7 +34,6 @@ allowed-tools:
   - mcp__claude-in-chrome__read_console_messages
   - mcp__claude-in-chrome__read_network_requests
   - mcp__claude-in-chrome__list_connected_browsers
-extended-thinking: true
 ---
 
 # P223 Enrollment Automation

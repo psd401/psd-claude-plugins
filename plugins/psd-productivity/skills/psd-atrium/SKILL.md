@@ -4,7 +4,6 @@ description: "Publish and manage content in Atrium — PSD AI Studio's collabora
 argument-hint: "[command] [args...] — e.g. 'status', 'collections --shape tree', 'create-collection --name \"X\" --scope private', 'move-content --id <id> --collection <id>', 'create-document --title \"X\" --markdown-file doc.md', 'publish --id <id>'"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 allowed-tools:
   - Bash
   - Read

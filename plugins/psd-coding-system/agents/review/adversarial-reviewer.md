@@ -3,7 +3,6 @@ name: adversarial-reviewer
 description: Constructs failure scenarios across component boundaries, stress-tests assumptions, and identifies cascading failure modes that escape unit-level reviews
 tools: Read, Grep, Glob
 model: claude-sonnet-5
-extended-thinking: true
 color: orange
 ---
 

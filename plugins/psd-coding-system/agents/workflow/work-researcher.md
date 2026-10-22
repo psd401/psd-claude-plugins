@@ -4,7 +4,6 @@ description: Pre-implementation research orchestrator for /work — dispatches k
 tools: Bash, Read, Grep, Glob, Task
 model: claude-sonnet-5
 memory: project
-extended-thinking: true
 keep-coding-instructions: true
 initialPrompt: "Begin pre-implementation research using the context in $ARGUMENTS. Detect environment, route research, dispatch sub-agents in parallel, and return a structured Research Brief."
 color: blue

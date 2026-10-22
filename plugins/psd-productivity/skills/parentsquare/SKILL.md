@@ -4,7 +4,6 @@ description: "Query Peninsula School District's ParentSquare data and draft post
 argument-hint: "[command] [args...] — e.g. 'schools get-directory 11671', 'notification-activity 998 --section school-usage'"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 allowed-tools:
   - Bash
   - Read

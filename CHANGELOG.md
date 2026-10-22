@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+### Removed
+- **`extended-thinking: true` frontmatter dropped from every skill and agent** (66 files across psd-coding-system and psd-productivity). Claude Code does not recognize the key, so it never did anything; on the one enabled agent file (`psd-productivity/agents/enrollment-validator.md`) it produced a startup warning (`has a frontmatter key Claude Code does not recognize or apply: "extended-thinking"`). Thinking depth is already controlled by the `effort:` key each file carries.
+  - `CLAUDE.md` Model Selection Strategy no longer lists the key as a convention.
+  - `agent-native-reviewer` no longer recommends it in its agent checklist; its skill checklist lists `effort` as the optional field instead.
+  - `skill-creator/scripts/quick_validate.py` allows `effort` in place of `extended-thinking` and adds `paths`, so the repo's standard `effort:` and `paths:` keys no longer fail validation.
+  - The provenance note in `hallmark/SKILL.md` is left as written (historical record of the upstream rewrite).
+
 ## [2.36.0] - 2026-10-20
 
 ### Changed

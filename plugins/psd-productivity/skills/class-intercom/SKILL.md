@@ -4,7 +4,6 @@ description: "Query Peninsula School District's Class Intercom data and draft so
 argument-hint: "[command] [args...] — e.g. 'channels', 'content list-content', 'create-draft --channel <uuid> --message \"...\"'"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 allowed-tools:
   - Bash
   - Read

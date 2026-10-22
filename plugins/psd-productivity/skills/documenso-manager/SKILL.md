@@ -14,7 +14,6 @@ allowed-tools:
   - Write
   - Glob
   - Grep
-extended-thinking: true
 ---
 
 # Documenso Manager
