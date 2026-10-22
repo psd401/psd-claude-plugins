@@ -14,7 +14,7 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 | Plugin | Purpose | Skills | Agents |
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 9 | 44 |
-| `psd-productivity` | Productivity workflows (Cowork-friendly) | 38 | 1 |
+| `psd-productivity` | Productivity workflows (Cowork-friendly) | 33 | 1 |
 | `n8n` | Opt-in MCP connection to PSD's n8n instance (`n8n-instance` server). Starts disabled | 0 | 0 |
 | `documenso` | Opt-in MCP connection to PSD's Documenso instance (`documenso` server). Starts disabled | 0 | 0 |
 | `collab` | Threads between people's Claude Code agents — hooks (pane, status entry, toasts, listening) + the hosted `collab` MCP server | 0 | 0 |
@@ -30,7 +30,7 @@ psd-claude-plugins/
   .claude-plugin/marketplace.json   # lists all five plugins — see CRITICAL RULES below
   plugins/
     psd-coding-system/              # skills/ (9), agents/ (44 in 8 category dirs), hooks/, scripts/, workflows/, docs/patterns/
-    psd-productivity/               # skills/ (38), agents/ (enrollment-validator)
+    psd-productivity/               # skills/ (33), agents/ (enrollment-validator)
     n8n/                            # opt-in n8n-instance MCP server: scripts/n8n-mcp-proxy.sh, no skills
     documenso/                      # opt-in documenso MCP server: scripts/documenso-mcp-proxy.sh, no skills
     collab/                         # published from psd401/psd-collab-mcp — hooks/, types/, test/, .publish-source; no skills or agents
@@ -70,7 +70,7 @@ Categories under `agents/`: review (15), domain (7), quality (4), research (6), 
 
 Non-derivable notes: **runtime-verifier is the only agent that executes the app** (build/lint/typecheck/full-suite/Playwright + screenshot evidence); six agents carry `memory: project` for cross-session knowledge (runtime-verifier, test-specialist, learnings-researcher, work-researcher, learning-writer, meta-reviewer — the canonical list is their frontmatter); security-reviewer is the v3.0.0 merge of the two former security agents.
 
-### psd-productivity Skills (38 total)
+### psd-productivity Skills (33 total)
 
 Each skill's `SKILL.md` frontmatter description is the source of truth — the session skill listing carries them all; `ls plugins/psd-productivity/skills/` for the roster. Two carry vendored Go CLIs whose binaries are **not committed** (fetched per-platform from a GitHub Release by `scripts/ensure-binary.sh`): `parentsquare` and `class-intercom` — both create only unsent drafts, never publish/notify.
 

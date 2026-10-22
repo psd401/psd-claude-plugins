@@ -1,4 +1,0 @@
-Converting HTML slides to PowerPoint...
-Processing slide 1: Title
-Processing slide 2: Timeline
-Processing slide 3: Big Picture
