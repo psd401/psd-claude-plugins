@@ -4,7 +4,6 @@ description: "Reformat a Google Doc, PDF, or Word document into the official PSD
 argument-hint: "[source file path or Google Doc URL]"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 allowed-tools:
   - Bash
   - Read

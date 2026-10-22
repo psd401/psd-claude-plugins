@@ -9,7 +9,6 @@ tools:
   - Write
   - Edit
 model: claude-sonnet-5
-extended-thinking: true
 ---
 
 # Enrollment Validator Agent

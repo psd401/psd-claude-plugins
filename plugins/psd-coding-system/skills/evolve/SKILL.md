@@ -15,7 +15,6 @@ allowed-tools:
   - Grep
   - WebFetch
   - WebSearch
-extended-thinking: true
 ---
 
 # Evolve Command

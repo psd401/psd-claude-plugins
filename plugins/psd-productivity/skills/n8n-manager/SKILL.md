@@ -13,7 +13,6 @@ allowed-tools:
   - Write
   - Glob
   - Grep
-extended-thinking: true
 ---
 
 # n8n Manager

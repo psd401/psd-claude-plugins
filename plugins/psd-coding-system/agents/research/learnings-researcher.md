@@ -4,7 +4,6 @@ description: Searches knowledge base for relevant past learnings before implemen
 tools: Read, Grep, Glob
 model: claude-sonnet-5
 memory: project
-extended-thinking: true
 color: blue
 ---
 

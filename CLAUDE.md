@@ -235,7 +235,6 @@ Each plugin version tracks breaking changes for users of *that specific plugin* 
 - **effort: high**: Default for most skills/agents
 - **effort: xhigh**: `/plan`, `/evolve`, and the meta-reviewer agent
 - **effort: medium**: `/lfg` — Opus 5.5 stays strong at medium, the cost/latency sweet spot for the build loop
-- **extended-thinking: true**: Enabled on all skills/agents
 - **memory: project**: Enabled on 6 key agents
 
 ### Model Selection Rules for Skills

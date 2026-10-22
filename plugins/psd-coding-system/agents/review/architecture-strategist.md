@@ -3,7 +3,6 @@ name: architecture-strategist
 description: Reviews code for SOLID compliance, anti-pattern detection, and architectural integrity with structured checklists
 tools: Read, Grep, Glob
 model: claude-sonnet-5
-extended-thinking: true
 color: purple
 ---
 

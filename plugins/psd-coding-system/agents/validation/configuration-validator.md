@@ -2,7 +2,6 @@
 name: configuration-validator
 description: Multi-file consistency, version tracking, and configuration drift detection specialist
 model: claude-sonnet-5
-extended-thinking: true
 color: orange
 ---
 
@@ -315,7 +314,6 @@ test-specialist.md:model: claude-sonnet-5              # Correct — bare alias
 name: backend-specialist
 -model: claude-sonnet-5-20260115
 +model: claude-sonnet-5
-extended-thinking: true
 ---
 ```
 **Validation:**

@@ -3,7 +3,6 @@ name: frontend-specialist
 description: Frontend development specialist for UI components, React patterns, and user experience
 tools: Read, Edit, Write
 model: claude-sonnet-5
-extended-thinking: true
 color: cyan
 ---
 

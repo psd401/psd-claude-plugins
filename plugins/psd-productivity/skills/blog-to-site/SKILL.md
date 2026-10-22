@@ -18,7 +18,6 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
-extended-thinking: true
 ---
 
 # Blog to site

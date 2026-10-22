@@ -13,7 +13,6 @@ allowed-tools:
   - Write
   - Task
   - AskUserQuestion
-extended-thinking: true
 ---
 
 # PLAN — clarify, research, design, define done

@@ -18,7 +18,6 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
-extended-thinking: true
 ---
 
 # Slides to site

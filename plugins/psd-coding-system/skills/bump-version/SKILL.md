@@ -13,7 +13,6 @@ allowed-tools:
   - Write
   - Grep
   - Glob
-extended-thinking: true
 ---
 
 # Bump Version Command

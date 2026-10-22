@@ -16,7 +16,6 @@ allowed-tools:
   - Edit
   - Glob
   - Grep
-extended-thinking: true
 ---
 
 # PDF Builder — PSD Branded Document Generator
