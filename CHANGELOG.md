@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Security
+- **Workflow hardening** (CI only). zizmor `--offline` now reports no findings on `.github/workflows`.
+  - `claude.yml` (the `@claude` mention bot) runs only when the comment, review, or issue author is `OWNER`, `MEMBER`, or `COLLABORATOR`. The repo is public, so before this anyone could start the job and reach `id-token: write` and the OAuth token. claude-code-action also checks for write access, but only after the job has started. The `issue_comment` trigger is marked as an accepted zizmor `dangerous-triggers` finding, with that guard as the reason.
+  - `persist-credentials: false` on the checkouts in `claude.yml` and both CLI release workflows, so the job token isn't left in `.git/config` (zizmor `artipacked`). The release steps authenticate through `GH_TOKEN`, and the org claude-review reusable already runs claude-code-action this way.
 - **Every GitHub Actions `uses:` ref is pinned to a full commit SHA** (CI only, no plugin version bump).
   - The four callers of the `PSD401/.github` reusable workflows (psd-ci, security-scan, claude-code-review, openwiki-update) moved from `@main` to `@1aa5f5351a78b15f5c71668037f5d35b9613ae41` (`PSD401/.github` main on 2026-10-21). The `@main is deliberate … zizmor: ignore[unpinned-uses]` comments are gone. This closes CodeQL `actions/unpinned-tag` #98–#101.
   - `actions/checkout@v7` → `@3d3c42e…` (v7.0.1) and `actions/setup-go@v7` → `@b7ad1da…` (v7.0.0) in `claude.yml` and both CLI release workflows. CodeQL didn't flag these because GitHub-owned actions count as trusted, but a tag can still be moved.
