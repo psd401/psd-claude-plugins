@@ -12,7 +12,6 @@ allowed-tools:
   - Grep
   - Glob
   - AskUserQuestion
-extended-thinking: true
 ---
 
 # Worktree Command

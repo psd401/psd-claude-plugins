@@ -1,8 +1,8 @@
 # PSD Productivity
 
-**37 productivity workflows + 1 agent for Peninsula School District**
+**33 productivity workflows + 1 agent for Peninsula School District**
 
-Version: 2.24.2
+Version: 2.26.0
 
 Author: Kris Hagel (hagelk@psd401.net)
 
@@ -18,9 +18,11 @@ Author: Kris Hagel (hagelk@psd401.net)
 /plugin install psd-productivity
 ```
 
+**Prerequisite:** [bun](https://bun.sh) on your `PATH`. The `n8n-docs` MCP server starts with `bunx`, and several skills run `bun` scripts; without it, `n8n-docs` fails to start.
+
 ---
 
-## Skills (38)
+## Skills (33)
 
 ### Productivity (4)
 
@@ -31,7 +33,7 @@ Author: Kris Hagel (hagelk@psd401.net)
 | `/legislative-tracker` | Track WA State K-12 education legislation via SOAP API |
 | `/google-workspace-cli` | Unified Google Workspace integration — email, calendar, files, and communication across multiple accounts |
 
-### Content & Document Generation (15)
+### Content & Document Generation (16)
 
 | Skill | Description |
 |-------|-------------|
@@ -40,16 +42,13 @@ Author: Kris Hagel (hagelk@psd401.net)
 | `/html-artifact` | Beautiful, self-contained single-page HTML — docs, reports, code-review explainers, design explorations, interactive editors, and data dashboards / charts / data-story pages (inline-SVG charts, inline JSON); anti-slop taste, optional PSD branding |
 | `/board-policy-formatter` | Reformat a Google Doc, PDF, or Word document into the official PSD board policy/procedure template with zero text modification |
 | `/writer` | Generate content in your authentic voice — emails, blogs, social media, reports |
-| `/docx` | Document creation, editing, tracked changes, comments, and text extraction |
-| `/pptx` | Presentation creation, editing, layouts, and speaker notes |
-| `/pdf` | PDF manipulation — extract text/tables, create, merge/split, fill forms |
 | `/pdf-builder` | Branded PSD PDF documents with letterhead and Documenso-ready field coordinates |
 | `/pdf-to-markdown` | Convert PDF to clean Markdown with image content described as text |
-| `/xlsx` | Spreadsheet creation, editing, formulas, data analysis, and visualization |
 | `/presentation-master` | World-class presentations (Garr Reynolds, Nancy Duarte, Guy Kawasaki, TED) |
 | `/assistant-architect` | Create AI Studio Assistant Architect JSON import files |
 | `/sop-creator` | Generate PSD Standard Operating Procedures using official template |
-| `/slides-to-site` | Convert a Google Slides presentation into a psd401.ai presentation page |
+| `/slides-to-site` | Publish a Google Slides deck on psd401.ai from its link: reads slides, notes and a PDF, writes the page, opens a PR, merges after CI, confirms it is live |
+| `/blog-to-site` | Publish a blog post on psd401.ai from the author's text and images: words kept exactly as written, header image cropped, PR merged after CI, confirms it is live |
 
 ### Communications (2)
 
@@ -92,7 +91,6 @@ Author: Kris Hagel (hagelk@psd401.net)
 | Skill | Description |
 |-------|-------------|
 | `/seven-advisors` | Multi-perspective decision council for complex choices |
-| `/skill-creator` | Create, modify, and benchmark skills |
 
 ### PSD-Specific (3)
 
@@ -129,14 +127,14 @@ This plugin is part of the **PSD Plugin Marketplace** (`psd-claude-plugins`). It
 psd-productivity/
   .claude-plugin/
     plugin.json
-  skills/                    # 38 skills
+  skills/                    # 33 skills
     assistant-architect/
+    blog-to-site/
     board-policy-formatter/
     browser-control/
     chief-of-staff/
     class-intercom/
     documenso-manager/
-    docx/
     elevenlabs-tts/
     enrollment/
     freshservice-manager/
@@ -148,10 +146,8 @@ psd-productivity/
     multi-model-research/
     n8n-manager/
     parentsquare/
-    pdf/
     pdf-builder/
     pdf-to-markdown/
-    pptx/
     presentation-master/
     psd-athletics/
     psd-atrium/
@@ -160,13 +156,11 @@ psd-productivity/
     redrover-manager/
     research/
     seven-advisors/
-    skill-creator/
     slides-to-site/
     sop-creator/
     strategic-planning-manager/
     tech-writing/
     writer/
-    xlsx/
   agents/
     enrollment-validator.md  # P223 enrollment data validation
   README.md

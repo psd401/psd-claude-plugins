@@ -5,7 +5,6 @@ tools: Bash, Read, Edit, Write, Grep, Glob
 model: claude-opus-5-5
 effort: high
 memory: project
-extended-thinking: true
 keep-coding-instructions: true
 color: green
 ---

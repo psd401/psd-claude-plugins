@@ -13,7 +13,6 @@ allowed-tools:
   - Write
   - Grep
   - Glob
-extended-thinking: true
 ---
 
 # Project Setup — verification gate & reviewers

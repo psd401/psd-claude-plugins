@@ -17,6 +17,86 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+### Removed
+- **`extended-thinking: true` frontmatter dropped from every skill and agent** (66 files across psd-coding-system and psd-productivity). Claude Code does not recognize the key, so it never did anything; on the one enabled agent file (`psd-productivity/agents/enrollment-validator.md`) it produced a startup warning (`has a frontmatter key Claude Code does not recognize or apply: "extended-thinking"`). Thinking depth is already controlled by the `effort:` key each file carries.
+  - `CLAUDE.md` Model Selection Strategy no longer lists the key as a convention.
+  - `agent-native-reviewer` no longer recommends it in its agent checklist; its skill checklist lists `effort` as the optional field instead.
+  - `skill-creator/scripts/quick_validate.py` allows `effort` in place of `extended-thinking` and adds `paths`, so the repo's standard `effort:` and `paths:` keys no longer fail validation.
+  - The provenance note in `hallmark/SKILL.md` is left as written (historical record of the upstream rewrite).
+- **psd-productivity: `docx`, `pdf`, `pptx`, `xlsx`, and `skill-creator` skills removed** (38 → 33 skills). These are copies of skills Claude now ships built in (`anthropic-skills:docx`, `:pdf`, `:pptx`, `:xlsx`, `:skill-creator`). With the plugin enabled, every session listed each skill twice with near-identical descriptions — noise that contributes to the skill listing exceeding Claude Code's 30,000-character budget (descriptions get truncated) and left Claude choosing between two versions of the same skill. The built-in versions are maintained by Anthropic and stay current; these copies were not.
+  - No other skill in the repo loads files from the removed folders. `presentation-master` refers to "the pptx skill" by name only, which the built-in `pptx` skill satisfies.
+  - The `pptx` folder also carried leftover working files (sample PNGs, conversion logs, one-off scripts) that are removed with it.
+  - `pdf/scripts/check_bounding_boxes_test.py` is removed along with the script it tests. CI never ran it (`psd-ci.yml` runs only the parentsquare and class-intercom Go tests, `psd-atrium` bun tests, and `test_brand.py`), so CI coverage is unchanged.
+  - Skill counts updated in `README.md`, `CLAUDE.md`, `plugins/psd-productivity/README.md`, `plugin.json`, and `marketplace.json`.
+
+## [2.36.0] - 2026-10-20
+
+### Changed
+- **psd-productivity** (2.26.0) no longer carries the `n8n-instance` and `documenso` MCP servers. Their proxy scripts exit 1 before any network call when the credentials are missing ("N8N_HOST not set", "DOCUMENSO_API_KEY not set"), so every psd-productivity user without them saw two failed ("Connection closed") servers in every session. The `n8n-docs` server and all 38 skills stay, `/n8n-manager` and `/documenso-manager` included.
+- **Upgrade:** if you use either server, `/plugin install n8n` and/or `/plugin install documenso`, then turn it on from the Installed tab of `/plugin`. Your Keychain items keep working. The tools now come from the new plugin, so their names change from `mcp__plugin_psd-productivity_n8n-instance__*` to `mcp__plugin_n8n_n8n-instance__*` and from `mcp__plugin_psd-productivity_documenso__*` to `mcp__plugin_documenso_documenso__*`; update any permission rule that names the old ones.
+
+### Added
+- **`n8n` plugin** (1.0.0, `defaultEnabled: false`): the `n8n-instance` MCP server. `n8n-mcp-proxy.sh` moved here unchanged from `psd-productivity/skills/n8n-manager/scripts/`, so it reads `N8N_HOST` and `N8N_MCP_TOKEN` exactly as 2.35.4 did (environment, then the login Keychain, then the legacy `.env`) and keeps the `mcp-remote@0.15.1` pin and the token-out-of-argv header.
+- **`documenso` plugin** (1.0.0, `defaultEnabled: false`): the `documenso` MCP server. `documenso-mcp-proxy.sh` moved here unchanged from `psd-productivity/skills/documenso-manager/scripts/`, with the same credential lookup and the `@documenso/sdk-typescript@0.9.1` pin. The accepted risk recorded in 2.35.4 (API key visible in argv) is unchanged.
+
+## [2.35.4] - 2026-10-19
+
+### Security
+- **psd-productivity `n8n-instance` MCP proxy** (2.25.3) — the n8n bearer token no longer appears in the process list. `n8n-mcp-proxy.sh` now passes the single-quoted header `Authorization: Bearer ${N8N_MCP_TOKEN}` and exports the variable; `mcp-remote@0.15.1` substitutes `${VAR}` in header values from its own environment. Verified against a local mock MCP endpoint (header received; `ps -axww` shows only the placeholder); not checked against the live n8n instance. Details in #108.
+- **Accepted risk — psd-productivity `documenso` MCP proxy: the API key is still visible in argv.** `@documenso/sdk-typescript@0.9.1` (latest on 2026-10-19) only sends a key passed as `--api-key`; `mcp start` sets `apiKey` to `flags["api-key"] ?? ""`, which defeats the SDK's `DOCUMENSO_API_KEY` fallback (confirmed against a local mock API: env-only sent no `Authorization` header). Any local user can read the key with `ps` while the server runs. No code change; the script comment records the limit. Revisit when a newer SDK release reads the key from the environment.
+
+## [2.35.3] - 2026-10-19
+
+### Security
+- **psd-productivity `n8n-instance` and `documenso` MCP proxies** (2.25.2) — pin the packages they fetch at start-up. Both scripts loaded an API credential into the environment and then ran an unpinned `npx -y` download, so whatever version the registry served next would start with `N8N_MCP_TOKEN` or `DOCUMENSO_API_KEY` in reach. `n8n-mcp-proxy.sh` now runs `bunx mcp-remote@0.15.1` and `documenso-mcp-proxy.sh` runs `bunx --package @documenso/sdk-typescript@0.9.1 mcp start` (the latest published versions on 2026-10-19), matching the `bunx` + exact-version approach the `n8n-docs` server took in 2.25.1. Checked with an empty Bun cache and placeholder credentials: the Documenso server answered `initialize` (serverInfo `Documenso 0.9.1`) and `tools/list` (89 tools); `mcp-remote 0.15.1`, pointed at a local mock MCP endpoint, sent the bearer header and relayed `initialize` and `tools/list`. Not checked against the live n8n or Documenso instances. Future upgrades are a deliberate one-line edit to each script. Pinning stops silent drift to `latest`; it is not an integrity check, so the pinned artifact itself is still trusted.
+
+## [2.35.2] - 2026-10-19
+
+### Fixed
+- **psd-productivity `n8n-docs` MCP server** (2.25.1) — runs `bunx n8n-mcp@2.94.3` instead of `npx -y n8n-mcp`. The unpinned `npx` call downloaded the package each time the server started and could exceed Claude Code's 30-second MCP startup timeout (reported on 2.17.0). Pinning a version and using `bunx` (the repo's standard JS runtime, already required by skills such as `research`) removes the per-start registry resolve; a cold-cache `bunx` start answered `initialize` in under a second. `n8n-instance` and `documenso` already used `${CLAUDE_PLUGIN_ROOT}` paths as of 2.25.0, so no change there.
+
+## [2.35.1] - 2026-10-10
+
+### Fixed
+- **psd-coding-system `/bump-version`** (3.8.10) — releases through a PR. `main` requires a pull request, so the skill's direct `git push origin HEAD` was rejected (`GH013`). It now fetches and checks local `main` against `origin/main` before reading versions (a stale clone picked an already-released version for 2.35.0), works on a `chore/bump-<timestamp>` branch from the start (so an aborted run leaves `main` clean), opens a PR, hands the merge to the user, and tags the merge commit on `main` afterward. It also notes that `collab` isn't a version track here: its folder and entry come from the psd-collab-mcp publish.
+- **CLAUDE.md Git Workflow** — branch from `main`; there is no `dev` branch, and `main` requires a PR.
+
+## [2.35.0] - 2026-10-09
+
+### Added
+
+- **`collab` 1.0.0 documented as the marketplace's third plugin.** The plugin files and its `marketplace.json` entry landed in "Publish collab 1.0.0" (#99) without any prose, so nothing told a reader it existed or how to turn it on. The root `README.md` gains a `### collab` section covering: what it is (threads between PSD staff members' Claude Code agents, replacing hand-passed `.md` files, with replies summarized back into the session); its surfaces (`/collab` pane for listing, filing, read state, archiving and **Listen here**; `/collab listen` / `/collab unlisten`; the `collab: N waiting` status entry; sender toasts; plain-language requests); its guardrails (every outbound message shown in full in Claude Code's permission prompt and sent only on Yes, inbound messages treated as untrusted data that Claude summarizes and investigates read-only but never acts on unsupervised, per-project thread filing so a session reads only threads filed under its own project or unfiled); and its prerequisites (Claude Code 2.1.287+ — the server refuses older clients — plus a psd401.net account in `tsd-engineering@psd401.net`, and the `/mcp` → **plugin:collab:collab** → **Authenticate** step that install alone does not cover). Overview wording goes from "Two independently installable plugins" to three; Quick Start gains `/plugin install collab` and a note about the sign-in step; the Architecture tree gains `plugins/collab/`.
+- **Upstream provenance recorded in `CLAUDE.md`.** A `collab` row in the plugin table (0 skills, 0 agents — it ships hooks and an MCP server, not skills) plus an explicit note that the plugin is **not developed in this repo**: it is published from `psd401/psd-collab-mcp` (the origin is recorded in `plugins/collab/.publish-source`), which also holds the server, so fixes go upstream and are re-published rather than hand-edited under `plugins/collab/`. The marketplace directory tree gains the same entry.
+- **Double-install warning.** `psd401/psd-collab-mcp` is also its own marketplace (`psd-collab`), and its README tells people to install from there. Both copies declare an `mcpServers.collab` pointing at the same Lambda URL, so installing from both marketplaces yields two copies of the server and two sets of collab tools. The README now says to pick one marketplace.
+- **`collab` versioning recorded as a non-track.** The `/bump-version` ritual's three tracks are unchanged; a note under `CLAUDE.md`'s version-track table explains that `collab`'s version in `plugins/collab/.claude-plugin/plugin.json` and `marketplace.json` is **set by the publish** and never hand-edited — upstream's `plugin.json` deliberately carries no `version` field so auto-update there follows commits, and the publish stamps one. Verified: upstream's `plugin.json` has no `version` key; this marketplace's copy reads `1.0.0`.
+
+### Fixed
+
+- **Read-guard wording in the README made precise.** The first draft said a session "only reads threads filed under the project it runs in (or not yet filed)", which overstates what unfiled means. `plugins/collab/hooks/prompt.ts` instructs Claude to list unfiled threads with their suggested project and **ask before reading them** unless one clearly belongs to this project, and `read_thread` is refused outright for a thread filed only under other projects. The README now says that.
+- **The upstream documentation link is labelled private.** `psd401/psd-collab-mcp` is private, so the "Full documentation" link 404s for anyone without repo access; it now says so rather than looking broken.
+- **The Claude Code 2.1.287 floor is sourced, not assumed.** Verified against upstream: its `README.md` states "2.1.287 or newer" and its `CLAUDE.md` records that every tool call is refused unless `clientInfo` reports `claude-code` 2.1.287+. The gate is the server's, which is why the README phrases it as the server refusing older clients.
+
+### Unchanged
+
+- No plugin versions bumped: `psd-coding-system` stays 3.8.9, `psd-productivity` stays 2.25.0, `collab` stays 1.0.0. This release is marketplace-level documentation for a plugin that shipped in 2.34.0's wake. Counts re-verified against `find … -name SKILL.md`: 9 / 44 for psd-coding-system, 38 / 1 for psd-productivity.
+
+## [2.34.0] - 2026-10-09
+
+### psd-productivity 2.25.0
+
+- **Added: `/blog-to-site`.** Publishes a blog post on psd401.ai from the author's text (Google Doc link, pasted text or a file) and images. Keeps the author's words exactly as written, proven by a normalised text diff against the source; sets the byline, tag and a description of 160 characters or fewer; crops the header image to the site's 16:9 frame; asks before publishing a photo of an identifiable student. Opens a PR, waits for CI, merges, and confirms the page is live.
+- **Changed: `/slides-to-site` rewritten for the redesigned psd401.ai.** The old skill hand-wrote frontmatter without the `type` and `resource` fields the site now requires (its files failed `content:validate`), pushed straight to `main`, and only ran from one machine's checkout path. It now reads the slides, speaker notes and a PDF export of the deck, works out the date, presenters, audience and format, asks only for what the deck does not say, and goes through a branch, PR, CI, merge and a live-page check.
+- Both skills find or clone a psd401.ai checkout (`$PSD401_AI_REPO`, the current directory, or a fresh full clone) and follow the playbooks in that repo's `.claude/skills/psd401-publish/` (`presentation.md`, `post.md`, `ship.md`), so the site's rules live next to the site's code. If the agent's environment blocks the merge, the skill stops and gives the exact `gh pr merge` command.
+- **Requires the psd401.ai publish playbooks on that repo's `main`.** As of this release they are on its `claude/publish-playbooks` branch, not `main`. Until that lands, both skills stop at step 2 and say so instead of working without the playbook's checks and merge gate.
+- Both skills check for student names, identifiable photos, student work and student data before publishing, and ask the person about each one. They clone into a `mktemp -d` directory instead of a predictable `/tmp` path.
+- Skill count 37 -> 38, including the two places in the root `README.md` that state it.
+
+## [2.33.4] - 2026-10-09
+
+### psd-productivity 2.24.4
+
+- **`/enrollment` — `machine-setup.md`: the n8n API key must not go through the interactive Keychain prompt.** `security add-generic-password -w` with no value silently truncates at 128 characters (verified: 267 sent, 128 stored), and the key is longer than that. The admin-machine step now uses `read -s KEY && security add-generic-password … -w "$KEY"` and a length check. The webhook token and URL are short enough for the prompt.
+
 ## [2.33.3] - 2026-10-08
 
 ### psd-productivity 2.24.3

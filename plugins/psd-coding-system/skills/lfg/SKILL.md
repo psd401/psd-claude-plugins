@@ -16,7 +16,6 @@ allowed-tools:
   - AskUserQuestion
   - EnterWorktree
   - ExitWorktree
-extended-thinking: true
 ---
 
 # LFG — Autonomous Build-to-Done

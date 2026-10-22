@@ -3,7 +3,6 @@ name: agent-native-reviewer
 description: Validates AI-agent architecture parity, prompt consistency, and agent workflow correctness
 tools: Read, Grep, Glob
 model: claude-sonnet-5
-extended-thinking: true
 color: green
 ---
 
@@ -43,7 +42,6 @@ Validate YAML frontmatter consistency across agents:
 - [ ] `description`: Clear, actionable description
 - [ ] `tools`: Valid tool list (Bash, Read, Edit, Write, Grep, Glob, Task, WebSearch, WebFetch)
 - [ ] `model`: Valid model ID (claude-sonnet-5, claude-opus-5-5, claude-fable-5-1)
-- [ ] `extended-thinking`: Boolean (true recommended)
 - [ ] `color`: Valid color for UI display
 
 **Common Issues:**
@@ -71,7 +69,7 @@ Validate YAML frontmatter for skills:
 - [ ] `allowed-tools`: YAML list of permitted tools
 
 **Optional Fields:**
-- [ ] `extended-thinking`: Boolean
+- [ ] `effort`: `low` / `medium` / `high` / `xhigh` / `max`
 ```
 
 ### Phase 4: Agent Reference Validation

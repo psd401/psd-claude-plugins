@@ -4,7 +4,6 @@ description: "Generate beautiful, self-contained single-page HTML artifacts with
 argument-hint: "[what to build] — e.g., 'turn this spec into an HTML page', 'code-review explainer for this PR', '6 landing directions in a grid'"
 model: claude-opus-5-5
 effort: high
-extended-thinking: true
 allowed-tools:
   - Read
   - Write

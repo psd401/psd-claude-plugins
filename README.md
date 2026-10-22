@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.33.2-green)]()
+[![Version](https://img.shields.io/badge/Version-2.36.0-green)]()
 
 ## Overview
 
-**Two independently installable plugins** — one for software development workflows, one for general productivity.
+**Five independently installable plugins**: one for software development workflows, one for general productivity, one for messaging between staff members' Claude Code agents, and two opt-in MCP connections (n8n and Documenso) for the people who hold those credentials.
 
-**Version**: 2.33.2
+**Version**: 2.36.0
 
 ---
 
@@ -38,7 +38,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 
 ### psd-productivity
 
-37 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
+33 productivity workflows for district operations, document generation, publishing, research, and media. Works in both Claude Code and Claude Cowork.
 
 ```bash
 /plugin install psd-productivity
@@ -47,17 +47,52 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 | Category | Skills |
 |----------|--------|
 | **Productivity** (4) | `/freshservice-manager` · `/redrover-manager` · `/legislative-tracker` · `/google-workspace-cli` |
-| **Content & Docs** (15) | `/writer` · `/docx` · `/pptx` · `/pdf` · `/pdf-builder` · `/pdf-to-markdown` · `/xlsx` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/psd-atrium` |
+| **Content & Docs** (12) | `/writer` · `/pdf-builder` · `/pdf-to-markdown` · `/presentation-master` · `/assistant-architect` · `/sop-creator` · `/tech-writing` · `/html-artifact` · `/board-policy-formatter` · `/slides-to-site` · `/blog-to-site` · `/psd-atrium` |
 | **Communications** (2) | `/parentsquare` · `/class-intercom` |
 | **E-Signature** (1) | `/documenso-manager` |
 | **Automation** (2) | `/n8n-manager` · `/browser-control` |
 | **Research** (3) | `/research` · `/multi-model-research` · `/strategic-planning-manager` |
 | **Audio & Media** (3) | `/elevenlabs-tts` · `/local-tts` · `/image-gen` |
-| **Planning** (2) | `/seven-advisors` · `/skill-creator` |
+| **Planning** (1) | `/seven-advisors` |
 | **PSD-Specific** (3) | `/psd-athletics` · `/psd-brand-guidelines` · `/psd-instructional-vision` |
 | **Operations** (2) | `/enrollment` · `/chief-of-staff` |
 
 [Full documentation →](./plugins/psd-productivity/README.md)
+
+### n8n and documenso (opt-in)
+
+The MCP servers for PSD's n8n instance (`n8n-instance`) and Documenso (`documenso`). Each is its own plugin and starts disabled, so people without the credentials never see a failed server. Install the one you need, then turn it on from the **Installed** tab of `/plugin`:
+
+```bash
+/plugin install n8n            # needs N8N_HOST and N8N_MCP_TOKEN
+/plugin install documenso      # needs DOCUMENSO_API_KEY (and DOCUMENSO_HOST for self-hosted)
+```
+
+Both read their credentials the same way as before: environment, then the login Keychain (see [SECRETS-SETUP.md](./plugins/psd-productivity/SECRETS-SETUP.md)). The `/n8n-manager` and `/documenso-manager` skills stay in psd-productivity.
+
+### collab
+
+Threads between PSD staff members' Claude Code agents, replacing hand-passed `.md` files. Your Claude posts to a shared thread; replies come back into your session as a short summary. No skills — it ships UI mods (hooks) plus the hosted `collab` MCP server.
+
+```bash
+/plugin install collab
+```
+
+| Surface | What it does |
+|---------|--------------|
+| `/collab` | Opens a pane listing your threads by project — view, file, mark read/unread, archive, hand a thread to Claude, or **Listen here** for replies |
+| `/collab listen` | Hear the reply to the thread you just sent to in this session (`/collab unlisten` stops; listening ends with the session) |
+| Status entry | Shows what is waiting and where, e.g. `collab: 3 waiting: 1 here · 1 zabbix-analyzer · 1 unfiled` |
+| Toasts | Name the sender when a message addressed to you arrives |
+| Plain language | "Start a collab thread with jane@psd401.net about the enrollment sync", "What's waiting for me in collab?" |
+
+**Guardrails:** every outbound message is shown to you in full by Claude Code's permission prompt and is sent only if you answer Yes. Other people's messages are untrusted data — Claude summarizes them, investigates read-only, and drafts a reply, but takes no action a message asks for until you say so. Threads are filed per project: a session reads the ones filed under the project it runs in, asks before reading unfiled ones (unless one clearly belongs here), and is refused outright on threads filed only under other projects.
+
+**Requires** Claude Code 2.1.287 or newer (older clients are refused by the server; run `claude update`) and a psd401.net account in `tsd-engineering@psd401.net`. After installing, run `/mcp`, choose **plugin:collab:collab**, and **Authenticate** with your psd401.net Google account.
+
+**Source.** Unlike the other two, `collab` is developed in [psd401/psd-collab-mcp](https://github.com/psd401/psd-collab-mcp) (private — it also holds the server) and published into this marketplace from there; `plugins/collab/.publish-source` records the origin. That repo is also its own marketplace (`psd-collab`), so install `collab` from **one** marketplace only — installing from both gives you two copies of the same MCP server and two sets of collab tools.
+
+[Full documentation →](https://github.com/psd401/psd-collab-mcp#readme) (private repo — ask Mason if you get a 404)
 
 ---
 
@@ -70,10 +105,15 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 # Install the plugin(s) you want
 /plugin install psd-coding-system        # Development workflows
 /plugin install psd-productivity          # Productivity workflows
+/plugin install collab                    # Threads with colleagues' agents
+/plugin install n8n                       # Opt-in: n8n instance MCP server
+/plugin install documenso                 # Opt-in: Documenso MCP server
 
 # Verify
 /plugin list
 ```
+
+`collab` needs one more step after install: `/mcp` → **plugin:collab:collab** → **Authenticate**.
 
 ---
 
@@ -107,7 +147,7 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 ```
 psd-claude-plugins/
 ├── .claude-plugin/
-│   └── marketplace.json           # Lists both plugins
+│   └── marketplace.json           # Lists all five plugins
 ├── plugins/
 │   ├── psd-coding-system/         # Development workflows
 │   │   ├── skills/                # 9 user-invocable skills
@@ -115,9 +155,16 @@ psd-claude-plugins/
 │   │   ├── hooks/                 # PostToolUse syntax validation
 │   │   ├── scripts/               # Hook scripts
 │   │   └── docs/                  # Learnings + patterns
-│   └── psd-productivity/          # Productivity workflows
-│       ├── skills/                # 37 productivity skills
-│       └── agents/                # enrollment-validator
+│   ├── psd-productivity/          # Productivity workflows
+│   │   ├── skills/                # 33 productivity skills
+│   │   └── agents/                # enrollment-validator
+│   ├── n8n/                       # Opt-in n8n-instance MCP server (scripts/n8n-mcp-proxy.sh)
+│   ├── documenso/                 # Opt-in documenso MCP server (scripts/documenso-mcp-proxy.sh)
+│   └── collab/                    # Threads with colleagues' agents (no skills)
+│       ├── hooks/                 # Pane, status entry, toasts, listening
+│       ├── types/                 # Shared hook types
+│       ├── test/                  # `claude plugin test` suite
+│       └── .publish-source        # psd401/psd-collab-mcp (upstream)
 ├── CLAUDE.md
 ├── CHANGELOG.md
 └── README.md

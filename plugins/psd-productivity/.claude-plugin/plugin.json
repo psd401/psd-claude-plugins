@@ -1,8 +1,8 @@
 {
   "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
   "name": "psd-productivity",
-  "version": "2.24.3",
-  "description": "37 productivity workflows + 1 agent for Peninsula School District — Google-style tech writing, ParentSquare district data CLI, Atrium publishing (AI Studio docs + HTML artifacts), beautiful HTML artifact generation (incl. self-contained data dashboards & charts), board policy formatting, PDF Builder, P223 enrollment automation, n8n workflow management, Documenso document signing, Google Workspace CLI, document generation, research, TTS, and district operations",
+  "version": "2.26.0",
+  "description": "33 productivity workflows + 1 agent for Peninsula School District — Google-style tech writing, ParentSquare district data CLI, Atrium publishing (AI Studio docs + HTML artifacts), beautiful HTML artifact generation (incl. self-contained data dashboards & charts), board policy formatting, psd401.ai publishing (presentations and blog posts), PDF Builder, P223 enrollment automation, n8n workflow management, Documenso document signing, Google Workspace CLI, document generation, research, TTS, and district operations",
   "author": {
     "name": "Kris Hagel",
     "email": "hagelk@psd401.net",
@@ -23,32 +23,17 @@
   ],
   "license": "MIT",
   "mcpServers": {
-    "n8n-instance": {
-      "type": "stdio",
-      "command": "bash",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/skills/n8n-manager/scripts/n8n-mcp-proxy.sh"
-      ]
-    },
     "n8n-docs": {
       "type": "stdio",
-      "command": "npx",
+      "command": "bunx",
       "args": [
-        "-y",
-        "n8n-mcp"
+        "n8n-mcp@2.94.3"
       ],
       "env": {
         "MCP_MODE": "stdio",
         "LOG_LEVEL": "error",
         "DISABLE_CONSOLE_OUTPUT": "true"
       }
-    },
-    "documenso": {
-      "type": "stdio",
-      "command": "bash",
-      "args": [
-        "${CLAUDE_PLUGIN_ROOT}/skills/documenso-manager/scripts/documenso-mcp-proxy.sh"
-      ]
     }
   }
 }

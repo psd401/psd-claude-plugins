@@ -1,0 +1,8 @@
+# gitleaks baseline: historical findings reviewed 2026-10-09 (Hagel). One fingerprint per line.
+# New findings are NOT covered: anything not listed here still fails security-scan.
+#
+# False positives: the Freshservice curl placeholder in commands/triage.md and JWT-shape test fixtures.
+1093d3ee084c8cf027d060ab3f82975c8b9119b9:plugins/psd-productivity/skills/parentsquare/cli/internal/cliutil/jwtshape_test.go:generic-api-key:16
+5e21209cc7070bcc8484dfabeaa6b724dc228290:plugins/psd-productivity/skills/class-intercom/cli/internal/cliutil/jwtshape_test.go:generic-api-key:16
+be865994b1f76240d840416d31c0f4dbfc468302:plugins/psd-claude-coding-system/commands/triage.md:curl-auth-user:191
+be865994b1f76240d840416d31c0f4dbfc468302:plugins/psd-claude-coding-system/commands/triage.md:generic-api-key:35

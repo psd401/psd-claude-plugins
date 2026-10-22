@@ -29,7 +29,6 @@ allowed-tools:
   - mcp__claude-in-chrome__list_connected_browsers
   - mcp__claude-in-chrome__select_browser
   - mcp__claude-in-chrome__switch_browser
-extended-thinking: true
 ---
 
 # Browser Control — Claude in Chrome

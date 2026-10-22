@@ -55,9 +55,9 @@ n8n API key in the Keychain and the skill reads the webhook token from the live
 workflow instead of storing it:
 ```bash
 security add-generic-password -a "$USER" -s N8N_HOST -w      # e.g. n8n.example.org
-security add-generic-password -a "$USER" -s N8N_API_KEY -w
+read -s KEY && security add-generic-password -a "$USER" -s N8N_API_KEY -w "$KEY" && unset KEY
 ```
-Never put either value in a committed file, the sheet, or an email.
+The API key is longer than 128 characters, and the interactive `security … -w` prompt silently truncates at 128 (verified 2026-10-09: sent 267, stored 128). `read -s` takes the paste without echo and without shell history; verify with `security find-generic-password -a "$USER" -s N8N_API_KEY -w | tr -d '\n' | wc -c`. The webhook token and URL are short enough for the prompt. Never put either value in a committed file, the sheet, or an email.
 
 ## 5. Local staging directory
 

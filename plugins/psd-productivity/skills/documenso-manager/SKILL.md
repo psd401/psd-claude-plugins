@@ -14,7 +14,6 @@ allowed-tools:
   - Write
   - Glob
   - Grep
-extended-thinking: true
 ---
 
 # Documenso Manager
@@ -24,7 +23,7 @@ extended-thinking: true
 - **Server**: Read from `DOCUMENSO_HOST` environment variable (never hardcoded)
 - **API Auth**: `Authorization: api_xxxxxxxx` header (NOT Bearer — literal key value)
 - **API Version**: v2 only (v1 is deprecated)
-- **MCP**: Official Documenso SDK MCP server for document/template discovery
+- **MCP**: Official Documenso SDK MCP server for document/template discovery, from the opt-in `documenso` plugin: `/plugin install documenso`, then enable it from the Installed tab of `/plugin`
 - **Scripts**: `plugins/psd-productivity/skills/documenso-manager/scripts/`
 
 All scripts use `bun` and read credentials from `secrets.js` (env vars → Geoffrey .env).

@@ -1,0 +1,15 @@
+{
+  "name": "collab",
+  "description": "Threads between people's Claude Code agents: the collab server, a pane for sorting threads by project, and notice of replies",
+  "version": "1.0.0",
+  "author": {
+    "name": "PSD Technology Services"
+  },
+  "types": "./types/index.d.ts",
+  "mcpServers": {
+    "collab": {
+      "type": "http",
+      "url": "https://wl3fp34hq2wcbzd6oiifybtpcu0hydqy.lambda-url.us-west-2.on.aws/mcp"
+    }
+  }
+}

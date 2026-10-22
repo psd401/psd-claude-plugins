@@ -1,0 +1,29 @@
+{
+  "$schema": "https://cdn.jsdelivr.net/npm/@anthropic-ai/claude-code@latest/plugin.schema.json",
+  "name": "documenso",
+  "version": "1.0.0",
+  "description": "MCP connection to PSD's Documenso instance (the documenso server, official SDK). Opt-in: starts disabled, and needs DOCUMENSO_API_KEY (and DOCUMENSO_HOST for self-hosted) in the login Keychain or environment. The /documenso-manager skill lives in psd-productivity.",
+  "author": {
+    "name": "Kris Hagel",
+    "email": "hagelk@psd401.net",
+    "organization": "Peninsula School District"
+  },
+  "repository": "https://github.com/psd401/psd-claude-plugins",
+  "keywords": [
+    "documenso",
+    "signing",
+    "mcp",
+    "psd"
+  ],
+  "license": "MIT",
+  "defaultEnabled": false,
+  "mcpServers": {
+    "documenso": {
+      "type": "stdio",
+      "command": "bash",
+      "args": [
+        "${CLAUDE_PLUGIN_ROOT}/scripts/documenso-mcp-proxy.sh"
+      ]
+    }
+  }
+}

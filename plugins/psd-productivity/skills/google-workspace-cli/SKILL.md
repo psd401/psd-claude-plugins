@@ -12,7 +12,6 @@ allowed-tools:
   - Glob
   - Grep
   - Agent
-extended-thinking: true
 ---
 
 # Google Workspace CLI Integration
