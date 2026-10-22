@@ -31,4 +31,7 @@ jobs:
         (cd plugins/psd-productivity/skills/parentsquare/cli && go test ./...)
         (cd plugins/psd-productivity/skills/class-intercom/cli && go test ./...)
         bun test plugins/psd-productivity/skills/psd-atrium/
+        # Third-party catalog entries must be SHA-pinned (psd-dev-standards standards/06).
+        bun test ci/
+        bun ci/check-marketplace-pins.js
         (cd plugins/psd-productivity/skills/psd-brand-guidelines && uv run --with pytest pytest -q test_brand.py)
