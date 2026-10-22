@@ -30,7 +30,7 @@ Outside the plugins: [cloud routines](./operations/cloud-routines.md) (triage / 
 - Architecture: [marketplace structure](./architecture/marketplace-structure.md) · [coding system](./architecture/coding-system.md) · [productivity plugin](./architecture/productivity-plugin.md)
 - Workflows: [plan → lfg → evolve](./workflows/plan-lfg-evolve.md) · [Definition-of-Done gate](./workflows/definition-of-done-gate.md)
 - Integrations: [MCP plugins (n8n, documenso, context7)](./integrations/mcp-plugins.md) · [Go CLI skills (ParentSquare, Class Intercom)](./integrations/go-cli-skills.md) · [collab plugin](./integrations/collab-plugin.md)
-- Operations: [cloud routines](./operations/cloud-routines.md) · [CI and automation](./operations/ci-and-automation.md)
+- Operations: [cloud routines](./operations/cloud-routines.md) · [CI and automation](./operations/ci-and-automation.md) (includes [action pinning](./operations/ci-and-automation.md#action-pinning))
 
 ## Task routing
 
@@ -59,4 +59,6 @@ Boundary checks worth remembering: a new skill/agent is only complete when count
 - `plugins/psd-productivity/skills/*` (individual skills such as `enrollment`, `board-policy-formatter`, `n8n-manager`, `documenso-manager`, `multi-model-research`, `html-artifact`) — only mapped at group level in the [productivity plugin](./architecture/productivity-plugin.md); per-skill internals (enrollment FTE rules, Python pipelines) deserve their own pages.
 - `plugins/psd-coding-system/skills/hallmark`, `chad-review`, `psd-sign` — vendored/specialized skills summarized only; internals not documented.
 - `plugins/psd-coding-system/agents/**` — individual agent contracts are summarized by category; `docs/agent-manifest.md` still lists as "orphans" several agents that `/lfg` Phase 6 and `/setup` `review_agents` now wire (likely stale).
+- `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.
+ 6 and `/setup` `review_agents` now wire (likely stale).
 - `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.

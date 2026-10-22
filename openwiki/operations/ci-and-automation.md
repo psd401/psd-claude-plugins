@@ -22,19 +22,31 @@ openwiki:
     - plugins/psd-productivity/skills/psd-atrium/scripts/common.test.js
     - plugins/psd-productivity/skills/psd-brand-guidelines/test_brand.py
     - ci/check-marketplace-pins.test.js
+    - ci/check-workflow-pins.test.js
   invariants:
     - CI runs exactly five test suites; plugins/collab/test is deliberately not run here.
     - Object-typed third-party marketplace sources must be SHA-pinned; ci/check-marketplace-pins.js exits 1 and names each unpinned entry.
-    - Reusable org workflows are referenced at @main on purpose, with a zizmor ignore comment.
+    - Every GitHub Actions uses: ref in .github/workflows must be a full 40-character lowercase commit SHA (org reusable workflows included); ci/check-workflow-pins.js exits 1 and names each file:line that is not.
     - gitleaks findings not fingerprinted in .gitleaksignore fail the security scan.
   validation_commands:
+    - "bun ci/check-workflow-pins.js"
     - "shellcheck --severity=error $(git ls-files '*.sh')"
     - "claude plugin validate ."
 ---
 
 # CI and repo automation
 
-Most workflows are thin callers of PSD401 org reusable workflows (`PSD401/.github/.github/workflows/reusable-*.yml@main`). `@main` is deliberate so central updates propagate (org standard `psd-dev-standards` standards/06); each call carries `# zizmor: ignore[unpinned-uses]`. Third-party actions are SHA-pinned (e.g. `anthropics/claude-code-action`) and bumped by Dependabot (`github-actions`, weekly).
+Most workflows are thin callers of PSD401 org reusable workflows (`PSD401/.github/.github/workflows/reusable-*.yml`). Every `uses:` ref is pinned to a full commit SHA, including the org reusables (pinned to the `PSD401/.github` main commit of 2026-10-21 instead of `@main`) and GitHub-owned actions such as `actions/checkout` and `actions/setup-go`. Until `PSD401/.github` publishes release tags, Dependabot (`github-actions`, weekly) cannot bump the four org reusable pins, so those need manual bumps. Third-party actions such as `anthropics/claude-code-action` are SHA-pinned and bumped by Dependabot.
+
+## Action pinning
+
+The rule is enforced by `ci/check-workflow-pins.js`, run from `psd-ci.yml`'s `test-command` (`bun ci/check-workflow-pins.js`). It scans `.github/workflows/*.yml` with a `uses:` line matcher and fails on:
+
+- any action or reusable ref whose `@` suffix is not `[0-9a-f]{40}` (tags such as `@v7` and branches such as `@main` fail; so do short SHAs and uppercase SHAs);
+- a `uses:` with no ref at all;
+- `docker://` images without an `@sha256:` digest.
+
+Local `./` refs are exempt. Commented-out `uses:` lines are ignored. Its own tests (`ci/check-workflow-pins.test.js`) include a "this repo's workflows are all pinned" test, so a new unpinned workflow fails `bun test ci/` as well. The older `@main` plus `zizmor: ignore[unpinned-uses]` pattern is gone; this repo deliberately departs from `psd-dev-standards` standards/06, which still requires `@main` for org reusables, and the CHANGELOG says that standard is being changed to match.
 
 | Workflow | Trigger | What it does |
 |---|---|---|
@@ -61,6 +73,7 @@ Marketplace releases are driven by `/bump-version` ([version tracks](../architec
 
 - New runnable test or lint: add to `psd-ci.yml` `lint-command`/`test-command`; confirm tool install is covered by `install-command`.
 - Marketplace pin rule failing on a `marketplace.json` change: an object-typed `source` lacks a 40-character lowercase `sha`. Pin it to a full commit SHA; the check's own tests live in `ci/check-marketplace-pins.test.js`.
+- Workflow pin rule failing on a `.github/workflows` change: a `uses:` ref is a tag, branch, short or uppercase SHA, or missing a ref. Replace it with the full 40-character commit SHA (keep the tag as a trailing comment, as the existing refs do). `ci/check-workflow-pins.js` names each `file:line`; the rule is tested in `ci/check-workflow-pins.test.js`. Local `./` refs need no pin.
 - Narrow local checks: the per-suite commands above; shellcheck on just the touched scripts.
 - Security-scan failure on a genuine false positive: add the fingerprint line to `.gitleaksignore` with a justification comment; never to hide real secrets.
 - Workflow files are protected paths for [cloud routines](./cloud-routines.md#protected-paths), so routine-authored fixes cannot touch them.
