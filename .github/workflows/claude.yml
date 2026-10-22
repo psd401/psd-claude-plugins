@@ -14,7 +14,10 @@ jobs:
   claude:
     # Public repo: anyone can comment, so only run for people with a trusted
     # association to the repo (claude-code-action also checks write access;
-    # this stops the job before it gets the token or OIDC).
+    # this stops the job before it gets the token or OIDC). If a PSD member's
+    # @claude is silently skipped, check the run's author_association: some
+    # repos report private org members as NONE. Making org membership public
+    # fixes it; don't widen this list to CONTRIBUTOR/NONE.
     if: |
       (
         (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude') &&
