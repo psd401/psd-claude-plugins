@@ -46,7 +46,7 @@ The rule is enforced by `ci/check-workflow-pins.js`, run from `psd-ci.yml`'s `te
 - a `uses:` with no ref at all;
 - `docker://` images without an `@sha256:` digest.
 
-Local `./` refs are exempt. Commented-out `uses:` lines are ignored. Its own tests (`ci/check-workflow-pins.test.js`) include a "this repo's workflows are all pinned" test, so a new unpinned workflow fails `bun test ci/` as well. The older `@main` plus `zizmor: ignore[unpinned-uses]` pattern is gone; this repo deliberately departs from `psd-dev-standards` standards/06, which still requires `@main` for org reusables, and the CHANGELOG says that standard is being changed to match.
+Local `./` refs are exempt. Commented-out `uses:` lines are ignored. Its own tests (`ci/check-workflow-pins.test.js`) include a "this repo's workflows are all pinned" test, so a new unpinned workflow fails `bun test ci/` as well. The older `@main` plus `zizmor: ignore[unpinned-uses]` pattern is gone. This SHA-pin rule matches `psd-dev-standards` standards/06, which now requires it for every repo (see the Unreleased/Security entry in `CHANGELOG.md`).
 
 | Workflow | Trigger | What it does |
 |---|---|---|
@@ -76,4 +76,6 @@ Marketplace releases are driven by `/bump-version` ([version tracks](../architec
 - Workflow pin rule failing on a `.github/workflows` change: a `uses:` ref is a tag, branch, short or uppercase SHA, or missing a ref. Replace it with the full 40-character commit SHA (keep the tag as a trailing comment, as the existing refs do). `ci/check-workflow-pins.js` names each `file:line`; the rule is tested in `ci/check-workflow-pins.test.js`. Local `./` refs need no pin.
 - Narrow local checks: the per-suite commands above; shellcheck on just the touched scripts.
 - Security-scan failure on a genuine false positive: add the fingerprint line to `.gitleaksignore` with a justification comment; never to hide real secrets.
+- Workflow files are protected paths for [cloud routines](./cloud-routines.md#protected-paths), so routine-authored fixes cannot touch them.
+hide real secrets.
 - Workflow files are protected paths for [cloud routines](./cloud-routines.md#protected-paths), so routine-authored fixes cannot touch them.
