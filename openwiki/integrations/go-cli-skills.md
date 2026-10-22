@@ -38,6 +38,7 @@ Two [psd-productivity](../architecture/productivity-plugin.md) skills wrap self-
 - **Auth is the user's browser session**: ParentSquare reads a Chrome cookie via `pycookiecheat` (`auth login --chrome`); Class Intercom uses its own `auth` command.
 - **Agent-friendly flags** on every command: `--json`, `--csv`, `--compact`, `--agent`, `--dry-run`, `--select`; framework commands `sync` (local SQLite via `internal/store`), `search`, `doctor`, `which`, `agent-context`. A second binary `*-pp-mcp` exposes the command tree as MCP tools (`internal/mcp/cobratree` walks cobra commands).
 - **Generated tree:** per each cli `AGENTS.md`, systemic fixes belong upstream in Printing Press; keep local edits narrow and don't hand-bump `CHANGELOG.md` / `.printing-press-release.json` / `var version`.
+- **Local patches on vendored output (2.37.1):** `internal/mcp/tools.go` in both CLIs sets the `mcpBoundedSingleArrayObject` map capacity to `len(obj)` (the old `+6` headroom was flagged by CodeQL `go/allocation-size-overflow`). The parentsquare `go.mod`/`go.sum` pin `klauspost/compress` at v1.18.7 (Dependabot #38). Dependency bumps and such patches are local edits that a re-vendor from Printing Press would overwrite, so re-check them after regenerating.
 
 ## Binary distribution
 
