@@ -28,10 +28,12 @@ openwiki:
     - Object-typed third-party marketplace sources must be SHA-pinned; ci/check-marketplace-pins.js exits 1 and names each unpinned entry.
     - Every GitHub Actions uses: ref in .github/workflows must be a full 40-character lowercase commit SHA (org reusable workflows included); ci/check-workflow-pins.js exits 1 and names each file:line that is not.
     - gitleaks findings not fingerprinted in .gitleaksignore fail the security scan.
+    - The claude.yml @claude job runs only for comment, review or issue authors with author_association OWNER, MEMBER or COLLABORATOR.
   validation_commands:
     - "bun ci/check-workflow-pins.js"
     - "shellcheck --severity=error $(git ls-files '*.sh')"
     - "claude plugin validate ."
+    - "bun test ci/"
 ---
 
 # CI and repo automation
@@ -53,8 +55,8 @@ Local `./` refs are exempt. Commented-out `uses:` lines are ignored. Its own tes
 | `psd-ci.yml` | PR, push to `main` | Reusable CI with repo-specific install, lint and test commands (below). |
 | `security-scan.yml` | PR, push, Mondays 09:00 UTC, manual | Org security scan (gitleaks etc.). `.gitleaksignore` is a reviewed baseline of historical false positives (Freshservice curl placeholder, JWT-shape test fixtures); new findings still fail. |
 | `claude-code-review.yml` | PR opened/synchronize/ready/reopened (not Dependabot) | Org Claude review via Bedrock; one of the AI reviewers [`/lfg` waits for](../workflows/plan-lfg-evolve.md#lfg-phases). |
-| `claude.yml` | `@claude` mentions on issues/PRs/reviews | `claude-code-action` responder. |
-| `parentsquare-cli-release.yml`, `classintercom-cli-release.yml` | tag `parentsquare-cli-v*` / `classintercom-cli-v*` or manual | Cross-build and publish gz binaries; see [Go CLI skills](../integrations/go-cli-skills.md). |
+| `claude.yml` | `@claude` mentions on issues/PRs/reviews | `claude-code-action` responder. The public repo makes the job-level `if:` the first gate: it runs only when the comment, review or issue author is `OWNER`, `MEMBER` or `COLLABORATOR`, so the job never gets the OAuth token or OIDC for other users. The `issue_comment` trigger carries an accepted zizmor `dangerous-triggers` ignore for that reason. Checkout uses `persist-credentials: false`. |
+| `parentsquare-cli-release.yml`, `classintercom-cli-release.yml` | tag `parentsquare-cli-v*` / `classintercom-cli-v*` or manual | Cross-build and publish gz binaries; see [Go CLI skills](../integrations/go-cli-skills.md). Checkout uses `persist-credentials: false` because the release step authenticates with `GH_TOKEN` and nothing pushes with git. |
 | `openwiki-update.yml` | push to `main`, Mondays 08:00 UTC, manual | Calls the org OpenWiki reusable (base branch `main`); regenerates `openwiki/` and opens a docs-only PR that merges itself. Concurrency group `openwiki`, cancel-in-progress. Passes only `BEDROCK_API_KEY` and `PSD_AUTOMATION_APP_PRIVATE_KEY`. Do not hand-edit generated wiki pages. |
 
 ## What CI actually runs (`psd-ci.yml`)
@@ -75,7 +77,6 @@ Marketplace releases are driven by `/bump-version` ([version tracks](../architec
 - Marketplace pin rule failing on a `marketplace.json` change: an object-typed `source` lacks a 40-character lowercase `sha`. Pin it to a full commit SHA; the check's own tests live in `ci/check-marketplace-pins.test.js`.
 - Workflow pin rule failing on a `.github/workflows` change: a `uses:` ref is a tag, branch, short or uppercase SHA, or missing a ref. Replace it with the full 40-character commit SHA (keep the tag as a trailing comment, as the existing refs do). `ci/check-workflow-pins.js` names each `file:line`; the rule is tested in `ci/check-workflow-pins.test.js`. Local `./` refs need no pin.
 - Narrow local checks: the per-suite commands above; shellcheck on just the touched scripts.
+- `@claude` bot silently skipped for a PSD member: the job-level `if:` in `claude.yml` only admits `author_association` `OWNER`, `MEMBER` or `COLLABORATOR`. Check the run's association first (private org members can show as `NONE`); do not widen the list to `CONTRIBUTOR` or `NONE`.
 - Security-scan failure on a genuine false positive: add the fingerprint line to `.gitleaksignore` with a justification comment; never to hide real secrets.
-- Workflow files are protected paths for [cloud routines](./cloud-routines.md#protected-paths), so routine-authored fixes cannot touch them.
-hide real secrets.
 - Workflow files are protected paths for [cloud routines](./cloud-routines.md#protected-paths), so routine-authored fixes cannot touch them.
