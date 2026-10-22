@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **psd-productivity: `docx`, `pdf`, `pptx`, `xlsx`, and `skill-creator` skills removed** (38 → 33 skills). These are copies of skills Claude now ships built in (`anthropic-skills:docx`, `:pdf`, `:pptx`, `:xlsx`, `:skill-creator`). With the plugin enabled, every session listed each skill twice with near-identical descriptions — noise that contributes to the skill listing exceeding Claude Code's 30,000-character budget (descriptions get truncated) and left Claude choosing between two versions of the same skill. The built-in versions are maintained by Anthropic and stay current; these copies were not.
   - No other skill in the repo loads files from the removed folders. `presentation-master` refers to "the pptx skill" by name only, which the built-in `pptx` skill satisfies.
   - The `pptx` folder also carried leftover working files (sample PNGs, conversion logs, one-off scripts) that are removed with it.
+  - `pdf/scripts/check_bounding_boxes_test.py` is removed along with the script it tests. CI never ran it (`psd-ci.yml` runs only the parentsquare and class-intercom Go tests, `psd-atrium` bun tests, and `test_brand.py`), so CI coverage is unchanged.
   - Skill counts updated in `README.md`, `CLAUDE.md`, `plugins/psd-productivity/README.md`, `plugin.json`, and `marketplace.json`.
 
 ## [2.36.0] - 2026-10-20
