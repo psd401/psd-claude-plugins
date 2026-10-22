@@ -7,7 +7,7 @@
   },
   "metadata": {
     "description": "PSD Plugin Marketplace for Claude Code and Claude Cowork — coding workflows, productivity agents, and district automation",
-    "version": "2.35.4",
+    "version": "2.36.0",
     "pluginRoot": "./plugins"
   },
   "plugins": [
@@ -32,7 +32,7 @@
       "name": "psd-productivity",
       "source": "./plugins/psd-productivity",
       "description": "38 productivity workflows + 1 agent — Google-style tech writing, ParentSquare district data CLI, Atrium publishing (AI Studio docs + HTML artifacts), beautiful HTML artifact generation (incl. self-contained data dashboards & charts), board policy formatting, PDF Builder, Documenso document signing, n8n workflow automation, document generation, research, TTS, enrollment automation, browser control, Google Workspace, and district operations",
-      "version": "2.25.3",
+      "version": "2.26.0",
       "category": "productivity",
       "keywords": [
         "productivity",
@@ -45,6 +45,32 @@
         "cowork",
         "psd",
         "education"
+      ]
+    },
+    {
+      "name": "n8n",
+      "source": "./plugins/n8n",
+      "description": "MCP connection to PSD's n8n instance (n8n-instance server). Opt-in, starts disabled; needs N8N_HOST and N8N_MCP_TOKEN. Pairs with /n8n-manager in psd-productivity",
+      "version": "1.0.0",
+      "category": "productivity",
+      "keywords": [
+        "n8n",
+        "automation",
+        "mcp",
+        "psd"
+      ]
+    },
+    {
+      "name": "documenso",
+      "source": "./plugins/documenso",
+      "description": "MCP connection to PSD's Documenso instance (official SDK server). Opt-in, starts disabled; needs DOCUMENSO_API_KEY. Pairs with /documenso-manager in psd-productivity",
+      "version": "1.0.0",
+      "category": "productivity",
+      "keywords": [
+        "documenso",
+        "signing",
+        "mcp",
+        "psd"
       ]
     },
     {

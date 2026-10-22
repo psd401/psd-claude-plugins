@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude Code and Claude Cowork, maintained by Peninsula School District.
 
-**Version**: 2.35.4
+**Version**: 2.36.0
 **Status**: Production-Ready
 
 ### Plugins
@@ -15,6 +15,8 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 |--------|---------|--------|--------|
 | `psd-coding-system` | AI-assisted development workflows | 9 | 44 |
 | `psd-productivity` | Productivity workflows (Cowork-friendly) | 38 | 1 |
+| `n8n` | Opt-in MCP connection to PSD's n8n instance (`n8n-instance` server). Starts disabled | 0 | 0 |
+| `documenso` | Opt-in MCP connection to PSD's Documenso instance (`documenso` server). Starts disabled | 0 | 0 |
 | `collab` | Threads between people's Claude Code agents — hooks (pane, status entry, toasts, listening) + the hosted `collab` MCP server | 0 | 0 |
 
 `collab` is **not developed here.** It is published into this marketplace from `psd401/psd-collab-mcp` (recorded in `plugins/collab/.publish-source`), which also holds its server and is its own marketplace (`psd-collab`). Fix it upstream and re-publish; do not hand-edit `plugins/collab/`.
@@ -25,10 +27,12 @@ This is the **PSD Plugin Marketplace** — a multi-plugin marketplace for Claude
 
 ```
 psd-claude-plugins/
-  .claude-plugin/marketplace.json   # lists all three plugins — see CRITICAL RULES below
+  .claude-plugin/marketplace.json   # lists all five plugins — see CRITICAL RULES below
   plugins/
     psd-coding-system/              # skills/ (9), agents/ (44 in 8 category dirs), hooks/, scripts/, workflows/, docs/patterns/
     psd-productivity/               # skills/ (38), agents/ (enrollment-validator)
+    n8n/                            # opt-in n8n-instance MCP server: scripts/n8n-mcp-proxy.sh, no skills
+    documenso/                      # opt-in documenso MCP server: scripts/documenso-mcp-proxy.sh, no skills
     collab/                         # published from psd401/psd-collab-mcp — hooks/, types/, test/, .publish-source; no skills or agents
   docs/learnings/                   # canonical learnings location (see Learning Data below)
 ```
@@ -196,13 +200,14 @@ git push origin main
 
 ### Version Management
 
-**CRITICAL**: There are THREE independent version tracks you bump here. Never mix them. (`collab` carries a fourth version, but it is never bumped by hand — see the note below the table.)
+**CRITICAL**: There are THREE independent version tracks you bump here, plus one each for the opt-in `n8n` and `documenso` plugins. Never mix them. (`collab` carries a version too, but it is never bumped by hand — see the note below the table.)
 
 | Track | Files | When to bump |
 |-------|-------|--------------|
 | **Marketplace** | `.claude-plugin/marketplace.json` → `metadata.version`; `CLAUDE.md` → `**Version**`; `README.md` badge + text | Every release |
 | **psd-coding-system** | `plugins/psd-coding-system/.claude-plugin/plugin.json` → `"version"`; `marketplace.json` → `plugins[name=psd-coding-system].version`; `plugins/psd-coding-system/README.md` → `Version:` | Only when psd-coding-system skills/agents change |
 | **psd-productivity** | Same pattern for psd-productivity files | Only when psd-productivity skills/agents change |
+| **n8n**, **documenso** | Same pattern for each plugin's `plugin.json` and its `marketplace.json` entry | Only when that plugin's MCP server or proxy script changes |
 
 Each plugin version tracks breaking changes for users of *that specific plugin* independently. Do not copy the marketplace version into a plugin's version field.
 

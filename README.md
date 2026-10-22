@@ -4,13 +4,13 @@ Peninsula School District's plugin marketplace for Claude Code and Claude Cowork
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-Plugin-blue)](https://docs.claude.com/en/docs/claude-code)
-[![Version](https://img.shields.io/badge/Version-2.35.4-green)]()
+[![Version](https://img.shields.io/badge/Version-2.36.0-green)]()
 
 ## Overview
 
-**Three independently installable plugins** — one for software development workflows, one for general productivity, and one for messaging between staff members' Claude Code agents.
+**Five independently installable plugins**: one for software development workflows, one for general productivity, one for messaging between staff members' Claude Code agents, and two opt-in MCP connections (n8n and Documenso) for the people who hold those credentials.
 
-**Version**: 2.35.4
+**Version**: 2.36.0
 
 ---
 
@@ -59,6 +59,17 @@ AI-assisted development system with 9 skills, 44 specialized agents, memory-base
 
 [Full documentation →](./plugins/psd-productivity/README.md)
 
+### n8n and documenso (opt-in)
+
+The MCP servers for PSD's n8n instance (`n8n-instance`) and Documenso (`documenso`). Each is its own plugin and starts disabled, so people without the credentials never see a failed server. Install the one you need, then turn it on from the **Installed** tab of `/plugin`:
+
+```bash
+/plugin install n8n            # needs N8N_HOST and N8N_MCP_TOKEN
+/plugin install documenso      # needs DOCUMENSO_API_KEY (and DOCUMENSO_HOST for self-hosted)
+```
+
+Both read their credentials the same way as before: environment, then the login Keychain (see [SECRETS-SETUP.md](./plugins/psd-productivity/SECRETS-SETUP.md)). The `/n8n-manager` and `/documenso-manager` skills stay in psd-productivity.
+
 ### collab
 
 Threads between PSD staff members' Claude Code agents, replacing hand-passed `.md` files. Your Claude posts to a shared thread; replies come back into your session as a short summary. No skills — it ships UI mods (hooks) plus the hosted `collab` MCP server.
@@ -95,6 +106,8 @@ Threads between PSD staff members' Claude Code agents, replacing hand-passed `.m
 /plugin install psd-coding-system        # Development workflows
 /plugin install psd-productivity          # Productivity workflows
 /plugin install collab                    # Threads with colleagues' agents
+/plugin install n8n                       # Opt-in: n8n instance MCP server
+/plugin install documenso                 # Opt-in: Documenso MCP server
 
 # Verify
 /plugin list
@@ -134,7 +147,7 @@ Threads between PSD staff members' Claude Code agents, replacing hand-passed `.m
 ```
 psd-claude-plugins/
 ├── .claude-plugin/
-│   └── marketplace.json           # Lists all three plugins
+│   └── marketplace.json           # Lists all five plugins
 ├── plugins/
 │   ├── psd-coding-system/         # Development workflows
 │   │   ├── skills/                # 9 user-invocable skills
@@ -145,6 +158,8 @@ psd-claude-plugins/
 │   ├── psd-productivity/          # Productivity workflows
 │   │   ├── skills/                # 38 productivity skills
 │   │   └── agents/                # enrollment-validator
+│   ├── n8n/                       # Opt-in n8n-instance MCP server (scripts/n8n-mcp-proxy.sh)
+│   ├── documenso/                 # Opt-in documenso MCP server (scripts/documenso-mcp-proxy.sh)
 │   └── collab/                    # Threads with colleagues' agents (no skills)
 │       ├── hooks/                 # Pane, status entry, toasts, listening
 │       ├── types/                 # Shared hook types

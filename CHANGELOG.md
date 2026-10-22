@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **GitHub label taxonomy** documented per routine and pre-created across all three target repos: `triaged-from-freshservice`; `lfg-ready` / `lfg-in-progress` / `lfg-pr-open` / `lfg-blocked` / `lfg-skip`; `pr-fix-stuck` / `pr-fix-done` / `pr-fix-skip`. Designed for mobile-tap workflows from GitHub's app.
   - **Pattern 1 validation pilot** at `routine-pilots/agent-discovery-check/` (since removed after validation) — confirmed via pilot fires that project-scope `.claude/agents/*.md` AND user-scope `~/.claude/agents/*.md` written by setup are auto-discovered at routine session start, and the env setup script re-runs on every fire with a fresh HOME.
 
+## [2.36.0] - 2026-10-20
+
+### Changed
+- **psd-productivity** (2.26.0) no longer carries the `n8n-instance` and `documenso` MCP servers. Their proxy scripts exit 1 before any network call when the credentials are missing ("N8N_HOST not set", "DOCUMENSO_API_KEY not set"), so every psd-productivity user without them saw two failed ("Connection closed") servers in every session. The `n8n-docs` server and all 38 skills stay, `/n8n-manager` and `/documenso-manager` included.
+- **Upgrade:** if you use either server, `/plugin install n8n` and/or `/plugin install documenso`, then turn it on from the Installed tab of `/plugin`. Your Keychain items keep working. The tools now come from the new plugin, so their names change from `mcp__plugin_psd-productivity_n8n-instance__*` to `mcp__plugin_n8n_n8n-instance__*` and from `mcp__plugin_psd-productivity_documenso__*` to `mcp__plugin_documenso_documenso__*`; update any permission rule that names the old ones.
+
+### Added
+- **`n8n` plugin** (1.0.0, `defaultEnabled: false`): the `n8n-instance` MCP server. `n8n-mcp-proxy.sh` moved here unchanged from `psd-productivity/skills/n8n-manager/scripts/`, so it reads `N8N_HOST` and `N8N_MCP_TOKEN` exactly as 2.35.4 did (environment, then the login Keychain, then the legacy `.env`) and keeps the `mcp-remote@0.15.1` pin and the token-out-of-argv header.
+- **`documenso` plugin** (1.0.0, `defaultEnabled: false`): the `documenso` MCP server. `documenso-mcp-proxy.sh` moved here unchanged from `psd-productivity/skills/documenso-manager/scripts/`, with the same credential lookup and the `@documenso/sdk-typescript@0.9.1` pin. The accepted risk recorded in 2.35.4 (API key visible in argv) is unchanged.
+
 ## [2.35.4] - 2026-10-19
 
 ### Security
