@@ -23,6 +23,8 @@ openwiki:
     - Secrets resolve environment first, then macOS login Keychain, then the legacy Geoffrey .env file.
     - Skills in this plugin work without psd-coding-system installed.
     - Skill file references are relative to the skill directory, never repo paths.
+    - Scripts never echo secret values; `secrets.py --get` reports only that a secret is set.
+    - Data from URLs, HTML, or workflow JSON is never interpolated into a shell command string.
   validation_commands:
     - "bun test plugins/psd-productivity/skills/psd-atrium/"
     - "cd plugins/psd-productivity/skills/psd-brand-guidelines && uv run --with pytest pytest -q test_brand.py"
@@ -30,7 +32,7 @@ openwiki:
 
 # psd-productivity plugin
 
-Version 3.0.0 (a breaking major release: the built-in-duplicate skills were removed, see below); 33 skills plus one agent (`agents/enrollment-validator.md`, Sonnet 5, validates P223 enrollment data). Works in Claude Code and Claude Cowork and has no dependency on the [coding system](./coding-system.md). Prerequisite: `bun` on `PATH` (the `n8n-docs` MCP server in `plugin.json` starts via `bunx n8n-mcp@2.94.3`, and many skills run bun scripts). Registration/versioning: [marketplace structure](./marketplace-structure.md).
+Version 3.0.1 (3.0.0 was the breaking major release that removed the built-in-duplicate skills, see below; 3.0.1 is a security-fix patch to scripts, see [input-handling rules](#input-handling-rules-for-scripts)); 33 skills plus one agent (`agents/enrollment-validator.md`, Sonnet 5, validates P223 enrollment data). Works in Claude Code and Claude Cowork and has no dependency on the [coding system](./coding-system.md). Prerequisite: `bun` on `PATH` (the `n8n-docs` MCP server in `plugin.json` starts via `bunx n8n-mcp@2.94.3`, and many skills run bun scripts). Registration/versioning: [marketplace structure](./marketplace-structure.md).
 
 The skill's own `SKILL.md` frontmatter description is the source of truth for what it does; the roster below is only a map.
 
@@ -58,9 +60,23 @@ Canonical order, implemented identically in `scripts/secrets.js` (bun, `SECRETS`
 
 Which skill needs which key (ElevenLabs, OpenAI/Gemini/Perplexity/xAI, FreshService, Red Rover, Atrium, …) is tabulated in `SECRETS-SETUP.md`; never document or log key values. The [MCP proxies](../integrations/mcp-plugins.md) share this chain.
 
+`secrets.py --get <VAR>` prints `<VAR>: set` on success and the resolution error on stderr with exit 1. It must never print any part of the value, because CLI output lands in terminals and agent transcripts. Keep that rule when editing either secrets helper.
+
 ## API client convention
 
 `scripts/api_client.js` exports `BaseApiClient` (config from `SECRETS`, authenticated JSON fetch, page/cursor/offset pagination via `fetchAllPages`, optional token-bucket `RateLimiter`, URL builder). Service clients override `serviceName`, `buildBaseUrl`, `buildAuthHeaders` (optional `buildUiUrl`). Current subclasses: `documenso-manager/scripts/documenso_client.js`, `n8n-manager/scripts/n8n_client.js`, `psd-atrium/scripts/atrium_client.js`. `scripts/health_check_base.js` `runHealthCheck(fn)` standardizes `health_check.js` JSON output and exit code (non-zero on `status:"error"`).
+
+## Input-handling rules for scripts
+
+Many skill scripts take untrusted data (a document URL, scraped HTML, workflow JSON, API text) and run in agent sessions. The 3.0.1 security pass fixed several patterns; keep these rules when editing or adding scripts:
+
+- **Match URL hosts by parsed hostname, never by substring.** `board-policy-formatter/scripts/batch_format.py` (`is_processable_url`) parses with `urlparse` and compares the hostname to `docs.google.com` / `drive.google.com`. `writer/scripts/extract-blog-samples.js` (`getDomain`, `hostIs`) uses `new URL(...).hostname` and accepts the exact host or a dot-subdomain. A substring check accepts `https://evil.example/?docs.google.com`.
+- **Pass data to child processes as argv arrays.** `n8n-manager/scripts/deploy_workflow.js` calls `execFileSync('bun', [validator, JSON.stringify(workflow)])`, not a template-string `execSync`, so workflow JSON is never parsed by a shell.
+- **Use private temp dirs.** `scripts/test_pipeline.js` writes the n8n validation file inside a `mkdtempSync` directory and removes the directory in `finally`, instead of a predictable name in shared `/tmp`.
+- **Decode HTML entities once, with `&amp;` last.** `writer/scripts/extract-email-samples.js` removes `<script>`, `<style>`, and `<head>` with Bun's `HTMLRewriter` before decoding. `legislative-tracker/scripts/get_committees.js` decodes `&amp;` last, so `&amp;lt;` becomes `&lt;`, not `<`.
+- **Escape data before `innerHTML`.** `html-artifact/assets/chart-snippets.html` routes every data-derived string, including SVG `aria-label` values, through `esc()`. Follow this pattern when adding chart or dashboard snippets.
+
+No automated test covers these scripts (see [Tests and validation](#tests-and-validation)). Validate syntax with `python3 -m py_compile <file.py>` or `bun build --no-bundle <file.js> > /dev/null`, then check the behavior with a hostile input, such as an `<img onerror=...>` label for the chart snippet.
 
 ## Notable skills
 
@@ -77,4 +93,5 @@ CI (see [CI and automation](../operations/ci-and-automation.md)) runs only: `bun
 
 - **New skill:** `skills/<name>/SKILL.md` with explicit `model`, `effort`, `allowed-tools`, `paths` if script-bearing; update counts in `plugin.json`, marketplace entry, both READMEs, `CLAUDE.md`; add keys to `SECRETS-SETUP.md`; bump per [version tracks](./marketplace-structure.md#version-tracks-never-mix).
 - **New API-backed skill:** subclass `BaseApiClient`, add a `SECRETS` entry in `secrets.js`/`secrets.py`, add `health_check.js` using `runHealthCheck`.
+- **Script input or output change:** follow [input-handling rules](#input-handling-rules-for-scripts); do not reintroduce substring URL checks, shell-string interpolation, or secret echoes.
 - **Do not** commit credentials or compiled Go binaries; do not use repo-relative paths inside skills.
