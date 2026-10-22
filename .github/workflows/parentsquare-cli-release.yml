@@ -28,6 +28,10 @@ jobs:
         working-directory: plugins/psd-productivity/skills/parentsquare/cli
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The release step authenticates with GH_TOKEN; nothing here pushes
+          # with git, so don't leave the token in .git/config (zizmor artipacked).
+          persist-credentials: false
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: '1.26.x'
