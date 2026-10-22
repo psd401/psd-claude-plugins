@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The four callers of the `PSD401/.github` reusable workflows (psd-ci, security-scan, claude-code-review, openwiki-update) moved from `@main` to `@1aa5f5351a78b15f5c71668037f5d35b9613ae41` (`PSD401/.github` main on 2026-10-21). The `@main is deliberate … zizmor: ignore[unpinned-uses]` comments are gone. This closes CodeQL `actions/unpinned-tag` #98–#101.
   - `actions/checkout@v7` → `@3d3c42e…` (v7.0.1) and `actions/setup-go@v7` → `@b7ad1da…` (v7.0.0) in `claude.yml` and both CLI release workflows. CodeQL didn't flag these because GitHub-owned actions count as trusted, but a tag can still be moved.
   - New `ci/check-workflow-pins.js` with 7 bun tests, run in psd-ci's `test-command`. It fails on any `uses:` that isn't a 40-character lowercase commit SHA (`./` local refs are exempt; `docker://` refs need an `@sha256:` digest) and names each `file:line`.
-  - Departs from psd-dev-standards standards/06, which still requires `@main` for org reusables. The standard is being changed to match. Until `PSD401/.github` publishes release tags, Dependabot can't bump the four org pins, so they need manual bumps.
+  - psd-dev-standards standards/06 now requires this for every repo (psd401/psd-dev-standards#128). `PSD401/.github` cuts `vX.Y.Z` release tags (psd401/.github#30), and `1aa5f53` is `v1.0.0`. The four org pins now carry a `# v1.0.0` comment in place of `# PSD401/.github main @ 2026-10-21`, so Dependabot (`github-actions`, already configured) bumps the SHA and the comment together when a newer release is cut.
 
 ### Added
 - **Cloud routines for triage, lfg, and pr-fix** (no plugin version bump — routines are infrastructure, not part of `/plugin install` distribution):
