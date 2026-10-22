@@ -49,8 +49,9 @@ function parseCommitteeResponse(xml) {
     const getId = (field) => {
       const m = committeeXml.match(new RegExp(`<${field}>([^<]*)</${field}>`));
       if (!m) return null;
-      // Decode HTML entities (API returns &amp; for &)
-      return m[1].trim().replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+      // Decode HTML entities (API returns &amp; for &). &amp; goes last so
+      // "&amp;lt;" decodes once, to "&lt;", not twice to "<".
+      return m[1].trim().replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
     };
 
     const name = getId('Name');

@@ -119,15 +119,26 @@ function cleanEmailBody(body, isHtml) {
 
   // Strip HTML if needed
   if (isHtml) {
+    // Repeat until nothing changes, so nested or split tags
+    // (e.g. "<scr<script>ipt>") can't survive one pass.
+    let prev;
+    do {
+      prev = text;
+      text = text
+        .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '')
+        .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '')
+        .replace(/<[^>]*>/g, ' ');
+    } while (text !== prev);
+    // Drop any unterminated tag fragment left behind (e.g. a trailing "<scr").
+    text = text.replace(/</g, '');
+    // Decode entities once, &amp; last, so "&amp;lt;" becomes "&lt;" rather
+    // than "<". The result is plain text for voice samples, never rendered.
     text = text
-      .replace(/<style[^>]*>.*?<\/style>/gs, '')
-      .replace(/<script[^>]*>.*?<\/script>/gs, '')
-      .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"');
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&');
   }
 
   // Remove common signature patterns

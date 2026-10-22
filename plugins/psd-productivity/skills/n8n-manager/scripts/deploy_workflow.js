@@ -10,7 +10,7 @@
 //   3. Return the workflow ID and editor URL
 
 const { readFileSync } = require('fs');
-const { execSync } = require('child_process');
+const { execFileSync } = require('child_process');
 const { n8nFetch, getEditorUrl } = require('./n8n_client.js');
 
 const input = process.argv[2];
@@ -37,8 +37,11 @@ async function deploy() {
   // Step 1: Validate
   const scriptDir = new URL('.', import.meta.url).pathname;
   try {
-    const validateResult = execSync(
-      `bun "${scriptDir}validate_workflow.js" '${JSON.stringify(workflowData).replace(/'/g, "'\\''")}'`,
+    // execFileSync with an argv array: no shell, so the workflow JSON can't
+    // be interpreted as shell syntax.
+    const validateResult = execFileSync(
+      'bun',
+      [`${scriptDir}validate_workflow.js`, JSON.stringify(workflowData)],
       { encoding: 'utf-8', timeout: 10000 }
     );
     const validation = JSON.parse(validateResult);

@@ -41,6 +41,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse
 
 SCRIPTS_DIR = Path(__file__).parent
 ORCHESTRATOR = SCRIPTS_DIR / "format_policy.py"
@@ -95,13 +96,19 @@ def classify(number: str) -> tuple[str, bool] | None:
     return None
 
 
+GOOGLE_HOSTS = {"docs.google.com", "drive.google.com"}
+
+
 def is_processable_url(url: str) -> bool:
-    if "docs.google.com" in url or "drive.google.com" in url:
+    parsed = urlparse(url)
+    if parsed.scheme not in ("http", "https"):
+        return False
+    # Match the parsed hostname exactly; a substring check would accept
+    # e.g. https://evil.example/?docs.google.com.
+    if (parsed.hostname or "").lower() in GOOGLE_HOSTS:
         return True
-    if url.startswith(("http://", "https://")):
-        path = url.split("?", 1)[0].lower()
-        return path.endswith(".pdf") or path.endswith(".docx")
-    return False
+    path = parsed.path.lower()
+    return path.endswith(".pdf") or path.endswith(".docx")
 
 
 def main() -> None:

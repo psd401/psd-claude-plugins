@@ -23,7 +23,7 @@
  */
 
 const { execSync } = require('child_process');
-const { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync, unlinkSync } = require('fs');
+const { readFileSync, writeFileSync, existsSync, mkdtempSync, rmSync } = require('fs');
 const { join, resolve } = require('path');
 const { tmpdir } = require('os');
 
@@ -431,7 +431,9 @@ function validateN8nWorkflow(workflow, source) {
   const suite = 'n8n';
 
   // 1. Run the existing validate_workflow.js (structural validation)
-  const tmpFile = join(tmpdir(), `psd-n8n-validate-${Date.now()}.json`);
+  // Private temp dir (mode 0700) instead of a predictable name in shared /tmp.
+  const tmpDir = mkdtempSync(join(tmpdir(), 'psd-n8n-validate-'));
+  const tmpFile = join(tmpDir, 'workflow.json');
   try {
     writeFileSync(tmpFile, JSON.stringify(workflow));
     const result = execSync(
@@ -458,7 +460,7 @@ function validateN8nWorkflow(workflow, source) {
     } catch {}
     fail(suite, `${source}: structural validation`, errMsg.slice(0, 300));
   } finally {
-    try { unlinkSync(tmpFile); } catch {}
+    try { rmSync(tmpDir, { recursive: true, force: true }); } catch {}
   }
 
   // 2. Known-bad pattern: Switch node missing required fields
