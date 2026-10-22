@@ -25,9 +25,9 @@ Fixes for the open code-scanning alerts that pointed at real problems, plus Depe
 - **`n8n-manager/scripts/deploy_workflow.js`** runs the validator through `execFileSync` with an argv array instead of a shell command, so workflow JSON is never parsed as shell syntax.
 - **`scripts/test_pipeline.js`** writes the n8n validation file into a private `mkdtempSync` directory instead of a predictable name in shared `/tmp`.
 - **`board-policy-formatter/scripts/batch_format.py`** and **`writer/scripts/extract-blog-samples.js`** match the parsed hostname exactly (or as a subdomain) instead of by substring. Before, `https://evil.example/?docs.google.com` counted as a Google Docs URL, and `medium.com.evil.example` counted as Medium.
-- **`writer/scripts/extract-email-samples.js`** strips tags until nothing changes, handles `</script >` and uppercase tags, drops unterminated tag fragments, and decodes `&amp;` last so text is decoded once.
+- **`writer/scripts/extract-email-samples.js`** strips HTML with Bun's built-in `HTMLRewriter` (a real tokenizer) instead of regexes: `<script>`, `<style>`, and `<head>` are dropped with their content, other tags are unwrapped, stray `<`/`>` from malformed markup are removed, and entities are decoded once with `&amp;` last.
 - **`legislative-tracker/scripts/get_committees.js`** decodes `&amp;` last, so `&amp;lt;` becomes `&lt;` instead of `<`.
-- **`html-artifact/assets/chart-snippets.html`** passes every data-derived string through an `esc()` helper before it reaches `innerHTML`. A label such as `<img onerror=...>` now renders as text, checked in a browser.
+- **`html-artifact/assets/chart-snippets.html`** passes every data-derived string, element text and `aria-label` attributes alike, through an `esc()` helper before it reaches `innerHTML`. A label such as `<img onerror=...>` now renders as text, checked in a browser.
 - **parentsquare and class-intercom CLIs** (`internal/mcp/tools.go`): the map size hint drops its `+6` headroom (CodeQL `go/allocation-size-overflow`). The parentsquare CLI also gets `klauspost/compress` 1.18.7 (Dependabot #38), the same bump #112 made for class-intercom. Both are vendored Printing Press output, patched locally.
 
 ## [2.37.0] - 2026-10-21

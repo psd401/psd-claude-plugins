@@ -111,7 +111,7 @@ function barChart(el,data,{w=680,h=300,pad=36}={}){
   const max=Math.max(...data.map(d=>d.value)), bw=(w-pad)/data.length;
   const y=v=>h-pad-(v/max)*(h-pad-10);
   const ticks=4, grid=Array.from({length:ticks+1},(_,i)=>Math.round(max*i/ticks));
-  let s=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Tickets by category: ${data.map(d=>d.name+' '+d.value).join(', ')}">`;
+  let s=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Tickets by category: ${esc(data.map(d=>d.name+' '+d.value).join(', '))}">`;
   s+=`<g class="axis">`+grid.map(g=>`<line class="gridline" x1="${pad}" x2="${w}" y1="${y(g)}" y2="${y(g)}"/><text x="${pad-6}" y="${y(g)+3}" text-anchor="end">${fmt(g)}</text>`).join('')+`</g>`;
   s+=data.map((d,i)=>{
     const bx=pad+i*bw+bw*0.15, bwid=bw*0.7, by=y(d.value), bh=h-pad-by, hl=i===0?'hl':'';
@@ -130,7 +130,7 @@ function lineChart(el,data,target,{w=680,h=300,pad=40}={}){
   const line=data.map((d,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(d.value).toFixed(1)}`).join(' ');
   const area=`M${x(0).toFixed(1)},${(h-pad).toFixed(1)} `+data.map((d,i)=>`L${x(i).toFixed(1)},${y(d.value).toFixed(1)}`).join(' ')+` L${x(data.length-1).toFixed(1)},${(h-pad).toFixed(1)} Z`;
   const ticks=4, grid=Array.from({length:ticks+1},(_,i)=>Math.round(max*i/ticks));
-  let s=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Monthly volume from ${data[0].month} ${data[0].value} to ${data.at(-1).month} ${data.at(-1).value}, target ${target}">`;
+  let s=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(`Monthly volume from ${data[0].month} ${data[0].value} to ${data.at(-1).month} ${data.at(-1).value}, target ${target}`)}">`;
   s+=`<defs><linearGradient id="af" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity="0.18"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>`;
   s+=`<g class="axis">`+grid.map(g=>`<line class="gridline" x1="${pad}" x2="${w-16}" y1="${y(g)}" y2="${y(g)}"/><text x="${pad-6}" y="${y(g)+3}" text-anchor="end">${fmt(g)}</text>`).join('')+`</g>`;
   s+=`<line class="refline" x1="${pad}" x2="${w-16}" y1="${y(target)}" y2="${y(target)}"/><text class="axis" x="${w-16}" y="${y(target)-5}" text-anchor="end" style="fill:var(--neg)">target ${fmt(target)}</text>`;

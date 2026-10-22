@@ -119,18 +119,15 @@ function cleanEmailBody(body, isHtml) {
 
   // Strip HTML if needed
   if (isHtml) {
-    // Repeat until nothing changes, so nested or split tags
-    // (e.g. "<scr<script>ipt>") can't survive one pass.
-    let prev;
-    do {
-      prev = text;
-      text = text
-        .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '')
-        .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '')
-        .replace(/<[^>]*>/g, ' ');
-    } while (text !== prev);
-    // Drop any unterminated tag fragment left behind (e.g. a trailing "<scr").
-    text = text.replace(/</g, '');
+    // Parse with Bun's HTMLRewriter (a real HTML tokenizer) instead of regexes:
+    // drop <script>/<style>/<head> with their content, unwrap every other tag.
+    text = new HTMLRewriter()
+      .on('script, style, head', { element(e) { e.remove(); } })
+      .on('*', { element(e) { e.before(' '); e.removeAndKeepContent(); } })
+      .transform(text);
+    // Remove any stray angle brackets from malformed markup the parser left
+    // as text (e.g. "<scr<script>ipt>").
+    text = text.replace(/[<>]/g, '');
     // Decode entities once, &amp; last, so "&amp;lt;" becomes "&lt;" rather
     // than "<". The result is plain text for voice samples, never rendered.
     text = text
