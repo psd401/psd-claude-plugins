@@ -93,8 +93,17 @@ function parseArgs() {
 
 // Extract domain from URL for selector heuristics
 function getDomain(url) {
-  const match = url.match(/https?:\/\/([^\/]+)/);
-  return match ? match[1] : '';
+  try {
+    return new URL(url).hostname.toLowerCase();
+  } catch {
+    return '';
+  }
+}
+
+// True when host is base or a subdomain of it (substring matching would also
+// accept e.g. medium.com.evil.example).
+function hostIs(host, base) {
+  return host === base || host.endsWith(`.${base}`);
 }
 
 // Get appropriate selectors based on domain
@@ -102,11 +111,11 @@ function getContentSelectors(url) {
   const domain = getDomain(url);
 
   // Domain-specific selectors
-  if (domain.includes('medium.com') || domain.includes('blog.krishagel.com')) {
+  if (hostIs(domain, 'medium.com') || hostIs(domain, 'blog.krishagel.com')) {
     return ['article', '.post-content', '.article-content', 'main'];
   }
 
-  if (domain.includes('psd401.ai')) {
+  if (hostIs(domain, 'psd401.ai')) {
     return ['article', '.blog-post', '.post-content', 'main'];
   }
 

@@ -536,7 +536,7 @@ func mcpBoundedSingleArrayObject(data json.RawMessage) ([]byte, bool) {
 		return nil, false
 	}
 	build := func(subset []json.RawMessage) any {
-		out := make(map[string]any, len(obj)+6)
+		out := make(map[string]any, len(obj)) // no "+6" headroom: CodeQL go/allocation-size-overflow
 		for key, raw := range obj {
 			if key == arrayField {
 				out[key] = subset

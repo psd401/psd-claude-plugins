@@ -271,9 +271,10 @@ if __name__ == "__main__":
             print(f"  {name}")
     elif args.get:
         try:
-            value = require_secret(args.get)
-            masked = value[:4] + "..." + value[-4:] if len(value) > 8 else "***"
-            print(f"{args.get}: {masked}")
+            require_secret(args.get)
+            # Never echo any part of the value: CLI output lands in terminals
+            # and agent transcripts.
+            print(f"{args.get}: set")
         except ValueError as e:
             print(str(e), file=sys.stderr)
             sys.exit(1)

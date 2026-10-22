@@ -119,15 +119,23 @@ function cleanEmailBody(body, isHtml) {
 
   // Strip HTML if needed
   if (isHtml) {
+    // Parse with Bun's HTMLRewriter (a real HTML tokenizer) instead of regexes:
+    // drop <script>/<style>/<head> with their content, unwrap every other tag.
+    text = new HTMLRewriter()
+      .on('script, style, head', { element(e) { e.remove(); } })
+      .on('*', { element(e) { e.before(' '); e.removeAndKeepContent(); } })
+      .transform(text);
+    // Remove any stray angle brackets from malformed markup the parser left
+    // as text (e.g. "<scr<script>ipt>").
+    text = text.replace(/[<>]/g, '');
+    // Decode entities once, &amp; last, so "&amp;lt;" becomes "&lt;" rather
+    // than "<". The result is plain text for voice samples, never rendered.
     text = text
-      .replace(/<style[^>]*>.*?<\/style>/gs, '')
-      .replace(/<script[^>]*>.*?<\/script>/gs, '')
-      .replace(/<[^>]+>/g, ' ')
       .replace(/&nbsp;/g, ' ')
       .replace(/&lt;/g, '<')
       .replace(/&gt;/g, '>')
-      .replace(/&amp;/g, '&')
-      .replace(/&quot;/g, '"');
+      .replace(/&quot;/g, '"')
+      .replace(/&amp;/g, '&');
   }
 
   // Remove common signature patterns
