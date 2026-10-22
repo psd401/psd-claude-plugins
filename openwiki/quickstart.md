@@ -60,5 +60,3 @@ Boundary checks worth remembering: a new skill/agent is only complete when count
 - `plugins/psd-coding-system/skills/hallmark`, `chad-review`, `psd-sign` — vendored/specialized skills summarized only; internals not documented.
 - `plugins/psd-coding-system/agents/**` — individual agent contracts are summarized by category; `docs/agent-manifest.md` still lists as "orphans" several agents that `/lfg` Phase 6 and `/setup` `review_agents` now wire (likely stale).
 - `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.
- 6 and `/setup` `review_agents` now wire (likely stale).
-- `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.
