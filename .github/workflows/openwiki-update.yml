@@ -17,9 +17,8 @@ jobs:
     permissions:
       contents: write # caller must grant; org default token is read-only
       pull-requests: write
-    # @main is deliberate: org-owned reusable; central bumps must propagate
-    # (drift-kill design, psd-dev-standards standards/06). zizmor: ignore[unpinned-uses]
-    uses: PSD401/.github/.github/workflows/reusable-openwiki.yml@main # zizmor: ignore[unpinned-uses]
+    # SHA-pinned: every `uses:` ref must be a full commit SHA (ci/check-workflow-pins.js).
+    uses: PSD401/.github/.github/workflows/reusable-openwiki.yml@1aa5f5351a78b15f5c71668037f5d35b9613ae41 # PSD401/.github main @ 2026-10-21
     with:
       base_branch: main
     secrets:
