@@ -8,7 +8,7 @@ permissions:
 jobs:
   psd-ci:
     # SHA-pinned: every `uses:` ref must be a full commit SHA (ci/check-workflow-pins.js).
-    uses: PSD401/.github/.github/workflows/reusable-psd-ci.yml@1aa5f5351a78b15f5c71668037f5d35b9613ae41 # v1.0.0
+    uses: PSD401/.github/.github/workflows/reusable-psd-ci.yml@8c4dbb4e6ae79345ec5f56a96de522e9528e3fb4 # v1.1.0
     with:
       # No lockfile at the root, so the reusable detects `none` and installs no
       # runtime. Pinned uv and bun; Go comes from the runner and fetches the
