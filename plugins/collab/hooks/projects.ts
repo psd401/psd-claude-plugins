@@ -27,12 +27,18 @@ const gitKey = (remote: string): string | null => {
   return GIT_KEY.test(key) && key.length <= KEY_MAX ? key : null
 }
 
+/** Whether a path lies inside a folder, not at it. */
+const isInside = (path: string, folder: string): boolean =>
+  path !== folder && path.startsWith(folder.endsWith('/') ? folder : `${folder}/`)
+
 /**
  * The session's project key: `git:` and the normalized origin remote, or else `dir:` and the
- * repository's main working tree (the same from any worktree), or else the session's root.
+ * repository's main working tree (the same from any worktree), or else the session's root. A
+ * repository inside the session's root, such as a clone in a folder of notes, isn't the session's
+ * project: the root is.
  */
 export const projectKey = (repo: Pick<SessionRepo, 'root' | 'remote'> | null, root: string): string => {
-  if (repo === null) return `dir:${root}`
+  if (repo === null || isInside(repo.root, root)) return `dir:${root}`
   return (repo.remote === null ? null : gitKey(repo.remote)) ?? `dir:${repo.root}`
 }
 

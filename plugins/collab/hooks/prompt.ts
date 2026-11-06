@@ -1,5 +1,5 @@
 // ABOUTME: The collab plugin's notes to Claude for this session: this session's project, and how to
-// ABOUTME: handle threads filed here, unfiled, and elsewhere, and listening for replies.
+// ABOUTME: handle threads filed here, unfiled, and elsewhere, listening, and whether Claude still has them.
 
 import { projectName } from './projects'
 
@@ -26,3 +26,21 @@ for a reply, tell them to type /collab listen. When a reply arrives in a thread 
 listens to, the collab plugin asks you to read and summarize it.
 
 This session ${listening.length === 0 ? 'listens to no threads' : `listens to threads ${listening.join(', ')}`}.`
+
+/**
+ * Whether a conversation, as `$.session.messages({ as: 'api' })` gives it, still holds this
+ * section word for word; a compaction's summary may mention it, but never holds it whole.
+ * A message's content is a list of blocks or, as the Messages API also allows, one string.
+ * Undefined when the messages aren't in that form, as from a Claude Code that can't give it.
+ */
+export const holdsSection = (messages: unknown, text: string): boolean | undefined => {
+  const isApiContent = (content: unknown) => typeof content === 'string' || Array.isArray(content)
+  if (!Array.isArray(messages) || !messages.every(m => isApiContent(m?.content))) return undefined
+  return messages.some(m =>
+    typeof m.content === 'string'
+      ? m.content.includes(text)
+      : (m.content as { type?: unknown; text?: unknown }[]).some(
+          block => block?.type === 'text' && typeof block.text === 'string' && block.text.includes(text),
+        ),
+  )
+}

@@ -1,23 +1,28 @@
-// ABOUTME: The collab plugin's hooks: project keys, the read guard, inbox polling, the pane,
-// ABOUTME: and listening for replies, all over the collab MCP server the manifest declares.
+// ABOUTME: The collab plugin's hooks: project keys, send checks, the read guard, inbox polling, the
+// ABOUTME: pane, and listening for replies, all over the collab MCP server the manifest declares.
 
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, ToolCallResult } from 'claude-code'
 
-import type { Inbox, PaneView, Filing, Thread, ThreadRead } from '../types'
-import { arrivals, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, toastText } from './inbox'
-import { hasOldServer, hasOldStatusLine, leftoverText } from './leftovers'
+import type { Inbox, PaneView, Filing, Project, Thread, ThreadRead } from '../types'
+import { arrivals, backgroundTask, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
+import { hasOldServer, hasOldStatusLine, hasSecondInstall, leftoverText } from './leftovers'
 import { oneLine } from './pane'
 import { projectKey, projectName } from './projects'
-import { sessionSection } from './prompt'
+import { holdsSection, sessionSection } from './prompt'
+import { sendRefusal } from './sends'
 import { answerOf, CollabError } from './server'
-import { listView, threadView } from './view'
+import { isSelected, listView, threadView } from './view'
 import type { Action, PaneElements } from './view'
 
 // The plugin's own server, as Claude calls its tools.
 const COLLAB = 'mcp__plugin_collab_collab__'
 
 const POLL_MS = 30_000
+// A session nobody has prompted for this long checks less often, unless it listens for replies or
+// its pane is open: it is most likely left open overnight.
+const QUIET_AFTER_MS = 30 * 60_000
+const QUIET_POLL_MS = 5 * 60_000
 // Long enough after start for the session's MCP servers to have connected.
 const LEFTOVER_CHECK_MS = 15_000
 const PANE = 'collab'
@@ -30,9 +35,23 @@ const archived = atom({ plugin: 'collab', key: 'archived' } as const, null as Th
 const pane = atom({ plugin: 'collab', key: 'pane' } as const, LIST)
 const NO_FILING: Filing = { autoFile: false, known: [] }
 const filing = atom({ plugin: 'collab', key: 'filing' } as const, NO_FILING)
+// The project key worked out for the session's root.
+const project = atom({ plugin: 'collab', key: 'project' } as const, null as Project | null)
 
-/** This session's project key, read afresh: `/cd` can move the session. */
-const here = async ($: EngineInterface) => projectKey(await $.session.repo(), await $.session.root())
+/**
+ * This session's project key, kept for the session's root and worked out again only when the root
+ * moves (`/cd`, a worktree move). The repository is read from the shell's directory, which every
+ * `cd` into a clone or a sibling repo moves, so reading it on each call flipped the key mid-session.
+ * A drawing can't write state, so it only reads the key; a failure is never kept.
+ */
+const here = async ($: EngineInterface, isDrawing = false) => {
+  const root = await $.session.root()
+  const kept = await read($, project)
+  if (kept?.root === root) return kept.key
+  const key = projectKey(await $.session.repo(), root)
+  if (!isDrawing) await update($, project, () => ({ root, key }))
+  return key
+}
 
 /** Calls a collab tool through Claude Code's own connection, so the person's sign-in carries over. */
 const call = async ($: EngineInterface, tool: string, args: Record<string, unknown> = {}): Promise<any> => {
@@ -49,14 +68,20 @@ const call = async ($: EngineInterface, tool: string, args: Record<string, unkno
   return answerOf(result)
 }
 
-/** Every thread in the person's inbox, page by page. */
-const fetchInbox = async ($: EngineInterface, includeArchived = false): Promise<Thread[]> => {
+/**
+ * Every thread in the person's inbox, page by page; with `isWaitingEnough`, only the pages through
+ * the first that holds a thread not waiting on them. check_inbox lists waiting threads first, so
+ * those pages hold every one.
+ */
+const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaitingEnough = false): Promise<Thread[]> => {
   const threads: Thread[] = []
   let cursor: string | undefined
   do {
-    const page = await call($, 'check_inbox', { include_archived: includeArchived, ...(cursor && { cursor }) })
-    threads.push(...page.threads)
-    cursor = page.next_cursor
+    // Not `page`: before 2.1.290 the loader refuses a file where a function handed $ shares its name with any other declaration.
+    const batch = await call($, 'check_inbox', { include_archived: includeArchived, ...(cursor && { cursor }) })
+    threads.push(...batch.threads)
+    const isPastWaiting = isWaitingEnough && batch.threads.some((t: Thread) => !t.waiting_on_you)
+    cursor = isPastWaiting ? undefined : batch.next_cursor
   } while (cursor !== undefined)
   return threads
 }
@@ -64,6 +89,9 @@ const fetchInbox = async ($: EngineInterface, includeArchived = false): Promise<
 // A thread id as check_inbox gives it. The server also reads other spellings of the same id
 // (uppercase, braces, no hyphens), which the guard would fail to match, so only this one is taken.
 const THREAD_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+// The id's first block, as agents name a thread once compaction or a journal has shortened it.
+// The read guard resolves it against the person's own threads, so the server only sees full ids.
+const SHORT_THREAD_ID = /^[0-9a-f]{8}$/
 const NOT_A_THREAD_ID = 'Give the thread id exactly as check_inbox gives it (lowercase, with hyphens).'
 
 /** A thread of the person's, archived or not, or undefined when they have no such thread. */
@@ -71,43 +99,101 @@ const findThread = async ($: EngineInterface, threadId: string): Promise<Thread 
   (await fetchInbox($, true)).find(t => t.thread_id === threadId)
 
 /**
+ * The person's thread, archived or not, that a read names: by its id, or by a short id that starts
+ * exactly one of their threads. Any other spelling, or a short id that starts none or several, gets
+ * a refusal instead (ids only: titles are other people's words). No thread and no refusal: they have
+ * no thread with that full id, and the server says so.
+ */
+const threadNamed = async ($: EngineInterface, threadId: string): Promise<{ found?: Thread; refusal?: string }> => {
+  if (THREAD_ID.test(threadId)) return { found: await findThread($, threadId) }
+  if (!SHORT_THREAD_ID.test(threadId)) return { refusal: NOT_A_THREAD_ID }
+  const matches = threadsWithPrefix(await fetchInbox($, true), threadId)
+  if (matches.length === 1) return { found: matches[0] }
+  if (matches.length === 0) {
+    return { refusal: `${NOT_A_THREAD_ID} None of your person's threads has an id starting ${threadId}; check_inbox lists the full ids.` }
+  }
+  return {
+    refusal:
+      `More than one of your person's threads has an id starting ${threadId}: ` +
+      `${matches.map(t => t.thread_id).join(', ')}. Give the full id of the one you mean.`,
+  }
+}
+
+/**
  * Files each unfiled thread under its suggested project, when that's a project opened on this
  * machine; anything else stays a suggestion, so nothing is filed where the person never looks.
+ * Each thread is filed under a suggestion once. A thread filed at the last check and unfiled now (the
+ * person removed its projects, in the pane or through Claude) is left alone until a different project
+ * is suggested. What's settled is kept in `$.store`, so every session on this machine leaves it alone,
+ * for threads still in the inbox: a record is dropped only after a check that fetched the whole inbox
+ * (`isWhole`), since one with the pane closed fetches just the waiting threads. It's kept while
+ * auto-filing is off too (`isOn` false, filing nothing), so turning it on doesn't refile a thread the
+ * person unfiled meanwhile.
  */
-const autoFile = async ($: EngineInterface, threads: Thread[], known: readonly string[]): Promise<Thread[]> => {
+const autoFile = async ($: EngineInterface, threads: Thread[], before: readonly Thread[], known: readonly string[], isOn: boolean, isWhole: boolean): Promise<Thread[]> => {
+  const storedSettled = async (): Promise<Record<string, unknown>> => {
+    const stored = await $.store.get('settled')
+    return (typeof stored === 'object' && stored !== null ? stored : {}) as Record<string, unknown>
+  }
+  const last = await storedSettled()
+  // Per thread, the suggestion it was filed under or the person turned down at this check.
+  const decided: Record<string, string> = {}
+  const settledFor = (id: string) => decided[id] ?? last[id]
+  const wasFiled = new Set(before.filter(t => t.projects.length > 0).map(t => t.thread_id))
   const filed: Thread[] = []
   for (const thread of threads) {
-    const suggested = thread.suggested_project
-    if (thread.projects.length > 0 || suggested === null || !known.includes(suggested)) {
+    const suggested = thread.projects.length === 0 ? thread.suggested_project : null
+    // Filed at the last check and not now: the person unfiled it, turning the suggestion down.
+    if (suggested !== null && wasFiled.has(thread.thread_id)) decided[thread.thread_id] = suggested
+    if (!isOn || suggested === null || settledFor(thread.thread_id) === suggested || !known.includes(suggested)) {
       filed.push(thread)
       continue
     }
     try {
       await call($, 'set_projects', { thread_id: thread.thread_id, projects: [suggested] })
+      decided[thread.thread_id] = suggested
       filed.push({ ...thread, projects: [suggested], suggested_project: null })
     } catch (error) {
       if (!(error instanceof CollabError)) throw error
       filed.push(thread)
     }
   }
+  // Read again: another session on this machine may have written while this one was filing.
+  const fresh = await storedSettled()
+  const current = new Set(threads.map(t => t.thread_id))
+  const settled: Record<string, string> = {}
+  for (const [id, suggestion] of Object.entries(fresh)) {
+    if (typeof suggestion === 'string' && (!isWhole || current.has(id))) settled[id] = suggestion
+  }
+  Object.assign(settled, decided)
+  const ids = Object.keys(settled)
+  if (ids.length !== Object.keys(fresh).length || ids.some(id => fresh[id] !== settled[id])) await $.store.set('settled', settled)
   return filed
 }
 
-/** Checks the inbox once; see poll. */
-const pollOnce = async ($: EngineInterface) => {
+/**
+ * Checks the inbox once; see poll. Unless `isWhole`, it stops after the waiting threads: the
+ * status entry, toasts and listening use no others, and only the pane shows them.
+ */
+const pollOnce = async ($: EngineInterface, isWhole: boolean) => {
   const before = await read($, inbox)
-  const key = await here($)
+  let key: string | undefined
   let threads: Thread[]
   try {
-    threads = await fetchInbox($)
+    // A check whose project can't be worked out is a failed check to show the person, as a refused call is.
+    key = await here($).catch(error => {
+      throw new CollabError(error instanceof Error ? error.message : String(error))
+    })
+    threads = await fetchInbox($, false, !isWhole)
   } catch (error) {
     if (!(error instanceof CollabError)) throw error
     await update($, inbox, last => ({ ...last, error: error.message }))
-    $.ui.status(statusText(before.threads, key, error.message))
+    // Without this session's project, nothing counts as here; each thread is named by its project.
+    $.ui.status(statusText(before.threads, key ?? '', error.message))
     return
   }
   const { autoFile: isAutoFiling, known } = await read($, filing)
-  if (isAutoFiling) threads = await autoFile($, threads, known)
+  threads = await autoFile($, threads, before.threads, known, isAutoFiling, isWhole)
   await update($, inbox, () => ({ threads, error: null, checked: true }))
   $.ui.status(statusText(threads, key, null))
   // The first check has nothing to compare with: what already waits is no news.
@@ -115,19 +201,25 @@ const pollOnce = async ($: EngineInterface) => {
   const fresh = arrivals(before.threads, threads)
   for (const thread of fresh) $.ui.toast(toastText(thread))
   const listened = await read($, listening)
-  const heard = fresh.map(t => t.thread_id).filter(id => listened.includes(id))
+  // Claude couldn't read a thread since filed only elsewhere; filed here again, it's heard again.
+  const heard = fresh.filter(t => listened.includes(t.thread_id) && isReadableHere(t, key)).map(t => t.thread_id)
   if (heard.length > 0) void $.prompt.submit({ text: listenPrompt(heard) })
 }
 
+const isPaneOpen = async ($: EngineInterface) => (await $.ui.panes()).some(p => p.id === PANE)
+
 let isPolling = false
 let isPollWanted = false
+let isWholeWanted = false
 
 /**
  * Checks the inbox: updates the status entry, raises a toast for each thread with a new message
  * addressed to the person, and hands replies in threads this session listens to to Claude. A
- * check asked for while one runs runs after it, so the pane always ends up current.
+ * check asked for while one runs runs after it, so the pane always ends up current. The whole
+ * inbox is fetched while the pane is open, or when `isWhole` asks for it before the pane opens.
  */
-const poll = async ($: EngineInterface) => {
+const poll = async ($: EngineInterface, isWhole = false) => {
+  if (isWhole) isWholeWanted = true
   if (isPolling) {
     isPollWanted = true
     return
@@ -136,7 +228,9 @@ const poll = async ($: EngineInterface) => {
   try {
     do {
       isPollWanted = false
-      await pollOnce($)
+      const isWholeNow = isWholeWanted || (await isPaneOpen($))
+      isWholeWanted = false
+      await pollOnce($, isWholeNow)
     } while (isPollWanted)
   } finally {
     isPolling = false
@@ -144,8 +238,26 @@ const poll = async ($: EngineInterface) => {
 }
 
 /** Checks the inbox from a timer, where nothing would hear a failure but the debug log. */
-const checkInbox = ($: EngineInterface) =>
-  poll($).catch(error => $.ui.log(`collab: inbox check failed: ${error}`, { to: 'debug' }))
+const checkInbox = ($: EngineInterface, isWhole = false) =>
+  poll($, isWhole).catch(error => $.ui.log(`collab: inbox check failed: ${error}`, { to: 'debug' }))
+
+// Whether a prompt came since the timer last ran, when one last did, when the timer last checked
+// the inbox, and whether it is checking only every 5 minutes.
+let isPrompted = false
+let promptedAt = 0
+let checkedAt = 0
+let isResting = false
+
+/** The timer's check: every 30 seconds, or every 5 minutes once the session is quiet. */
+const tick = async ($: EngineInterface) => {
+  const now = await $.clock.now()
+  if (isPrompted) promptedAt = now
+  isPrompted = false
+  isResting = now - promptedAt >= QUIET_AFTER_MS && (await read($, listening)).length === 0 && !(await isPaneOpen($))
+  if (isResting && now - checkedAt < QUIET_POLL_MS) return
+  checkedAt = now
+  await checkInbox($)
+}
 
 const loadArchived = async ($: EngineInterface) => {
   const all = await fetchInbox($, true)
@@ -193,6 +305,8 @@ const listenCommand = async ($: EngineInterface, isStarting: boolean, words: str
     if (typeof chosen === 'string') return chosen
     const title = oneLine(chosen.title)
     if (isStarting) {
+      if (!isReadableHere(chosen, await here($)))
+        return `“${title}” is filed under ${chosen.projects.map(projectName).join(', ')}, so Claude can’t read it here. Move here in /collab first.`
       await startListening($, chosen.thread_id)
       return `Listening here for replies in “${title}”.`
     }
@@ -226,11 +340,11 @@ const page = async ($: EngineInterface, direction: 'before' | 'after') => {
 const perform = async ($: EngineInterface, action: Action) => {
   try {
     switch (action.kind) {
-      case 'select':
-        await update($, pane, v =>
-          v.screen === 'list' ? { ...v, selected: v.selected === action.threadId ? null : action.threadId, error: null } : v,
-        )
+      case 'select': {
+        const chosen = { group: action.group, threadId: action.threadId }
+        await update($, pane, v => (v.screen === 'list' ? { ...v, selected: isSelected(v, chosen) ? null : chosen, error: null } : v))
         return
+      }
       case 'expand': {
         const view = await read($, pane)
         if (view.screen !== 'list') return
@@ -303,20 +417,48 @@ const noteSend = async ($: EngineInterface, e: { title?: unknown }, sent: ToolCa
   return threadId
 }
 
-/** Shows the commands that remove the old server entry and status line, when either is found. */
+/** The conversation Claude reads, in Messages API form; undefined where Claude Code can't show it. */
+const conversation = async ($: EngineInterface): Promise<unknown> => {
+  try {
+    return await $.session.messages({ as: 'api' })
+  } catch {
+    return undefined
+  }
+}
+
+/**
+ * The plugins turned on, from the merged settings and from the person's own settings file. On a
+ * PSD-managed Mac collab@psd-claude-plugins is turned on by policy, which only the merged read can
+ * see; the file covers a merged read that's refused or leaves `enabledPlugins` out.
+ */
+const enabledPlugins = async ($: EngineInterface, settingsText: string): Promise<unknown[]> => {
+  const merged = await $.settings.read().catch(() => undefined)
+  let own: unknown
+  try {
+    own = JSON.parse(settingsText)?.enabledPlugins
+  } catch {
+    own = undefined
+  }
+  return [merged?.enabledPlugins, own]
+}
+
+/** Shows the commands that remove the old server entry, the old status line, and a second install, when any is found. */
 const checkLeftovers = async ($: EngineInterface) => {
   const tools = (await $.tool.list()).map(t => t.name)
   const configDir = (await $.env.get('CLAUDE_CONFIG_DIR')) ?? `${await $.env.get('HOME')}/.claude`
-  const settingsText = await $.fs.read(`${configDir}/settings.json`).catch(() => '')
-  const text = leftoverText(hasOldServer(tools), hasOldStatusLine(String(settingsText)))
+  const settingsText = String(await $.fs.read(`${configDir}/settings.json`).catch(() => ''))
+  const secondInstall = hasSecondInstall(...(await enabledPlugins($, settingsText)))
+  const text = leftoverText(hasOldServer(tools), hasOldStatusLine(settingsText), secondInstall)
   if (text !== undefined) $.ui.log(text)
 }
 
 export const register: Register = on => {
-  // The session section as Claude last received it in this conversation.
+  // The session section as Claude last received it.
   let carriedSection: string | undefined
   // The thread Claude last started or sent to from this session, for a bare /collab listen.
   let lastSent: string | undefined
+  // The background tasks Claude Code moved Claude's own inbox checks to.
+  const claudesChecks: string[] = []
 
   on('session.start', async ($, e, next) => {
     carriedSection = undefined
@@ -324,24 +466,33 @@ export const register: Register = on => {
       name: 'collab',
       description: 'Open or close the collab pane; /collab listen [title] hears replies here, /collab unlisten stops',
     })
-    // Remembers that this project is opened on this machine, for filing and auto-filing.
-    const key = await here($)
+    // Remembers that this project is opened on this machine, for filing and auto-filing. A
+    // project that can't be worked out isn't remembered, and the checks below still start,
+    // so the status says why.
+    const key = await here($).catch(() => undefined)
     const stored = await $.store.get('projects')
     const known = Array.isArray(stored) ? stored.filter((p): p is string => typeof p === 'string') : []
-    if (!known.includes(key)) known.push(key)
+    if (key !== undefined && !known.includes(key)) known.push(key)
     await $.store.set('projects', known)
     const isAutoFiling = (await $.store.get('autoFile')) === true
     await update($, filing, () => ({ autoFile: isAutoFiling, known }))
+    promptedAt = checkedAt = await $.clock.now()
+    isPrompted = isResting = false
     void checkInbox($)
     $.clock.after(LEFTOVER_CHECK_MS, () =>
       void checkLeftovers($).catch(error => $.ui.log(`collab: leftover check failed: ${error}`, { to: 'debug' })),
     )
-    $.clock.every(POLL_MS, () => void checkInbox($))
+    $.clock.every(POLL_MS, () => void tick($).catch(error => $.ui.log(`collab: inbox check failed: ${error}`, { to: 'debug' })))
     return next(e)
   })
 
   for (const tool of ['start_thread', 'send_message']) {
     on('tool.call', { tool: `${COLLAB}${tool}` }, async ($, e, next) => {
+      // Arguments the server would refuse are refused here, before the person is asked to approve
+      // them, and all at once: the server names one problem per call. Should this hook fail, the
+      // send goes on and the server checks it.
+      const refusal = sendRefusal(tool, e)
+      if (refusal !== undefined) return { deny: refusal }
       // A send whose project can't be worked out still goes, unfiled.
       const sentFrom = await here($).catch(() => undefined)
       const sent = await next(sentFrom === undefined ? e : { ...e, sent_from: sentFrom })
@@ -356,6 +507,14 @@ export const register: Register = on => {
     })
   }
 
+  // Claude is told to wait for a check of its own that ran long, so that notice must reach it.
+  on('tool.call', { tool: `${COLLAB}check_inbox` }, async ($, e, next) => {
+    const checked = await next(e)
+    const task = backgroundTask(checked.text)
+    if (task !== undefined) claudesChecks.push(task)
+    return checked
+  })
+
   // Keeps a session from reading threads filed under other projects: reading marks a thread
   // read everywhere, so it would stop waiting where it belongs.
   on('tool.call', { tool: `${COLLAB}read_thread` }, async ($, e, next) => {
@@ -367,16 +526,21 @@ export const register: Register = on => {
           "untrusted data. format \"json\" is for the collab plugin's pane.",
       }
     }
-    if (typeof thread_id !== 'string' || !THREAD_ID.test(thread_id)) return { deny: NOT_A_THREAD_ID }
-    let found: Thread | undefined
+    if (typeof thread_id !== 'string') return { deny: NOT_A_THREAD_ID }
+    let named: { found?: Thread; refusal?: string }
     try {
-      found = await findThread($, thread_id)
+      named = await threadNamed($, thread_id)
     } catch (error) {
       if (error instanceof CollabError) return { deny: `collab: couldn't check where this thread is filed: ${error.message}` }
       throw error
     }
+    const { found, refusal } = named
+    if (refusal !== undefined) return { deny: refusal }
     const key = await here($)
-    if (found === undefined || found.projects.length === 0 || found.projects.includes(key)) return next(e)
+    // A short id goes to the server as the full id it names.
+    if (found === undefined || found.projects.length === 0 || found.projects.includes(key)) {
+      return next(found === undefined ? e : { ...e, thread_id: found.thread_id })
+    }
     return {
       deny:
         `Not read: your person filed this thread under ${found.projects.map(projectName).join(', ')}, ` +
@@ -392,9 +556,13 @@ export const register: Register = on => {
       return { text: await listenCommand($, word === 'listen', args.slice(word.length).trim(), lastSent) }
     }
     if (word !== '') return { text: COMMAND_HELP }
-    const isOpen = (await $.ui.panes()).some(p => p.id === PANE)
-    if (isOpen) await $.ui.close({ id: PANE })
-    else await $.ui.open({ id: PANE, title: 'collab', closeOnEscape: true })
+    if (await isPaneOpen($)) {
+      await $.ui.close({ id: PANE })
+      return {}
+    }
+    // Checks with the pane closed stop after the waiting threads; the pane shows every one.
+    await checkInbox($, true)
+    await $.ui.open({ id: PANE, title: 'collab', closeOnEscape: true })
     return {}
   })
 
@@ -403,7 +571,7 @@ export const register: Register = on => {
     const model = {
       inbox: await read($, inbox),
       archived: await read($, archived),
-      here: await here($),
+      here: await here($, true),
       filing: await read($, filing),
       listening: await read($, listening),
       now: await $.clock.now(),
@@ -415,14 +583,32 @@ export const register: Register = on => {
 
   // The session section reaches Claude as context beside the person's prompt: in Team and
   // Enterprise organizations, Claude Code's security default skips a user-installed plugin's
-  // prompt.compose and prompt.context hooks. It rides along when it changes, and again once the
-  // conversation starts over or is compacted.
+  // prompt.compose and prompt.context hooks. It rides along when it differs from the section last
+  // carried, even when it changes back to an earlier one, and again whenever the conversation
+  // Claude reads no longer holds it: after /clear, and after compaction, which that default keeps
+  // from the plugin too (it skips session.compact). Where Claude Code can't show the conversation,
+  // the section as last carried stands in for it.
   on('prompt.submit', async ($, e, next) => {
+    // Claude Code's notice that one of the plugin's own inbox checks ended goes nowhere: it would
+    // wake every open session over a check nobody there asked for.
+    if (isOwnPollNotice(e.text, e.origin, claudesChecks)) return { drop: 'collab: its own inbox check' }
+    // Back from a quiet spell, the status entry may be minutes old: check now.
+    isPrompted = true
+    if (isResting) {
+      isResting = false
+      void checkInbox($)
+    }
     const text = sessionSection(await here($), await read($, listening))
-    if (text === carriedSection) return next(e)
+    if (text === carriedSection && holdsSection(await conversation($), text) !== false) return next(e)
     const entered = await next({ ...e, context: [...(e.context ?? []), text] })
     if (!('drop' in entered)) carriedSection = text
     return entered
+  })
+
+  // After /clear the process goes on with a fresh conversation, and no session.start fires.
+  on('session.end', async ($, e, next) => {
+    carriedSection = undefined
+    return next(e)
   })
 
   on('session.compact', async ($, e, next) => {

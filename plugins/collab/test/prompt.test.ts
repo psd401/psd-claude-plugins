@@ -3,7 +3,8 @@
 
 import { expect, test } from 'claude-code/testing'
 
-import { BELL_SCHEDULE, T1, submittedSection, thread, world } from './world'
+import { holdsSection, sessionSection } from '../hooks/prompt'
+import { BELL_SCHEDULE, T1, clearConversation, compactConversation, submittedSection, thread, world } from './world'
 
 const summary = { role: 'user' as const, text: 'The conversation so far.', toolUses: [] }
 
@@ -33,27 +34,78 @@ test('the section is carried again when what this session listens to changes', a
   expect(await submittedSection($, w)).toContain(`listens to threads ${T1}`)
 })
 
-test('the section is carried again once the conversation starts over', async ($, on) => {
+test('the section is carried again when it changes back to what Claude was sent earlier', async ($, on) => {
+  const w = world(on, { threads: [thread({ thread_id: T1 })] })
+  const collab = (args: string) =>
+    $.command.run({ command: 'collab', args, origin: { kind: 'composer' }, presentation: { layout: 'main', columns: 100 } } as any)
+  await submittedSection($, w)
+  await collab('listen schema')
+  await submittedSection($, w)
+  await collab('unlisten')
+  expect(await submittedSection($, w)).toContain('listens to no threads')
+})
+
+test('the section is carried again after /clear', async ($, on) => {
   const w = world(on)
   await submittedSection($, w)
-  await $.session.start({ cwd: '/Users/a/bell-schedule', surface: 'terminal', isInteractive: true })
+  await clearConversation($, w)
   expect(await submittedSection($, w)).toBeDefined()
 })
 
 test('the section is carried again after the conversation is compacted', async ($, on) => {
   const w = world(on)
-  on('session.compact', () => ({ messages: [summary] }))
   await submittedSection($, w)
   await $.session.compact({ trigger: 'manual', messages: [summary] })
   expect(await submittedSection($, w)).toBeDefined()
 })
 
+test('the section is carried again after a compaction the plugin was not told of', async ($, on) => {
+  const w = world(on)
+  await submittedSection($, w)
+  compactConversation(w)
+  expect(await submittedSection($, w)).toBeDefined()
+})
+
 test('a compaction only computed ahead of time changes nothing', async ($, on) => {
   const w = world(on)
-  on('session.compact', () => ({ messages: [summary] }))
   await submittedSection($, w)
   await $.session.compact({ trigger: 'precompute', messages: [summary] })
   expect(await submittedSection($, w)).toBeUndefined()
+})
+
+test('where the conversation is hidden, an unchanged section is carried once', async ($, on) => {
+  const w = world(on, { isConversationHidden: true })
+  expect(await submittedSection($, w)).toBeDefined()
+  expect(await submittedSection($, w)).toBeUndefined()
+})
+
+test('where the conversation is hidden, the section is carried again after /clear', async ($, on) => {
+  const w = world(on, { isConversationHidden: true })
+  await submittedSection($, w)
+  await clearConversation($, w)
+  expect(await submittedSection($, w)).toBeDefined()
+})
+
+test('a conversation holds the section only word for word, not as a summary mentions it', () => {
+  const text = sessionSection(BELL_SCHEDULE, [])
+  const said = (said: string) => [{ role: 'user', content: [{ type: 'text', text: said }] }]
+  expect(holdsSection(said(`<system-reminder>\n${text}\n</system-reminder>\n`), text)).toBe(true)
+  expect(holdsSection(said('Earlier the plugin sent "# collab in this session" for bell-schedule.'), text)).toBe(false)
+  expect(holdsSection([], text)).toBe(false)
+})
+
+// The Messages API also lets a message's content be one string instead of blocks.
+test('a message whose content is one string counts like a text block', () => {
+  const text = sessionSection(BELL_SCHEDULE, [])
+  const blocks = { role: 'user', content: [{ type: 'text', text: 'Hello' }] }
+  expect(holdsSection([blocks, { role: 'user', content: `<system-reminder>\n${text}\n</system-reminder>\n` }], text)).toBe(true)
+  expect(holdsSection([blocks, { role: 'assistant', content: 'Done.' }], text)).toBe(false)
+})
+
+test('messages not in Messages API form say nothing about the conversation', () => {
+  const text = sessionSection(BELL_SCHEDULE, [])
+  expect(holdsSection([{ role: 'user', text, toolUses: [] }], text)).toBeUndefined()
+  expect(holdsSection(undefined, text)).toBeUndefined()
 })
 
 test('a folder outside git is the project', async ($, on) => {

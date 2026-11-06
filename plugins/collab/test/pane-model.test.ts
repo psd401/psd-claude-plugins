@@ -3,7 +3,7 @@
 
 import { describe, expect, test } from 'claude-code/testing'
 
-import { AUTHOR_COLORS, authorColor, bodyMarkdown, fileChoices, groupThreads, oneLine, rowParts, when } from '../hooks/pane'
+import { AUTHOR_COLORS, authorColor, bodyMarkdown, fileChoices, groupThreads, localSuggestion, oneLine, rowParts, when } from '../hooks/pane'
 import { BELL_SCHEDULE, T1, T2, T3, T4, thread, LUNCH_MENU } from './world'
 
 const NOTES = 'dir:/Users/a/notes'
@@ -141,6 +141,16 @@ describe('filing choices', () => {
     const other = 'git:gitlab.example.org/team/bell-schedule'
     const labels = fileChoices(thread({ thread_id: T1 }), [BELL_SCHEDULE, other], []).map(c => c.label)
     expect(labels).toEqual([`File in ${BELL_SCHEDULE}`, `File in ${other}`])
+  })
+
+  test("a suggestion is offered only when it's a project opened on this machine", () => {
+    expect(localSuggestion(thread({ thread_id: T1, suggested_project: LUNCH_MENU }), [BELL_SCHEDULE, LUNCH_MENU])).toBe(LUNCH_MENU)
+    expect(localSuggestion(thread({ thread_id: T1, suggested_project: LUNCH_MENU }), [BELL_SCHEDULE])).toBeNull()
+    expect(localSuggestion(thread({ thread_id: T1 }), [BELL_SCHEDULE])).toBeNull()
+  })
+
+  test('a filed thread offers no suggestion', () => {
+    expect(localSuggestion(thread({ thread_id: T1, projects: [NOTES], suggested_project: LUNCH_MENU }), [LUNCH_MENU])).toBeNull()
   })
 })
 

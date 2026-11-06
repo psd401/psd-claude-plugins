@@ -60,6 +60,17 @@ test('a git repo is keyed by its main working tree, not the worktree the session
   )
 })
 
+test('a worktree outside the main working tree keeps the git key', () => {
+  const remote = 'git@github.com:psd401/bell-schedule.git'
+  expect(projectKey({ root: '/Users/a/bell-schedule', remote }, '/Users/a/worktrees/bell-schedule-x')).toBe(BELL_SCHEDULE)
+})
+
+test('a clone inside the session root is not its project: the root is', () => {
+  const remote = 'git@github.com:psd401/bell-schedule.git'
+  expect(projectKey({ root: '/Users/a/notes/bell-schedule', remote }, '/Users/a/notes')).toBe('dir:/Users/a/notes')
+  expect(projectKey({ root: '/Users/a/notes-bell', remote }, '/Users/a/notes')).toBe(BELL_SCHEDULE)
+})
+
 test('outside a git repo the key is the session root', () => {
   expect(projectKey(null, '/Users/a/notes')).toBe('dir:/Users/a/notes')
 })

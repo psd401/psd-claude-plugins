@@ -1,5 +1,5 @@
 // ABOUTME: Tests for the leftover check: once a session has started, the plugin shows the commands
-// ABOUTME: that remove the old collab server entry and the old status line, when it finds them.
+// ABOUTME: that remove the old collab server entry, the old status line, and a second collab install.
 
 import { expect, mock, test } from 'claude-code/testing'
 
@@ -9,6 +9,8 @@ const WRAPPED = JSON.stringify({
   statusLine: { type: 'command', command: '/Users/a/.config/collab/statusline.sh /Users/a/.config/collab/originals/x.command' },
 })
 const SETTLE_MS = 15_000
+const BOTH = { enabledPlugins: { 'collab@psd-claude-plugins': true, 'collab@psd-collab': true } }
+const UNINSTALL = 'claude plugin uninstall collab@psd-collab && claude plugin marketplace remove psd-collab'
 
 const leftovers = async ($: any, on: any, options: Parameters<typeof world>[1]) => {
   const clock = mock.clock(on)
@@ -40,6 +42,56 @@ test('both at once share one line', async ($, on) => {
   expect(logs.length).toBe(1)
   expect(logs[0]).toContain('claude mcp remove collab -s user')
   expect(logs[0]).toContain('install.py" uninstall')
+})
+
+test('collab turned on from psd-collab too gets its removal command', async ($, on) => {
+  const logs = await leftovers($, on, { settings: BOTH })
+  expect(logs.length).toBe(1)
+  expect(logs[0]).toContain(UNINSTALL)
+  expect(logs[0]).not.toContain('claude mcp remove')
+})
+
+test('collab from psd-collab alone says nothing', async ($, on) => {
+  expect(await leftovers($, on, { settings: { enabledPlugins: { 'collab@psd-collab': true } } })).toEqual([])
+})
+
+test('collab from psd-claude-plugins alone says nothing', async ($, on) => {
+  expect(await leftovers($, on, { settings: { enabledPlugins: { 'collab@psd-claude-plugins': true } } })).toEqual([])
+})
+
+test('a psd-collab install that is turned off says nothing', async ($, on) => {
+  const settings = { enabledPlugins: { 'collab@psd-claude-plugins': true, 'collab@psd-collab': false } }
+  expect(await leftovers($, on, { settings })).toEqual([])
+})
+
+test('the second install shares one line with the old server', async ($, on) => {
+  const logs = await leftovers($, on, { tools: ['mcp__collab__read_thread'], settings: BOTH })
+  expect(logs.length).toBe(1)
+  expect(logs[0]).toContain('claude mcp remove collab -s user')
+  expect(logs[0]).toContain(UNINSTALL)
+})
+
+test('settings Claude Code will not read fall back to the settings file', async ($, on) => {
+  const logs = await leftovers($, on, { files: { '/Users/a/.claude/settings.json': JSON.stringify(BOTH) } })
+  expect(logs.length).toBe(1)
+  expect(logs[0]).toContain(UNINSTALL)
+})
+
+// Neither source is trusted to hold everything: the merged read may leave out policy, or
+// enabledPlugins, so each id counts as on when either source turns it on.
+test('a plugin turned on in either the settings Claude Code reads or the settings file counts', async ($, on) => {
+  const logs = await leftovers($, on, {
+    settings: { enabledPlugins: { 'collab@psd-claude-plugins': true } },
+    files: { '/Users/a/.claude/settings.json': JSON.stringify({ enabledPlugins: { 'collab@psd-collab': true } }) },
+  })
+  expect(logs.length).toBe(1)
+  expect(logs[0]).toContain(UNINSTALL)
+})
+
+test('settings Claude Code reads without enabledPlugins still let the settings file count', async ($, on) => {
+  const logs = await leftovers($, on, { settings: {}, files: { '/Users/a/.claude/settings.json': JSON.stringify(BOTH) } })
+  expect(logs.length).toBe(1)
+  expect(logs[0]).toContain(UNINSTALL)
 })
 
 test('settings under CLAUDE_CONFIG_DIR are the ones read', async ($, on) => {
