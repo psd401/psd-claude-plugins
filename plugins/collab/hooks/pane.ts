@@ -89,6 +89,16 @@ export const bodyMarkdown = (body: string): string => {
 }
 
 /**
+ * The project an unfiled thread can be filed under in one press: its suggestion, when that's a
+ * project opened on this machine. Anything else would file it where no window of the person's
+ * looks, so it would vanish from every session.
+ */
+export const localSuggestion = (thread: Thread, known: readonly string[]): string | null => {
+  const suggested = thread.suggested_project
+  return thread.projects.length === 0 && suggested !== null && known.includes(suggested) ? suggested : null
+}
+
+/**
  * Where a thread can be filed: projects known on this machine, then ones seen in the inbox, then
  * the projects it's filed under to remove. Names, or keys where two projects share a name.
  */

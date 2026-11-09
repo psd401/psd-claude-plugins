@@ -1,5 +1,5 @@
-// ABOUTME: Recognizes what the plugin replaces — the old collab server entry and the old status
-// ABOUTME: line wrapper — and words the commands that remove them.
+// ABOUTME: Recognizes what the plugin replaces — the old collab server entry, the old status line
+// ABOUTME: wrapper, a second install from psd-collab — and words the commands that remove them.
 
 // The old server's tools, as Claude Code named them.
 const OLD_SERVER_TOOL = /^mcp__collab__(check_inbox|send_message|start_thread|read_thread)$/
@@ -16,11 +16,23 @@ export const hasOldStatusLine = (settingsText: string): boolean => {
   }
 }
 
+/**
+ * Whether collab is turned on from both marketplaces, each id counting as on when any of the
+ * given `enabledPlugins` turns it on. The psd-collab copy is the one to remove: PSD-managed Macs
+ * block that marketplace, and elsewhere the two copies poll side by side.
+ */
+export const hasSecondInstall = (...sources: unknown[]): boolean => {
+  const isOn = (id: string) =>
+    sources.some(enabled => typeof enabled === 'object' && enabled !== null && (enabled as Record<string, unknown>)[id] === true)
+  return isOn('collab@psd-collab') && isOn('collab@psd-claude-plugins')
+}
+
 /** One transcript line with the commands to run, or undefined when nothing is left over. */
-export const leftoverText = (oldServer: boolean, oldStatusLine: boolean): string | undefined => {
+export const leftoverText = (oldServer: boolean, oldStatusLine: boolean, secondInstall: boolean): string | undefined => {
   const commands = [
     ...(oldServer ? ['claude mcp remove collab -s user'] : []),
     ...(oldStatusLine ? ['python3 "$HOME/.config/collab/install.py" uninstall'] : []),
+    ...(secondInstall ? ['claude plugin uninstall collab@psd-collab && claude plugin marketplace remove psd-collab'] : []),
   ]
   if (commands.length === 0) return undefined
   return `collab: the collab plugin replaces your earlier collab setup. Remove it by running: ${commands.join(' && ')}`

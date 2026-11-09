@@ -4,7 +4,7 @@
 import { expect, test } from 'claude-code/testing'
 import type { On } from 'claude-code'
 
-import { T1, T2, T3, submittedSection, thread, world } from './world'
+import { LUNCH_MENU, T1, T2, T3, submittedSection, thread, world } from './world'
 import type { World } from './world'
 
 const TOOL = 'mcp__plugin_collab_collab__'
@@ -52,6 +52,13 @@ test('a title matching several threads lists them and listens to none, unless on
 test('a title matching nothing says so', async ($, on) => {
   world(on, { threads: THREADS })
   expect(await collab($, 'listen lunch')).toBe('No thread’s title contains “lunch”.')
+})
+
+// Claude couldn't read a reply there: the read guard refuses threads filed only under other projects.
+test('/collab listen refuses a thread filed only under another project, and says how to listen', async ($, on) => {
+  const w = world(on, { threads: [thread({ thread_id: T1, title: 'Menu changes', projects: [LUNCH_MENU] })] })
+  expect(await collab($, 'listen menu')).toBe('“Menu changes” is filed under lunch-menu, so Claude can’t read it here. Move here in /collab first.')
+  expect(await listeningLine($, w)).toBe('This session listens to no threads.')
 })
 
 test('listening twice to one thread lists it once', async ($, on) => {

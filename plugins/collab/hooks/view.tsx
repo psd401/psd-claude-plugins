@@ -4,8 +4,9 @@
 import type { BoxProps, ButtonProps, ElementConstructor, MarkdownProps, SelectProps, TextProps } from 'claude-code'
 
 import type { Inbox, Message, PaneView, Filing, Thread, ThreadRead } from '../types'
-import { personName } from './inbox'
-import { authorColor, bodyMarkdown, fileChoices, groupThreads, oneLine, rowParts, when } from './pane'
+import { isReadableHere, personName } from './inbox'
+import { authorColor, bodyMarkdown, fileChoices, groupThreads, localSuggestion, oneLine, rowParts, when } from './pane'
+import type { Group } from './pane'
 import { projectName } from './projects'
 
 /** The elements the pane draws with; Select is missing on surfaces that have none. */
@@ -18,7 +19,7 @@ export type PaneElements = {
 }
 
 export type Action =
-  | { kind: 'select'; threadId: string }
+  | { kind: 'select'; group: string; threadId: string }
   | { kind: 'expand'; group: string }
   | { kind: 'view'; threadId: string }
   | { kind: 'back' }
@@ -44,15 +45,40 @@ type Act = (action: Action) => void
 // Groups the person opens to see; this project and unfiled are always open.
 const COLLAPSIBLE = (id: string) => id !== 'here' && id !== 'unfiled'
 
-const isReadableHere = (thread: Thread, here: string) => thread.projects.length === 0 || thread.projects.includes(here)
+/** Whether the list shows a thread's actions in a group: the one it was chosen in. */
+export const isSelected = (view: Extract<PaneView, { screen: 'list' }>, chosen: { group: string; threadId: string }) =>
+  view.selected?.group === chosen.group && view.selected.threadId === chosen.threadId
 
 const people = (emails: readonly string[]) => emails.map(personName).join(', ')
 
 const addressedTo = (to: string) =>
   to === 'everyone' || to.startsWith('nobody') ? to : people(to.split(', '))
 
-/** The buttons for one thread, in the list or its own view. */
-const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, inList: boolean) => {
+/** The hotkeys a screen gives out, as `v View`, for its hint: a bracketed Button doesn't show its own. */
+type Keys = string[]
+
+/** A Button's label and hotkey, noting the key for the hint. */
+const keyed = (keys: Keys, hotkey: string, label: string) => {
+  keys.push(`${hotkey} ${label}`)
+  return { hotkey, label }
+}
+
+/** Says which keys press what; they work only while the pane holds the keys, as after ctrl+x tab. */
+const keysHint = (E: PaneElements, key: string, keys: Keys, indent: number) => {
+  const { Box, Text } = E
+  return (
+    <Box key={key} paddingLeft={indent}>
+      <Text dimColor>{`ctrl+x tab, then: ${keys.join(' · ')}`}</Text>
+    </Box>
+  )
+}
+
+/**
+ * The buttons for one thread, in the list or its own view, their hotkeys noted in keys. In the
+ * list a thread filed under several projects shows in each group, so `at` puts the group in every
+ * key there.
+ */
+const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, inList: boolean, at: string, keys: Keys) => {
   const { Box, Button } = E
   const id = thread.thread_id
   const isListening = model.listening.includes(id)
@@ -60,16 +86,16 @@ const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, 
   const choices = fileChoices(thread, model.filing.known, [...model.inbox.threads, ...(model.archived ?? [])])
   return (
     <Box flexDirection="row" flexWrap="wrap" columnGap={1} paddingLeft={2}>
-      {inList && <Button key={`view:${id}`} label="View" onPress={() => act({ kind: 'view', threadId: id })} />}
+      {inList && <Button key={`view:${at}`} {...keyed(keys, 'v', 'View')} variant="primary" onPress={() => act({ kind: 'view', threadId: id })} />}
       {isReadableHere(thread, model.here) && (
-        <Button key={`claude:${id}`} label="Read with Claude" onPress={() => act({ kind: 'readWithClaude', threadId: id })} />
+        <Button key={`claude:${at}`} {...keyed(keys, 'c', 'Read with Claude')} onPress={() => act({ kind: 'readWithClaude', threadId: id })} />
       )}
       {!isHereOnly && (
-        <Button key={`here:${id}`} label="Move here" onPress={() => act({ kind: 'setProjects', threadId: id, projects: [model.here] })} />
+        <Button key={`here:${at}`} {...keyed(keys, 'h', 'Move here')} onPress={() => act({ kind: 'setProjects', threadId: id, projects: [model.here] })} />
       )}
       {inList && E.Select !== undefined && choices.length > 0 && (
         <E.Select
-          key={`file:${id}`}
+          key={`file:${at}`}
           label="File in…"
           options={choices}
           onSelect={value => {
@@ -81,20 +107,46 @@ const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, 
         />
       )}
       {thread.waiting_on_you ? (
-        <Button key={`read:${id}`} label="Mark read" onPress={() => act({ kind: 'markRead', threadId: id })} />
+        <Button key={`read:${at}`} {...keyed(keys, 'r', 'Mark read')} onPress={() => act({ kind: 'markRead', threadId: id })} />
       ) : (
-        <Button key={`unread:${id}`} label="Mark unread" onPress={() => act({ kind: 'markUnread', threadId: id })} />
+        <Button key={`unread:${at}`} {...keyed(keys, 'u', 'Mark unread')} onPress={() => act({ kind: 'markUnread', threadId: id })} />
       )}
       {thread.archived ? (
-        <Button key={`unarchive:${id}`} label="Unarchive" onPress={() => act({ kind: 'unarchive', threadId: id })} />
+        <Button key={`unarchive:${at}`} {...keyed(keys, 'a', 'Unarchive')} onPress={() => act({ kind: 'unarchive', threadId: id })} />
       ) : (
-        <Button key={`archive:${id}`} label="Archive" onPress={() => act({ kind: 'archive', threadId: id })} />
+        <Button key={`archive:${at}`} {...keyed(keys, 'a', 'Archive')} onPress={() => act({ kind: 'archive', threadId: id })} />
       )}
-      <Button
-        key={`listen:${id}`}
-        label={isListening ? 'Stop listening' : 'Listen here'}
-        onPress={() => act({ kind: 'listen', threadId: id })}
-      />
+      {(isReadableHere(thread, model.here) || isListening) && (
+        <Button
+          key={`listen:${at}`}
+          {...keyed(keys, 'l', isListening ? 'Stop listening' : 'Listen here')}
+          onPress={() => act({ kind: 'listen', threadId: id })}
+        />
+      )}
+    </Box>
+  )
+}
+
+/**
+ * Where an unfiled thread's row suggests filing it: File there for a project opened on this
+ * machine; any other is only named, since filing there would hide it from every session. File
+ * there gets its hotkey, noted in keys, on the chosen thread only (keys null on the rest).
+ */
+const suggestionLine = (E: PaneElements, thread: Thread, suggested: string, known: readonly string[], act: Act, at: string, keys: Keys | null) => {
+  const { Box, Text, Button } = E
+  const id = thread.thread_id
+  if (localSuggestion(thread, known) === null) {
+    return (
+      <Box paddingLeft={2}>
+        <Text dimColor>{`sender's project: ${projectName(suggested)} (not opened here)`}</Text>
+      </Box>
+    )
+  }
+  return (
+    <Box flexDirection="row" flexWrap="wrap" columnGap={1} paddingLeft={2}>
+      <Text dimColor>suggested:</Text>
+      <Text color="suggestion">{projectName(suggested)}</Text>
+      <Button key={`suggest:${at}`} {...(keys !== null ? keyed(keys, 'f', 'File there') : { label: 'File there' })} onPress={() => act({ kind: 'setProjects', threadId: id, projects: [suggested] })} />
     </Box>
   )
 }
@@ -103,6 +155,11 @@ export const listView = (E: PaneElements, model: Model, view: Extract<PaneView, 
   const { Box, Text, Button } = E
   const waiting = model.inbox.threads.filter(t => t.waiting_on_you).length
   const error = view.error ?? model.inbox.error
+  const groups = groupThreads(model.inbox.threads, model.archived, model.here)
+  const isOpen = (group: Group) => !COLLAPSIBLE(group.id) || view.expanded.includes(group.id)
+  // Where the focus ring starts when the pane takes the keys: the first thread drawn, in its group.
+  const firstGroup = groups.find(group => isOpen(group) && group.threads.length > 0)
+  const first = firstGroup && `${firstGroup.id}:${firstGroup.threads[0]!.thread_id}`
   return (
     <Box flexDirection="column">
       <Text bold>
@@ -119,62 +176,58 @@ export const listView = (E: PaneElements, model: Model, view: Extract<PaneView, 
         label={`Auto-file into projects opened here: ${model.filing.autoFile ? 'on' : 'off'}`}
         onPress={() => act({ kind: 'autoFile', on: !model.filing.autoFile })}
       />
-      {groupThreads(model.inbox.threads, model.archived, model.here).map(group => {
-        const isOpen = !COLLAPSIBLE(group.id) || view.expanded.includes(group.id)
+      {groups.map(group => {
         const count = group.id === 'archived' && model.archived === null ? '' : ` · ${group.waiting > 0 ? `${group.waiting} waiting` : group.threads.length}`
         return (
           <Box key={`group-box:${group.id}`} flexDirection="column" marginTop={1}>
             {COLLAPSIBLE(group.id) ? (
-              <Button key={`group:${group.id}`} plain label={`${isOpen ? '▾' : '▸'} ${group.title}${count}`} onPress={() => act({ kind: 'expand', group: group.id })} />
+              <Button key={`group:${group.id}`} plain label={`${isOpen(group) ? '▾' : '▸'} ${group.title}${count}`} onPress={() => act({ kind: 'expand', group: group.id })} />
             ) : (
               <Text bold color="suggestion">
                 {group.title} · {group.threads.length}
               </Text>
             )}
-            {isOpen && (
+            {isOpen(group) && (
               <Box key={`threads:${group.id}`} flexDirection="column" rowGap={1}>
               {group.threads.map(thread => {
                 const id = thread.thread_id
                 const row = rowParts(thread, model.now)
-                const isChosen = view.selected === id
+                const isChosen = isSelected(view, { group: group.id, threadId: id })
+                // A thread filed under several projects shows in each group: every key here names the group.
+                const at = `${group.id}:${id}`
+                // Filled as the chosen thread's Buttons are made, before the hint under them.
+                const keys: Keys = []
                 return (
                   <Box
-                    key={isChosen ? `chosen:${id}` : `row:${group.id}:${id}`}
+                    key={isChosen ? `chosen:${at}` : `row:${at}`}
                     flexDirection="column"
                     {...(isChosen && { borderStyle: 'round', borderColor: 'suggestion' })}
                   >
                     {/* The title has a line to itself and the rest one line under it, each wrapping
                         whole: pieces side by side squeeze into columns a few letters wide. */}
-                    <Box key={`title:${id}`} flexDirection="row" columnGap={1}>
+                    <Box key={`title:${at}`} flexDirection="row" columnGap={1}>
                       <Box flexShrink={0}>
                         <Text color={thread.waiting_on_you ? 'warning' : 'subtle'}>{thread.waiting_on_you ? '●' : '○'}</Text>
                       </Box>
                       <Button
-                        key={`thread:${id}`}
+                        key={`thread:${at}`}
                         plain
                         label={row.title}
-                        onPress={() => act({ kind: 'select', threadId: id })}
+                        {...(at === first && { autoFocus: true as const })}
+                        onPress={() => act({ kind: 'select', group: group.id, threadId: id })}
                       />
                     </Box>
-                    <Box key={`details:${id}`} paddingLeft={2}>
+                    <Box key={`details:${at}`} paddingLeft={2}>
                       <Text>
                         {row.by !== null && <Text dimColor>{`${row.by} · `}</Text>}
                         {row.count !== null && (thread.waiting_on_you ? <Text color="warning">{row.count}</Text> : <Text dimColor>{row.count}</Text>)}
                         <Text dimColor>{`${row.count !== null ? ' · ' : ''}${row.time}`}</Text>
                       </Text>
                     </Box>
-                    {thread.projects.length === 0 && thread.suggested_project !== null && (
-                      <Box flexDirection="row" flexWrap="wrap" columnGap={1} paddingLeft={2}>
-                        <Text dimColor>suggested:</Text>
-                        <Text color="suggestion">{projectName(thread.suggested_project)}</Text>
-                        <Button
-                          key={`suggest:${id}`}
-                          label="File there"
-                          onPress={() => act({ kind: 'setProjects', threadId: id, projects: [thread.suggested_project!] })}
-                        />
-                      </Box>
-                    )}
-                    {isChosen && threadActions(E, thread, model, act, true)}
+                    {thread.projects.length === 0 && thread.suggested_project !== null &&
+                      suggestionLine(E, thread, thread.suggested_project, model.filing.known, act, at, isChosen ? keys : null)}
+                    {isChosen && threadActions(E, thread, model, act, true, at, keys)}
+                    {isChosen && keysHint(E, `keys:${at}`, keys, 2)}
                   </Box>
                 )
               })}
@@ -223,12 +276,14 @@ export const threadView = (E: PaneElements, model: Model, view: Extract<PaneView
   const { Box, Text, Button } = E
   const thread = [...model.inbox.threads, ...(model.archived ?? [])].find(t => t.thread_id === view.threadId)
   const read: ThreadRead | null = view.read
+  const keys: Keys = []
   return (
     <Box flexDirection="column">
       <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
-        <Button key="back" label="Back" onPress={() => act({ kind: 'back' })} />
-        {thread !== undefined && threadActions(E, thread, model, act, false)}
+        <Button key="back" {...keyed(keys, 'b', 'Back')} onPress={() => act({ kind: 'back' })} />
+        {thread !== undefined && threadActions(E, thread, model, act, false, thread.thread_id, keys)}
       </Box>
+      {keysHint(E, 'keys', keys, 0)}
       {view.error !== null && <Text color="error">collab: {oneLine(view.error)}</Text>}
       {read === null ? (
         view.error === null && <Text dimColor>Loading…</Text>
@@ -236,9 +291,9 @@ export const threadView = (E: PaneElements, model: Model, view: Extract<PaneView
         <Box flexDirection="column" marginTop={1}>
           <Text bold>{oneLine(read.title)}</Text>
           <Text dimColor>with {people(read.participants)}</Text>
-          {read.earlier > 0 && <Button key="earlier" plain label={`Earlier messages (${read.earlier})`} onPress={() => act({ kind: 'earlier' })} />}
+          {read.earlier > 0 && <Button key="earlier" plain hotkey="e" label={`Earlier messages (${read.earlier})`} onPress={() => act({ kind: 'earlier' })} />}
           {read.messages.map(message => messageView(E, message, read.participants, model.now))}
-          {read.later > 0 && <Button key="later" plain label={`Later messages (${read.later})`} onPress={() => act({ kind: 'later' })} />}
+          {read.later > 0 && <Button key="later" plain hotkey="n" label={`Later messages (${read.later})`} onPress={() => act({ kind: 'later' })} />}
         </Box>
       )}
     </Box>
