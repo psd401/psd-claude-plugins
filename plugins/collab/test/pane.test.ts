@@ -388,6 +388,14 @@ test("the session's project is remembered on this machine for filing", async ($,
   expect(values).toEqual([`add:${LUNCH_MENU}`, `add:${BELL_SCHEDULE}`])
 })
 
+test('a row names who wrote last by the name collab keeps for them', async ($, on) => {
+  const clock = mock.clock(on)
+  world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true, unread: 2 })], names: { 'wren@example.com': 'Wren Example' } })
+  await startSession($, clock)
+  const ui = await $.ui.mount(PANE)
+  expect((await ui.find({ key: key('details', T1) })).text).toBe('Wren Example · 2 new · Wed')
+})
+
 const READ: ThreadRead = {
   thread_id: T1,
   title: 'Retention',
@@ -415,6 +423,17 @@ test('View opens the thread: participants, messages, and links with their real a
   expect(shown).toContain('(https://evil.example/p)')
   expect(shown).toContain('wren added casey')
   expect(shown).toContain('new')
+})
+
+test('the thread view names participants, authors and recipients by the names its read gives', async ($, on) => {
+  const { ui, w } = await setUp($, on)
+  w.answers.psd_collab_thread_read = () => ({ ...READ, names: { 'wren@example.com': 'Wren Example', 'parker@example.com': 'Parker Sample' } })
+  await ui.press({ key: key('thread', T1) })
+  await ui.press({ key: key('view', T1) })
+  const shown = await texts(ui)
+  expect(shown).toContain('with Wren Example, Parker Sample')
+  expect(shown).toContain('Wren Example\n→ Parker Sample · Wed')
+  expect(shown).toContain('Wren Example\n→ everyone · Wed')
 })
 
 test('Earlier messages pages back; Back returns to the list', async ($, on) => {

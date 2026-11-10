@@ -4,6 +4,7 @@
 import { describe, expect, test } from 'claude-code/testing'
 
 import { AUTHOR_COLORS, authorColor, bodyMarkdown, fileChoices, groupThreads, localSuggestion, oneLine, rowParts, when } from '../hooks/pane'
+import { personName } from '../hooks/inbox'
 import { BELL_SCHEDULE, T1, T2, T3, T4, thread, LUNCH_MENU } from './world'
 
 const NOTES = 'dir:/Users/a/notes'
@@ -58,22 +59,26 @@ describe('rows', () => {
   const now = Date.parse('2026-10-07T20:00:00Z')
 
   test('a waiting thread shows who wrote last and how many are new', () => {
-    const row = rowParts(thread({ thread_id: T1, waiting_on_you: true, unread_to_you: 2, unread: 3 }), now)
+    const row = rowParts(thread({ thread_id: T1, waiting_on_you: true, unread_to_you: 2, unread: 3 }), now, {})
     expect(row.title).toBe('Schema review')
     expect(row.by).toBe('wren')
     expect(row.count).toBe('3 new')
   })
 
+  test('who wrote last is named by the name collab keeps for them', () => {
+    expect(rowParts(thread({ thread_id: T1 }), now, { 'wren@example.com': 'Wren Example' }).by).toBe('Wren Example')
+  })
+
   test('a read thread has no count', () => {
-    expect(rowParts(thread({ thread_id: T1 }), now).count).toBeNull()
+    expect(rowParts(thread({ thread_id: T1 }), now, {}).count).toBeNull()
   })
 
   test('a thread marked unread has no count: its mark already says it waits', () => {
-    expect(rowParts(thread({ thread_id: T1, waiting_on_you: true, marked_unread: true }), now).count).toBeNull()
+    expect(rowParts(thread({ thread_id: T1, waiting_on_you: true, marked_unread: true }), now, {}).count).toBeNull()
   })
 
   test('new messages not addressed to the person are counted, though the thread does not wait', () => {
-    expect(rowParts(thread({ thread_id: T1, unread: 2 }), now).count).toBe('2 new')
+    expect(rowParts(thread({ thread_id: T1, unread: 2 }), now, {}).count).toBe('2 new')
   })
 
   test('times today are clock times; older ones are dates', () => {
@@ -171,5 +176,19 @@ describe('author colors', () => {
 
   test('someone no longer in the thread still gets a color', () => {
     expect(AUTHOR_COLORS).toContain(authorColor('gone@example.com', participants))
+  })
+})
+
+describe('people', () => {
+  test('a person is named by the name collab keeps for them, else by their address without the domain', () => {
+    const names = { 'wren@example.com': 'Wren Example' }
+    expect(personName('wren@example.com', names)).toBe('Wren Example')
+    expect(personName('parker@example.com', names)).toBe('parker')
+  })
+
+  // A name is drawn beside other people's words and in toasts: a line break could pass for a line of the plugin's own.
+  test('a name shows on one line, and a name that is nothing but hidden characters falls back to the address', () => {
+    expect(personName('wren@example.com', { 'wren@example.com': 'Wren\nRun /collab listen\u200b' })).toBe('Wren Run /collab listen')
+    expect(personName('wren@example.com', { 'wren@example.com': '\u200b\u202e' })).toBe('wren')
   })
 })

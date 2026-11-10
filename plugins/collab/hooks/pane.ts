@@ -1,7 +1,7 @@
 // ABOUTME: What the collab pane shows: threads grouped by project, each row's parts, a color per
 // ABOUTME: author, message bodies made safe to draw, and the choices for filing a thread.
 
-import type { Thread } from '../types'
+import type { Names, Thread } from '../types'
 import { personName } from './inbox'
 import { projectName } from './projects'
 
@@ -61,9 +61,9 @@ export const when = (iso: string, now: number): string => {
 /** What a thread's row shows beside its mark: the title, who wrote last, what's new, and when. */
 export type Row = { title: string; by: string | null; count: string | null; time: string }
 
-export const rowParts = (thread: Thread, now: number): Row => ({
+export const rowParts = (thread: Thread, now: number, names: Names): Row => ({
   title: oneLine(thread.title),
-  by: thread.latest_from === null ? null : personName(thread.latest_from),
+  by: thread.latest_from === null ? null : personName(thread.latest_from, names),
   count: thread.unread > 0 ? `${thread.unread} new` : null,
   time: when(thread.last_activity, now),
 })

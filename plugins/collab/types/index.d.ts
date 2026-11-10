@@ -18,6 +18,9 @@ export type Thread = {
   latest_from: string | null
 }
 
+/** People's names as collab keeps them, by address: only those its answers have named. */
+export type Names = Record<string, string>
+
 /**
  * The latest inbox check: the person's threads (archived ones left out), why the last check
  * failed if it did, and whether any check has succeeded yet.
@@ -46,6 +49,7 @@ export type ThreadRead = {
   messages: Message[]
   earlier: number
   later: number
+  names: Names
 }
 
 /**
@@ -72,6 +76,7 @@ declare module 'claude-code' {
       pane: PaneView
       filing: Filing
       project: Project | null
+      names: Names
     }
   }
 }

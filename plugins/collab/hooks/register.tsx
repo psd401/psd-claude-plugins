@@ -4,7 +4,7 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, ToolCallResult } from 'claude-code'
 
-import type { Inbox, PaneView, Filing, Project, Thread, ThreadRead } from '../types'
+import type { Inbox, Names, PaneView, Filing, Project, Thread, ThreadRead } from '../types'
 import { arrivals, backgroundTask, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
 import { hasOldServer, hasOldStatusLine, hasSecondInstall, leftoverText } from './leftovers'
 import { oneLine } from './pane'
@@ -37,6 +37,8 @@ const NO_FILING: Filing = { autoFile: false, known: [] }
 const filing = atom({ plugin: 'collab', key: 'filing' } as const, NO_FILING)
 // The project key worked out for the session's root.
 const project = atom({ plugin: 'collab', key: 'project' } as const, null as Project | null)
+// People's names from every inbox check and read this session.
+const names = atom({ plugin: 'collab', key: 'names' } as const, {} as Names)
 
 /**
  * This session's project key, kept for the session's root and worked out again only when the root
@@ -68,6 +70,10 @@ const call = async ($: EngineInterface, tool: string, args: Record<string, unkno
   return answerOf(result)
 }
 
+/** Keeps the names a tool's answer gives, beside those earlier answers gave. */
+const keepNames = ($: EngineInterface, answer: { names?: Names }) =>
+  update($, names, kept => ({ ...kept, ...answer.names }))
+
 /**
  * Every thread in the person's inbox, page by page; with `isWaitingEnough`, only the pages through
  * the first that holds a thread not waiting on them. psd_collab_inbox_check lists waiting threads first, so
@@ -80,6 +86,7 @@ const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaiting
     // Not `page`: before 2.1.290 the loader refuses a file where a function handed $ shares its name with any other declaration.
     const batch = await call($, 'psd_collab_inbox_check', { include_archived: includeArchived, ...(cursor && { cursor }) })
     threads.push(...batch.threads)
+    await keepNames($, batch)
     const isPastWaiting = isWaitingEnough && batch.threads.some((t: Thread) => !t.waiting_on_you)
     cursor = isPastWaiting ? undefined : batch.next_cursor
   } while (cursor !== undefined)
@@ -199,7 +206,8 @@ const pollOnce = async ($: EngineInterface, isWhole: boolean) => {
   // The first check has nothing to compare with: what already waits is no news.
   if (!before.checked) return
   const fresh = arrivals(before.threads, threads)
-  for (const thread of fresh) $.ui.toast(toastText(thread))
+  const senders = await read($, names)
+  for (const thread of fresh) $.ui.toast(toastText(thread, senders))
   const listened = await read($, listening)
   // Claude couldn't read a thread since filed only elsewhere; filed here again, it's heard again.
   const heard = fresh.filter(t => listened.includes(t.thread_id) && isReadableHere(t, key)).map(t => t.thread_id)
@@ -329,6 +337,7 @@ const page = async ($: EngineInterface, direction: 'before' | 'after') => {
   const edge = direction === 'before' ? shown.messages[0]?.id : shown.messages[shown.messages.length - 1]?.id
   if (edge === undefined) return
   const more: ThreadRead = await call($, 'psd_collab_thread_read', { thread_id: view.threadId, format: 'json', [direction]: edge })
+  await keepNames($, more)
   const merged: ThreadRead =
     direction === 'before'
       ? { ...shown, messages: [...more.messages, ...shown.messages], earlier: more.earlier }
@@ -358,6 +367,7 @@ const perform = async ($: EngineInterface, action: Action) => {
         const threadId = action.threadId
         await update($, pane, (): PaneView => ({ screen: 'thread', threadId, read: null, error: null }))
         const shown: ThreadRead = await call($, 'psd_collab_thread_read', { thread_id: threadId, format: 'json' })
+        await keepNames($, shown)
         await update($, pane, v => (v.screen === 'thread' && v.threadId === threadId ? { ...v, read: shown } : v))
         // Viewing marks the thread read, as Claude reading it does.
         await refresh($)
@@ -574,6 +584,7 @@ export const register: Register = on => {
       here: await here($, true),
       filing: await read($, filing),
       listening: await read($, listening),
+      names: await read($, names),
       now: await $.clock.now(),
     }
     const view = await read($, pane)

@@ -3,7 +3,7 @@
 
 import type { BoxProps, ButtonProps, ElementConstructor, MarkdownProps, SelectProps, TextProps } from 'claude-code'
 
-import type { Inbox, Message, PaneView, Filing, Thread, ThreadRead } from '../types'
+import type { Inbox, Message, Names, PaneView, Filing, Thread, ThreadRead } from '../types'
 import { isReadableHere, personName } from './inbox'
 import { authorColor, bodyMarkdown, fileChoices, groupThreads, localSuggestion, oneLine, rowParts, when } from './pane'
 import type { Group } from './pane'
@@ -37,6 +37,7 @@ export type Model = {
   here: string
   filing: Filing
   listening: string[]
+  names: Names
   now: number
 }
 
@@ -49,10 +50,10 @@ const COLLAPSIBLE = (id: string) => id !== 'here' && id !== 'unfiled'
 export const isSelected = (view: Extract<PaneView, { screen: 'list' }>, chosen: { group: string; threadId: string }) =>
   view.selected?.group === chosen.group && view.selected.threadId === chosen.threadId
 
-const people = (emails: readonly string[]) => emails.map(personName).join(', ')
+const people = (emails: readonly string[], names: Names) => emails.map(email => personName(email, names)).join(', ')
 
-const addressedTo = (to: string) =>
-  to === 'everyone' || to.startsWith('nobody') ? to : people(to.split(', '))
+const addressedTo = (to: string, names: Names) =>
+  to === 'everyone' || to.startsWith('nobody') ? to : people(to.split(', '), names)
 
 /** The hotkeys a screen gives out, as `v View`, for its hint: a bracketed Button doesn't show its own. */
 type Keys = string[]
@@ -191,7 +192,7 @@ export const listView = (E: PaneElements, model: Model, view: Extract<PaneView, 
               <Box key={`threads:${group.id}`} flexDirection="column" rowGap={1}>
               {group.threads.map(thread => {
                 const id = thread.thread_id
-                const row = rowParts(thread, model.now)
+                const row = rowParts(thread, model.now, model.names)
                 const isChosen = isSelected(view, { group: group.id, threadId: id })
                 // A thread filed under several projects shows in each group: every key here names the group.
                 const at = `${group.id}:${id}`
@@ -240,7 +241,7 @@ export const listView = (E: PaneElements, model: Model, view: Extract<PaneView, 
   )
 }
 
-const messageView = (E: PaneElements, message: Message, participants: readonly string[], now: number) => {
+const messageView = (E: PaneElements, message: Message, participants: readonly string[], names: Names, now: number) => {
   const { Box, Text, Markdown } = E
   if (message.kind !== 'message') {
     return (
@@ -261,9 +262,9 @@ const messageView = (E: PaneElements, message: Message, participants: readonly s
       borderDimColor={!message.unread}
     >
       <Box flexDirection="row" columnGap={1}>
-        <Text bold color={color}>{personName(message.author)}</Text>
+        <Text bold color={color}>{personName(message.author, names)}</Text>
         <Text dimColor>
-          → {addressedTo(message.to ?? '')} · {when(message.at, now)}
+          → {addressedTo(message.to ?? '', names)} · {when(message.at, now)}
         </Text>
         {message.unread && <Text bold color="warning">new</Text>}
       </Box>
@@ -290,9 +291,9 @@ export const threadView = (E: PaneElements, model: Model, view: Extract<PaneView
       ) : (
         <Box flexDirection="column" marginTop={1}>
           <Text bold>{oneLine(read.title)}</Text>
-          <Text dimColor>with {people(read.participants)}</Text>
+          <Text dimColor>with {people(read.participants, model.names)}</Text>
           {read.earlier > 0 && <Button key="earlier" plain hotkey="e" label={`Earlier messages (${read.earlier})`} onPress={() => act({ kind: 'earlier' })} />}
-          {read.messages.map(message => messageView(E, message, read.participants, model.now))}
+          {read.messages.map(message => messageView(E, message, read.participants, model.names, model.now))}
           {read.later > 0 && <Button key="later" plain hotkey="n" label={`Later messages (${read.later})`} onPress={() => act({ kind: 'later' })} />}
         </Box>
       )}
