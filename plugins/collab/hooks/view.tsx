@@ -1,25 +1,25 @@
 // ABOUTME: Draws the collab pane: the list of threads by project with each thread's actions, and
 // ABOUTME: one thread's messages. Every button answers with an Action for the hooks to carry out.
 
-import type { BoxProps, ButtonProps, ElementConstructor, MarkdownProps, SelectProps, TextProps } from 'claude-code'
+import type { BoxProps, ButtonProps, ElementConstructor, MarkdownProps, TextProps } from 'claude-code'
 
 import type { Inbox, Message, Names, PaneView, Filing, Thread, ThreadRead } from '../types'
 import { isReadableHere, personName } from './inbox'
 import { authorColor, bodyMarkdown, fileChoices, groupThreads, localSuggestion, oneLine, rowParts, when } from './pane'
-import type { Group } from './pane'
+import type { Choice, Group } from './pane'
 import { projectName } from './projects'
 
-/** The elements the pane draws with; Select is missing on surfaces that have none. */
+/** The elements the pane draws with. */
 export type PaneElements = {
   Box: ElementConstructor<BoxProps>
   Text: ElementConstructor<TextProps>
   Button: ElementConstructor<ButtonProps>
   Markdown: ElementConstructor<MarkdownProps>
-  Select?: ElementConstructor<SelectProps>
 }
 
 export type Action =
   | { kind: 'select'; group: string; threadId: string }
+  | { kind: 'fileIn' }
   | { kind: 'expand'; group: string }
   | { kind: 'view'; threadId: string }
   | { kind: 'back' }
@@ -75,17 +75,42 @@ const keysHint = (E: PaneElements, key: string, keys: Keys, indent: number) => {
 }
 
 /**
+ * The File in… choices, each its own button: a Select would keep the arrow keys while focused, so
+ * the arrows could never move on past it.
+ */
+const fileInChoices = (E: PaneElements, thread: Thread, choices: readonly Choice[], act: Act, at: string) => {
+  const { Box, Button } = E
+  return (
+    <Box flexDirection="row" flexWrap="wrap" columnGap={1} paddingLeft={4}>
+      {choices.map(choice => (
+        <Button
+          key={`file:${at}:${choice.value}`}
+          label={choice.label}
+          onPress={() => {
+            const [how, ...rest] = choice.value.split(':')
+            const key = rest.join(':')
+            const projects = how === 'add' ? [...thread.projects, key] : thread.projects.filter(p => p !== key)
+            act({ kind: 'setProjects', threadId: thread.thread_id, projects })
+          }}
+        />
+      ))}
+    </Box>
+  )
+}
+
+/**
  * The buttons for one thread, in the list or its own view, their hotkeys noted in keys. In the
  * list a thread filed under several projects shows in each group, so `at` puts the group in every
- * key there.
+ * key there, and File in… opens its choices below the buttons while isFiling.
  */
-const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, inList: boolean, at: string, keys: Keys) => {
+const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, inList: boolean, isFiling: boolean, at: string, keys: Keys) => {
   const { Box, Button } = E
   const id = thread.thread_id
   const isListening = model.listening.includes(id)
   const isHereOnly = thread.projects.length === 1 && thread.projects[0] === model.here
   const choices = fileChoices(thread, model.filing.known, [...model.inbox.threads, ...(model.archived ?? [])])
-  return (
+  const canFile = inList && choices.length > 0
+  const actions = (
     <Box flexDirection="row" flexWrap="wrap" columnGap={1} paddingLeft={2}>
       {inList && <Button key={`view:${at}`} {...keyed(keys, 'v', 'View')} variant="primary" onPress={() => act({ kind: 'view', threadId: id })} />}
       {isReadableHere(thread, model.here) && (
@@ -94,19 +119,7 @@ const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, 
       {!isHereOnly && (
         <Button key={`here:${at}`} {...keyed(keys, 'h', 'Move here')} onPress={() => act({ kind: 'setProjects', threadId: id, projects: [model.here] })} />
       )}
-      {inList && E.Select !== undefined && choices.length > 0 && (
-        <E.Select
-          key={`file:${at}`}
-          label="File in…"
-          options={choices}
-          onSelect={value => {
-            const [how, ...rest] = value.split(':')
-            const key = rest.join(':')
-            const projects = how === 'add' ? [...thread.projects, key] : thread.projects.filter(p => p !== key)
-            act({ kind: 'setProjects', threadId: id, projects })
-          }}
-        />
-      )}
+      {canFile && <Button key={`file:${at}`} label="File in…" onPress={() => act({ kind: 'fileIn' })} />}
       {thread.waiting_on_you ? (
         <Button key={`read:${at}`} {...keyed(keys, 'r', 'Mark read')} onPress={() => act({ kind: 'markRead', threadId: id })} />
       ) : (
@@ -124,6 +137,13 @@ const threadActions = (E: PaneElements, thread: Thread, model: Model, act: Act, 
           onPress={() => act({ kind: 'listen', threadId: id })}
         />
       )}
+    </Box>
+  )
+  if (!(canFile && isFiling)) return actions
+  return (
+    <Box flexDirection="column">
+      {actions}
+      {fileInChoices(E, thread, choices, act, at)}
     </Box>
   )
 }
@@ -227,7 +247,7 @@ export const listView = (E: PaneElements, model: Model, view: Extract<PaneView, 
                     </Box>
                     {thread.projects.length === 0 && thread.suggested_project !== null &&
                       suggestionLine(E, thread, thread.suggested_project, model.filing.known, act, at, isChosen ? keys : null)}
-                    {isChosen && threadActions(E, thread, model, act, true, at, keys)}
+                    {isChosen && threadActions(E, thread, model, act, true, view.isFiling, at, keys)}
                     {isChosen && keysHint(E, `keys:${at}`, keys, 2)}
                   </Box>
                 )
@@ -282,7 +302,7 @@ export const threadView = (E: PaneElements, model: Model, view: Extract<PaneView
     <Box flexDirection="column">
       <Box flexDirection="row" flexWrap="wrap" columnGap={1}>
         <Button key="back" {...keyed(keys, 'b', 'Back')} onPress={() => act({ kind: 'back' })} />
-        {thread !== undefined && threadActions(E, thread, model, act, false, thread.thread_id, keys)}
+        {thread !== undefined && threadActions(E, thread, model, act, false, false, thread.thread_id, keys)}
       </Box>
       {keysHint(E, 'keys', keys, 0)}
       {view.error !== null && <Text color="error">collab: {oneLine(view.error)}</Text>}

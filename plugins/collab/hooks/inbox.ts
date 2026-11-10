@@ -1,5 +1,5 @@
 // ABOUTME: What the plugin makes of the inbox: the status entry, which threads gained a message for
-// ABOUTME: the person, which threads /collab listen means, and the words for toasts and prompts.
+// ABOUTME: the person, which threads /collab listen means, and the words for toasts, notifications and prompts.
 
 import type { Names, Thread } from '../types'
 import { oneLine } from './pane'
@@ -56,6 +56,43 @@ export const personName = (email: string, names: Names): string =>
 
 export const toastText = (thread: Thread, names: Names): string =>
   `${thread.latest_from === null ? 'new message' : personName(thread.latest_from, names)} in “${oneLine(thread.title)}” · /collab to open`
+
+/**
+ * One native notification's words for every thread a check found a new message in: who wrote, or
+ * how many threads. Never a title: a notification can sit on a lock screen, a shared screen or in
+ * Notification Center, and a title can name a student; the toast in the window names the thread.
+ */
+export const notifyText = (threads: readonly Thread[], names: Names): string => {
+  if (threads.length > 1) return `New collab messages in ${threads.length} threads`
+  const from = threads[0]?.latest_from ?? null
+  return from === null ? 'New collab message' : `${personName(from, names)} sent you a collab message`
+}
+
+/**
+ * The arrivals a session on this machine has raised a notification for: each thread's
+ * last_activity when it did. Every open session checks the inbox, and the first to notify claims.
+ */
+export type Notified = Record<string, string>
+
+// Threads the claims remember; the oldest go first.
+const CLAIMS_KEPT = 200
+
+/** The claims as the store holds them, or none when it holds something else. */
+export const notifiedOf = (stored: unknown): Notified =>
+  typeof stored === 'object' && stored !== null && !Array.isArray(stored)
+    ? Object.fromEntries(Object.entries(stored).filter(([, at]) => typeof at === 'string'))
+    : {}
+
+/** The arrivals no session on this machine has notified yet. */
+export const unclaimed = (threads: readonly Thread[], notified: Notified): Thread[] =>
+  threads.filter(t => notified[t.thread_id] !== t.last_activity)
+
+/** The claims with these threads' arrivals added, newest last, the oldest dropped past the limit. */
+export const claimed = (notified: Notified, threads: readonly Thread[]): Notified => {
+  const ids = new Set(threads.map(t => t.thread_id))
+  const kept = Object.entries(notified).filter(([id]) => !ids.has(id))
+  return Object.fromEntries([...kept, ...threads.map(t => [t.thread_id, t.last_activity])].slice(-CLAIMS_KEPT))
+}
 
 /** The toast after Claude sends, saying how to hear the reply here. */
 export const sentToast = (title: string | undefined): string =>

@@ -24,6 +24,14 @@ export type World = {
   /** The status entry as it was set, in order; undefined clears it. */
   status: (string | undefined)[]
   toasts: string[]
+  /** The plugin's store, as the engine keeps it on this machine. */
+  stored: Record<string, unknown>
+  /** Native notifications raised, in order. */
+  notifications: string[]
+  /** Every native notification the plugin asked for, raised or not. */
+  notifyCalls: string[]
+  /** Set, what Claude Code answers a native notification with; a string is a hook's refusal. */
+  notifyAnswer?: { isSent: false; reason: 'disabled' | 'no-channel' | 'no-surface' | 'refused' } | string
   prompts: string[]
   /** What each prompt carried beside its text for Claude, in order. */
   contexts: (readonly string[])[]
@@ -34,6 +42,8 @@ export type World = {
   conversation: { role: 'user' | 'assistant'; content: { type: string; text: string }[] }[]
   /** Lines the plugin wrote to the transcript. */
   logs: string[]
+  /** Lines the plugin wrote to the debug log. */
+  debug: string[]
   /** Panes the plugin opened and closed, by id, in order. */
   opened: string[]
   closed: string[]
@@ -98,10 +108,14 @@ export const world = (on: On, options: Options = {}): World => {
     calls: [],
     status: [],
     toasts: [],
+    stored: { ...options.store },
+    notifications: [],
+    notifyCalls: [],
     prompts: [],
     contexts: [],
     conversation: [],
     logs: [],
+    debug: [],
     opened: [],
     closed: [],
     callsAtOpen: [],
@@ -113,7 +127,18 @@ export const world = (on: On, options: Options = {}): World => {
     isRepoBroken: options.isRepoBroken === true,
   }
 
-  mock.store(on, options.store ?? {})
+  // The engine's store, kept where a test can read it.
+  const copy = (value: unknown) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)))
+  on('store.get', (_$, e) => ({ value: copy(w.stored[e.key]) }))
+  on('store.set', (_$, e) => {
+    w.stored[e.key] = copy(e.value)
+    return { value: undefined }
+  })
+  on('store.delete', (_$, e) => {
+    delete w.stored[e.key]
+    return { value: undefined }
+  })
+  on('store.keys', () => ({ value: Object.keys(w.stored) }))
   mock.env(on, options.env ?? { HOME: '/Users/a' })
   on('tool.list', () => ({ value: (options.tools ?? []).map(name => ({ name, description: '', mcp: name.startsWith('mcp__') })) }))
   on('settings.read', () => (options.settings === undefined ? { deny: 'no settings here' } : { value: options.settings }))
@@ -123,6 +148,7 @@ export const world = (on: On, options: Options = {}): World => {
   })
   on('ui.log', (_$, e) => {
     if (e.to === 'transcript') w.logs.push(e.text)
+    if (e.to === 'debug') w.debug.push(e.text)
     return { value: undefined }
   })
   on('session.repo', () =>
@@ -179,6 +205,13 @@ export const world = (on: On, options: Options = {}): World => {
   on('ui.toast', (_$, e) => {
     w.toasts.push(e.text)
     return { value: undefined }
+  })
+  on('ui.notify', (_$, e) => {
+    w.notifyCalls.push(e.text)
+    if (typeof w.notifyAnswer === 'string') return { deny: w.notifyAnswer }
+    if (w.notifyAnswer !== undefined) return { value: w.notifyAnswer }
+    w.notifications.push(e.text)
+    return { value: { isSent: true, channel: 'iterm2' } }
   })
   on('prompt.submit', (_$, e) => {
     w.prompts.push(e.text)
