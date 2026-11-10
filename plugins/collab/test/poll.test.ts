@@ -225,6 +225,15 @@ test('a failure said across lines shows on one', async ($, on) => {
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled')
 })
 
+test('a toast names the sender by the name collab keeps for them', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { names: { 'casey@example.com': 'Casey Example' } })
+  await startSession($, clock)
+  w.threads = [thread({ thread_id: T1, unread_to_you: 1, waiting_on_you: true, latest_from: 'casey@example.com' })]
+  await clock.advance(POLL)
+  expect(w.toasts).toEqual(['Casey Example in “Schema review” · /collab to open'])
+})
+
 // Titles are other people's words: a line break in one could pass for a second line from the plugin.
 test("a toast shows the thread's title on one line", async ($, on) => {
   const clock = mock.clock(on)

@@ -1,7 +1,7 @@
 // ABOUTME: What the plugin makes of the inbox: the status entry, which threads gained a message for
 // ABOUTME: the person, which threads /collab listen means, and the words for toasts and prompts.
 
-import type { Thread } from '../types'
+import type { Names, Thread } from '../types'
 import { oneLine } from './pane'
 import { projectName } from './projects'
 
@@ -47,11 +47,15 @@ export const arrivals = (before: readonly Thread[], after: readonly Thread[]): T
 export const isReadableHere = (thread: Thread, here: string): boolean =>
   thread.projects.length === 0 || thread.projects.includes(here)
 
-/** How people are named in a line: their address without the domain. */
-export const personName = (email: string): string => email.split('@')[0] ?? email
+/**
+ * How people are named in a line: the name collab keeps for them, else their address without the
+ * domain. A name is drawn beside other people's words, so it gets one plain line too.
+ */
+export const personName = (email: string, names: Names): string =>
+  oneLine(names[email] ?? '') || (email.split('@')[0] ?? email)
 
-export const toastText = (thread: Thread): string =>
-  `${thread.latest_from === null ? 'new message' : personName(thread.latest_from)} in “${oneLine(thread.title)}” · /collab to open`
+export const toastText = (thread: Thread, names: Names): string =>
+  `${thread.latest_from === null ? 'new message' : personName(thread.latest_from, names)} in “${oneLine(thread.title)}” · /collab to open`
 
 /** The toast after Claude sends, saying how to hear the reply here. */
 export const sentToast = (title: string | undefined): string =>
