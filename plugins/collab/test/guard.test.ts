@@ -20,8 +20,8 @@ const server = (on: On) => {
 
 // Each send tool's arguments as the server takes them.
 const SENDS: Record<string, Record<string, unknown>> = {
-  start_thread: { title: 'Schema review', participants: ['wren@example.com'], body: 'hi', to: ['everyone'] },
-  send_message: { thread_id: T1, body: 'hi', to: ['everyone'] },
+  psd_collab_thread_start: { title: 'Schema review', participants: ['wren@example.com'], body: 'hi', to: ['everyone'] },
+  psd_collab_message_send: { thread_id: T1, body: 'hi', to: ['everyone'] },
 }
 
 for (const [tool, args] of Object.entries(SENDS)) {
@@ -68,28 +68,28 @@ for (const [tool, args] of Object.entries(SENDS)) {
 test('a message sent as `message` is refused, naming `body`', async ($, on) => {
   world(on)
   const seen = server(on)
-  const answer = await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, message: 'hi', to: ['everyone'] } as any)
+  const answer = await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, message: 'hi', to: ['everyone'] } as any)
   expect(seen.length).toBe(0)
   expect(answer.deny).toContain('the message goes in `body`')
-  expect(answer.deny).toContain('send_message takes thread_id, body and to')
+  expect(answer.deny).toContain('psd_collab_message_send takes thread_id, body and to')
 })
 
 test('every problem with a send is named at once', async ($, on) => {
   // The server names one per call, so each fix would cost the person another prompt.
   world(on)
   const seen = server(on)
-  const answer = await $.tool.call({ tool: `${TOOL}start_thread`, title: 'Schema review', message: 'hi', to: [], projects: [] } as any)
+  const answer = await $.tool.call({ tool: `${TOOL}psd_collab_thread_start`, title: 'Schema review', message: 'hi', to: [], projects: [] } as any)
   expect(seen.length).toBe(0)
   for (const problem of ['`message`', '`participants` is missing', '`body` is missing', '`projects`']) {
     expect(answer.deny).toContain(problem)
   }
 })
 
-test('a start_thread without participants is refused', async ($, on) => {
+test('a psd_collab_thread_start without participants is refused', async ($, on) => {
   world(on)
   const seen = server(on)
-  const { participants: _, ...args } = SENDS.start_thread!
-  const answer = await $.tool.call({ tool: `${TOOL}start_thread`, ...args } as any)
+  const { participants: _, ...args } = SENDS.psd_collab_thread_start!
+  const answer = await $.tool.call({ tool: `${TOOL}psd_collab_thread_start`, ...args } as any)
   expect(seen.length).toBe(0)
   expect(answer.deny).toContain('`participants` is missing')
 })
@@ -97,18 +97,18 @@ test('a start_thread without participants is refused', async ($, on) => {
 test('a reply names the message it answers', async ($, on) => {
   world(on)
   const seen = server(on)
-  await $.tool.call({ tool: `${TOOL}send_message`, ...SENDS.send_message, reply_to: 7 } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, ...SENDS.psd_collab_message_send, reply_to: 7 } as any)
   expect(seen[0]?.reply_to).toBe(7)
 })
 
 test('a session outside git sends from its folder', async ($, on) => {
   world(on, { inRepo: false, root: '/Users/a/notes' })
   const seen = server(on)
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, body: 'hi', to: [] } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, body: 'hi', to: [] } as any)
   expect(seen[0]?.sent_from).toBe('dir:/Users/a/notes')
 })
 
-const readThread = ($: any, args: Record<string, unknown>) => $.tool.call({ tool: `${TOOL}read_thread`, ...args })
+const readThread = ($: any, args: Record<string, unknown>) => $.tool.call({ tool: `${TOOL}psd_collab_thread_read`, ...args })
 
 for (const [name, projects] of [['unfiled', []], ['filed here', [BELL_SCHEDULE]], ['filed here and elsewhere', [LUNCH_MENU, BELL_SCHEDULE]]] as const) {
   test(`a thread ${name} is read`, async ($, on) => {
@@ -127,7 +127,7 @@ test('a thread filed only under other projects is not read here', async ($, on) 
   expect(seen.length).toBe(0)
   expect(answer.deny).toContain('lunch-menu, notes')
   expect(answer.deny).toContain('(bell-schedule)')
-  expect(answer.deny).toContain('set_projects')
+  expect(answer.deny).toContain('psd_collab_projects_set')
 })
 
 test('archived threads are guarded too', async ($, on) => {
@@ -145,7 +145,7 @@ test('a thread the person does not have goes to the server, which says so', asyn
 
 test('when the inbox cannot be checked, the read is refused', async ($, on) => {
   const w = world(on)
-  w.answers.check_inbox = () => { throw new Error('Not signed in') }
+  w.answers.psd_collab_inbox_check = () => { throw new Error('Not signed in') }
   const seen = server(on)
   const answer = await readThread($, { thread_id: T1 })
   expect(seen.length).toBe(0)
@@ -157,7 +157,7 @@ test('thread ids the server would read but the guard would not recognize are ref
   world(on, { threads: [thread({ thread_id: T1, projects: [LUNCH_MENU] })] })
   const seen = server(on)
   for (const id of [T1.toUpperCase(), `{${T1}}`, T1.replace(/-/g, ''), `urn:uuid:${T1}`, ` ${T1}`]) {
-    expect((await readThread($, { thread_id: id })).deny).toContain('as check_inbox gives it')
+    expect((await readThread($, { thread_id: id })).deny).toContain('as psd_collab_inbox_check gives it')
   }
   expect(seen.length).toBe(0)
 })
@@ -198,14 +198,14 @@ test('a short thread id that starts none of the threads is refused', async ($, o
   const seen = server(on)
   const answer = await readThread($, { thread_id: SHORT_T1 })
   expect(seen.length).toBe(0)
-  expect(answer.deny).toContain('check_inbox lists the full ids')
+  expect(answer.deny).toContain('psd_collab_inbox_check lists the full ids')
 })
 
 test('only the first block of an id, lowercase, counts as a short thread id', async ($, on) => {
   world(on, { threads: [thread({ thread_id: T1 })] })
   const seen = server(on)
   for (const id of [SHORT_T1.toUpperCase(), SHORT_T1.slice(0, 7), T1.slice(0, 13), T1.slice(0, 12).replace(/-/g, '')]) {
-    expect((await readThread($, { thread_id: id })).deny).toContain('as check_inbox gives it')
+    expect((await readThread($, { thread_id: id })).deny).toContain('as psd_collab_inbox_check gives it')
   }
   expect(seen.length).toBe(0)
 })
@@ -221,7 +221,7 @@ test('a guard that fails refuses the read', async ($, on) => {
 test('a send whose project cannot be worked out is still sent', async ($, on) => {
   world(on, { isRepoBroken: true })
   const seen = server(on)
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, body: 'hi', to: [] } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, body: 'hi', to: [] } as any)
   expect(seen.length).toBe(1)
   expect(seen[0]?.sent_from).toBeUndefined()
 })
@@ -246,7 +246,7 @@ test('text reads asked for by name go through', async ($, on) => {
 const LUNCH_MENU_REPO = { root: '/Users/a/lunch-menu', remote: 'git@github.com:psd401/lunch-menu.git' }
 
 const sentFrom = async ($: any, seen: Record<string, unknown>[]) => {
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, body: 'hi', to: [] } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, body: 'hi', to: [] } as any)
   return seen.at(-1)?.sent_from
 }
 

@@ -70,7 +70,7 @@ const call = async ($: EngineInterface, tool: string, args: Record<string, unkno
 
 /**
  * Every thread in the person's inbox, page by page; with `isWaitingEnough`, only the pages through
- * the first that holds a thread not waiting on them. check_inbox lists waiting threads first, so
+ * the first that holds a thread not waiting on them. psd_collab_inbox_check lists waiting threads first, so
  * those pages hold every one.
  */
 const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaitingEnough = false): Promise<Thread[]> => {
@@ -78,7 +78,7 @@ const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaiting
   let cursor: string | undefined
   do {
     // Not `page`: before 2.1.290 the loader refuses a file where a function handed $ shares its name with any other declaration.
-    const batch = await call($, 'check_inbox', { include_archived: includeArchived, ...(cursor && { cursor }) })
+    const batch = await call($, 'psd_collab_inbox_check', { include_archived: includeArchived, ...(cursor && { cursor }) })
     threads.push(...batch.threads)
     const isPastWaiting = isWaitingEnough && batch.threads.some((t: Thread) => !t.waiting_on_you)
     cursor = isPastWaiting ? undefined : batch.next_cursor
@@ -86,13 +86,13 @@ const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaiting
   return threads
 }
 
-// A thread id as check_inbox gives it. The server also reads other spellings of the same id
+// A thread id as psd_collab_inbox_check gives it. The server also reads other spellings of the same id
 // (uppercase, braces, no hyphens), which the guard would fail to match, so only this one is taken.
 const THREAD_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 // The id's first block, as agents name a thread once compaction or a journal has shortened it.
 // The read guard resolves it against the person's own threads, so the server only sees full ids.
 const SHORT_THREAD_ID = /^[0-9a-f]{8}$/
-const NOT_A_THREAD_ID = 'Give the thread id exactly as check_inbox gives it (lowercase, with hyphens).'
+const NOT_A_THREAD_ID = 'Give the thread id exactly as psd_collab_inbox_check gives it (lowercase, with hyphens).'
 
 /** A thread of the person's, archived or not, or undefined when they have no such thread. */
 const findThread = async ($: EngineInterface, threadId: string): Promise<Thread | undefined> =>
@@ -110,7 +110,7 @@ const threadNamed = async ($: EngineInterface, threadId: string): Promise<{ foun
   const matches = threadsWithPrefix(await fetchInbox($, true), threadId)
   if (matches.length === 1) return { found: matches[0] }
   if (matches.length === 0) {
-    return { refusal: `${NOT_A_THREAD_ID} None of your person's threads has an id starting ${threadId}; check_inbox lists the full ids.` }
+    return { refusal: `${NOT_A_THREAD_ID} None of your person's threads has an id starting ${threadId}; psd_collab_inbox_check lists the full ids.` }
   }
   return {
     refusal:
@@ -150,7 +150,7 @@ const autoFile = async ($: EngineInterface, threads: Thread[], before: readonly 
       continue
     }
     try {
-      await call($, 'set_projects', { thread_id: thread.thread_id, projects: [suggested] })
+      await call($, 'psd_collab_projects_set', { thread_id: thread.thread_id, projects: [suggested] })
       decided[thread.thread_id] = suggested
       filed.push({ ...thread, projects: [suggested], suggested_project: null })
     } catch (error) {
@@ -319,7 +319,7 @@ const listenCommand = async ($: EngineInterface, isStarting: boolean, words: str
   }
 }
 
-const THREAD_TOOLS = { markRead: 'mark_read', markUnread: 'mark_unread', archive: 'archive_thread', unarchive: 'unarchive_thread' }
+const THREAD_TOOLS = { markRead: 'psd_collab_thread_mark_read', markUnread: 'psd_collab_thread_mark_unread', archive: 'psd_collab_thread_archive', unarchive: 'psd_collab_thread_unarchive' }
 
 /** Reads more of the thread the pane shows, before or after what it has. */
 const page = async ($: EngineInterface, direction: 'before' | 'after') => {
@@ -328,7 +328,7 @@ const page = async ($: EngineInterface, direction: 'before' | 'after') => {
   const shown = view.read
   const edge = direction === 'before' ? shown.messages[0]?.id : shown.messages[shown.messages.length - 1]?.id
   if (edge === undefined) return
-  const more: ThreadRead = await call($, 'read_thread', { thread_id: view.threadId, format: 'json', [direction]: edge })
+  const more: ThreadRead = await call($, 'psd_collab_thread_read', { thread_id: view.threadId, format: 'json', [direction]: edge })
   const merged: ThreadRead =
     direction === 'before'
       ? { ...shown, messages: [...more.messages, ...shown.messages], earlier: more.earlier }
@@ -357,7 +357,7 @@ const perform = async ($: EngineInterface, action: Action) => {
       case 'view': {
         const threadId = action.threadId
         await update($, pane, (): PaneView => ({ screen: 'thread', threadId, read: null, error: null }))
-        const shown: ThreadRead = await call($, 'read_thread', { thread_id: threadId, format: 'json' })
+        const shown: ThreadRead = await call($, 'psd_collab_thread_read', { thread_id: threadId, format: 'json' })
         await update($, pane, v => (v.screen === 'thread' && v.threadId === threadId ? { ...v, read: shown } : v))
         // Viewing marks the thread read, as Claude reading it does.
         await refresh($)
@@ -376,7 +376,7 @@ const perform = async ($: EngineInterface, action: Action) => {
         void $.prompt.submit({ text: readPrompt(action.threadId) })
         return
       case 'setProjects':
-        await call($, 'set_projects', { thread_id: action.threadId, projects: action.projects })
+        await call($, 'psd_collab_projects_set', { thread_id: action.threadId, projects: action.projects })
         await refresh($)
         return
       case 'markRead':
@@ -486,7 +486,7 @@ export const register: Register = on => {
     return next(e)
   })
 
-  for (const tool of ['start_thread', 'send_message']) {
+  for (const tool of ['psd_collab_thread_start', 'psd_collab_message_send']) {
     on('tool.call', { tool: `${COLLAB}${tool}` }, async ($, e, next) => {
       // Arguments the server would refuse are refused here, before the person is asked to approve
       // them, and all at once: the server names one problem per call. Should this hook fail, the
@@ -508,7 +508,7 @@ export const register: Register = on => {
   }
 
   // Claude is told to wait for a check of its own that ran long, so that notice must reach it.
-  on('tool.call', { tool: `${COLLAB}check_inbox` }, async ($, e, next) => {
+  on('tool.call', { tool: `${COLLAB}psd_collab_inbox_check` }, async ($, e, next) => {
     const checked = await next(e)
     const task = backgroundTask(checked.text)
     if (task !== undefined) claudesChecks.push(task)
@@ -517,7 +517,7 @@ export const register: Register = on => {
 
   // Keeps a session from reading threads filed under other projects: reading marks a thread
   // read everywhere, so it would stop waiting where it belongs.
-  on('tool.call', { tool: `${COLLAB}read_thread` }, async ($, e, next) => {
+  on('tool.call', { tool: `${COLLAB}psd_collab_thread_read` }, async ($, e, next) => {
     const { thread_id, format } = e as { thread_id?: unknown; format?: unknown }
     if (format === 'json') {
       return {
@@ -545,7 +545,7 @@ export const register: Register = on => {
       deny:
         `Not read: your person filed this thread under ${found.projects.map(projectName).join(', ')}, ` +
         `not this session's project (${projectName(key)}). Tell them which project it belongs to, ` +
-        'and offer to move it here, or to file it here as well, with set_projects if they want it read here.',
+        'and offer to move it here, or to file it here as well, with psd_collab_projects_set if they want it read here.',
     }
   }).catch(() => ({ deny: "collab: couldn't check where this thread is filed, so it wasn't read." }))
 

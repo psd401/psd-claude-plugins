@@ -8,7 +8,7 @@ import { backgroundTask, isOwnPollNotice } from '../hooks/inbox'
 import { submittedSection, world } from './world'
 
 const TOOL = 'mcp__plugin_collab_collab__'
-const CHECK = 'plugin:collab:collab/check_inbox'
+const CHECK = 'plugin:collab:collab/psd_collab_inbox_check'
 const NOTICE = { kind: 'task-notification' }
 
 /** A notice as Claude Code words it when an MCP call it moved to the background ends. */
@@ -35,9 +35,9 @@ test('only Claude Codeâ€™s own notices count, and none from a build that doesnâ€
 
 test('notices about other servers and other collab tools are not its own', () => {
   expect(isOwnPollNotice(notice('k4tq0x2ma', 'playwright/browser_evaluate'), NOTICE, [])).toBe(false)
-  expect(isOwnPollNotice(notice('k4tq0x2ma', 'plugin:other:collab/check_inbox'), NOTICE, [])).toBe(false)
-  expect(isOwnPollNotice(notice('k4tq0x2ma', 'plugin:collab:collab/read_thread'), NOTICE, [])).toBe(false)
-  expect(isOwnPollNotice(notice('k4tq0x2ma', 'plugin:collab:collab/set_projects'), NOTICE, [])).toBe(false)
+  expect(isOwnPollNotice(notice('k4tq0x2ma', 'plugin:other:collab/psd_collab_inbox_check'), NOTICE, [])).toBe(false)
+  expect(isOwnPollNotice(notice('k4tq0x2ma', 'plugin:collab:collab/psd_collab_thread_read'), NOTICE, [])).toBe(false)
+  expect(isOwnPollNotice(notice('k4tq0x2ma', 'plugin:collab:collab/psd_collab_projects_set'), NOTICE, [])).toBe(false)
 })
 
 test('a notice naming another task than its own id, or quoting one, is not its own', () => {
@@ -89,7 +89,7 @@ const backgrounds = (on: On, id: string) =>
 test('the notice of an inbox check Claude made, which Claude was told to wait for, reaches Claude', async ($, on) => {
   const w = world(on)
   backgrounds(on, 'k4tq0x2ma')
-  await $.tool.call({ tool: `${TOOL}check_inbox` } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_inbox_check` } as any)
   await arrive($, notice('k4tq0x2ma', CHECK, 'completed'))
   expect(w.prompts.length).toBe(1)
   // The plugin's own checks, in other tasks, are still dropped.

@@ -116,7 +116,7 @@ test('a folder outside git is the project', async ($, on) => {
 test('the section covers what is waiting, filed elsewhere, filing, and listening', async ($, on) => {
   const w = world(on)
   const text = String(await submittedSection($, w))
-  for (const part of ['check_inbox', 'set_projects', '/collab listen', "don't offer", 'never run git']) {
+  for (const part of ['psd_collab_inbox_check', 'psd_collab_projects_set', '/collab listen', "don't offer", 'never run git']) {
     expect(text).toContain(part)
   }
   expect(text).not.toContain('mcp__collab__listen')

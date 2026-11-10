@@ -12,7 +12,7 @@ const NAMED_PROJECTS = 2
  * `4 waiting: 1 here · 1 lunch-menu · 1 elsewhere · 1 unfiled`, with the failure when the
  * last check failed; none when quiet. Each thread counts once: here when filed here, else under
  * the first project it's filed in. Other projects are named busiest first, ties going to the most
- * recently active, since check_inbox lists those first. Claude Code shows it under the plugin's name.
+ * recently active, since psd_collab_inbox_check lists those first. Claude Code shows it under the plugin's name.
  */
 export const statusText = (threads: readonly Thread[], here: string, error: string | null): string | undefined => {
   const waiting = threads.filter(t => t.waiting_on_you)
@@ -75,12 +75,12 @@ export const threadsWithPrefix = (threads: readonly Thread[], shortId: string): 
 export const listenPrompt = (threadIds: readonly string[]): string =>
   `A reply addressed to me arrived in the collab ${threadIds.length === 1 ? 'thread' : 'threads'} ` +
   `this session listens to: ${threadIds.join(', ')}. Read ${threadIds.length === 1 ? 'it' : 'each'} ` +
-  'with read_thread and summarize it.'
+  'with psd_collab_thread_read and summarize it.'
 
 // How Claude Code tells Claude that an MCP call it moved to the background ended, for an inbox
 // check: `<task-notification>`, then `<task-id>k4tq0x2ma</task-id>` and a summary naming the same task.
 const CHECK_NOTICE =
-  /^<task-notification>\s*<task-id>([a-z0-9]+)<\/task-id>[\s\S]*?<summary>MCP task ([a-z0-9]+) \(plugin:collab:collab\/check_inbox\) (?:failed|completed)\.<\/summary>/
+  /^<task-notification>\s*<task-id>([a-z0-9]+)<\/task-id>[\s\S]*?<summary>MCP task ([a-z0-9]+) \(plugin:collab:collab\/psd_collab_inbox_check\) (?:failed|completed)\.<\/summary>/
 
 /**
  * Whether a prompt is Claude Code's notice that one of the plugin's own inbox checks ended. Claude
@@ -101,4 +101,4 @@ export const backgroundTask = (text: string | undefined): string | undefined =>
 
 /** The prompt "Read with Claude" submits; by id only, as listenPrompt. */
 export const readPrompt = (threadId: string): string =>
-  `Read the collab thread ${threadId} with read_thread and summarize it.`
+  `Read the collab thread ${threadId} with psd_collab_thread_read and summarize it.`

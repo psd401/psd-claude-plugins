@@ -71,16 +71,16 @@ test('listening twice to one thread lists it once', async ($, on) => {
 
 test('/collab listen alone listens to the thread Claude last sent to in this session', async ($, on) => {
   const w = world(on, { threads: THREADS })
-  core(on, { send_message: { thread_id: T2, message_id: 9 } })
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T2, body: 'hi', to: ['everyone'] } as any)
+  core(on, { psd_collab_message_send: { thread_id: T2, message_id: 9 } })
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T2, body: 'hi', to: ['everyone'] } as any)
   expect(await collab($, 'listen')).toBe('Listening here for replies in “Menu change notes”.')
   expect(await listeningLine($, w)).toBe(`This session listens to threads ${T2}.`)
 })
 
 test('/collab listen alone listens to a thread Claude just started', async ($, on) => {
   const w = world(on, { threads: THREADS })
-  core(on, { start_thread: { thread_id: T1, message_id: 1, participants: [] } })
-  await $.tool.call({ tool: `${TOOL}start_thread`, title: 'Log retention question', body: 'hi', participants: [], to: ['everyone'] } as any)
+  core(on, { psd_collab_thread_start: { thread_id: T1, message_id: 1, participants: [] } })
+  await $.tool.call({ tool: `${TOOL}psd_collab_thread_start`, title: 'Log retention question', body: 'hi', participants: [], to: ['everyone'] } as any)
   await collab($, 'listen')
   expect(await listeningLine($, w)).toBe(`This session listens to threads ${T1}.`)
 })
@@ -113,15 +113,15 @@ test('anything else after /collab says what it takes', async ($, on) => {
 
 test('the server failing is reported', async ($, on) => {
   const w = world(on)
-  w.answers.check_inbox = () => { throw new Error('Not signed in') }
+  w.answers.psd_collab_inbox_check = () => { throw new Error('Not signed in') }
   expect(await collab($, 'listen retention')).toBe("Couldn't look up your threads: Not signed in")
 })
 
 test('after a send, a toast says how to listen for the reply', async ($, on) => {
   const w = world(on, { threads: THREADS })
-  core(on, { send_message: { thread_id: T1, message_id: 9 }, start_thread: { thread_id: T2, message_id: 1 } })
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, body: 'hi', to: ['everyone'] } as any)
-  await $.tool.call({ tool: `${TOOL}start_thread`, title: 'New one', body: 'hi', participants: [], to: ['everyone'] } as any)
+  core(on, { psd_collab_message_send: { thread_id: T1, message_id: 9 }, psd_collab_thread_start: { thread_id: T2, message_id: 1 } })
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, body: 'hi', to: ['everyone'] } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_thread_start`, title: 'New one', body: 'hi', participants: [], to: ['everyone'] } as any)
   expect(w.toasts).toEqual([
     'Sent to “Log retention question” · /collab listen to hear the reply here',
     'Sent to “New one” · /collab listen to hear the reply here',
@@ -130,16 +130,16 @@ test('after a send, a toast says how to listen for the reply', async ($, on) => 
 
 test('no toast after a send into a thread this session listens to', async ($, on) => {
   const w = world(on, { threads: THREADS })
-  core(on, { send_message: { thread_id: T1, message_id: 9 } })
+  core(on, { psd_collab_message_send: { thread_id: T1, message_id: 9 } })
   await collab($, 'listen retention')
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, body: 'hi', to: ['everyone'] } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, body: 'hi', to: ['everyone'] } as any)
   expect(w.toasts).toEqual([])
 })
 
 test('no toast, and nothing to listen to, after a send the server refused', async ($, on) => {
   const w = world(on, { threads: THREADS })
   core(on, {}, true)
-  await $.tool.call({ tool: `${TOOL}send_message`, thread_id: T1, body: 'hi', to: ['everyone'] } as any)
+  await $.tool.call({ tool: `${TOOL}psd_collab_message_send`, thread_id: T1, body: 'hi', to: ['everyone'] } as any)
   expect(w.toasts).toEqual([])
   expect(await collab($, 'listen')).toContain('Nothing sent from this session yet')
 })

@@ -1,15 +1,15 @@
-// ABOUTME: Checks Claude's start_thread and send_message arguments against the names and shapes
-// ABOUTME: the server takes, so a call it would refuse never reaches the person's permission prompt.
+// ABOUTME: Checks the arguments of Claude's psd_collab_thread_start and psd_collab_message_send calls against
+// ABOUTME: the names and shapes the server takes, so a call it would refuse never reaches the permission prompt.
 
 // The send tools' arguments, from their input schemas in container/tools.py. Written as JSON, so
 // testing/unit_tests/test_plugin_send_args.py can hold it to the server's schemas.
 export const SEND_ARGS: Record<string, { arguments: string[]; required: string[]; lists: string[] }> = {
-  "start_thread": {
+  "psd_collab_thread_start": {
     "arguments": ["title", "participants", "body", "to", "sent_from"],
     "required": ["title", "participants", "body", "to"],
     "lists": ["participants", "to"]
   },
-  "send_message": {
+  "psd_collab_message_send": {
     "arguments": ["thread_id", "body", "to", "reply_to", "sent_from"],
     "required": ["thread_id", "body", "to"],
     "lists": ["to"]
