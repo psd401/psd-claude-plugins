@@ -42,7 +42,7 @@ test('/collab opens the pane, and closes it when open', async ($, on) => {
 })
 
 const OPEN = { command: 'collab', args: '', origin: { kind: 'composer' }, presentation: { layout: 'main', columns: 100 } } as any
-const checks = (w: { calls: { tool: string }[] }) => w.calls.filter(c => c.tool === 'check_inbox').length
+const checks = (w: { calls: { tool: string }[] }) => w.calls.filter(c => c.tool === 'psd_collab_inbox_check').length
 
 // With the pane closed a check stops after the waiting threads; the pane lists every thread.
 test('the pane opens on the whole inbox, every check while it is open fetches it all, and closed they stop early', async ($, on) => {
@@ -125,9 +125,9 @@ test("choosing a thread shows its actions; Move here files it in this session's 
   const { ui, w } = await setUp($, on, [thread({ thread_id: T1, projects: [LUNCH_MENU] })])
   await ui.press({ key: `group:project:${LUNCH_MENU}` })
   await ui.press({ key: key('thread', T1, `project:${LUNCH_MENU}`) })
-  w.answers.set_projects = args => ({ thread_id: args.thread_id, projects: args.projects })
+  w.answers.psd_collab_projects_set = args => ({ thread_id: args.thread_id, projects: args.projects })
   await ui.press({ key: key('here', T1, `project:${LUNCH_MENU}`) })
-  expect(w.calls.find(c => c.tool === 'set_projects')?.args).toEqual({ thread_id: T1, projects: [BELL_SCHEDULE] })
+  expect(w.calls.find(c => c.tool === 'psd_collab_projects_set')?.args).toEqual({ thread_id: T1, projects: [BELL_SCHEDULE] })
 })
 
 test('File in adds a project, and removes one', async ($, on) => {
@@ -136,7 +136,7 @@ test('File in adds a project, and removes one', async ($, on) => {
   await ui.press({ key: key('thread', T1, `project:${LUNCH_MENU}`) })
   await ui.select({ key: key('file', T1, `project:${LUNCH_MENU}`), value: `add:${LIBRARY_APP}` })
   await ui.select({ key: key('file', T1, `project:${LUNCH_MENU}`), value: `remove:${LUNCH_MENU}` })
-  expect(w.calls.filter(c => c.tool === 'set_projects').map(c => c.args.projects)).toEqual([[LUNCH_MENU, LIBRARY_APP], []])
+  expect(w.calls.filter(c => c.tool === 'psd_collab_projects_set').map(c => c.args.projects)).toEqual([[LUNCH_MENU, LIBRARY_APP], []])
 })
 
 test('read state and archiving', async ($, on) => {
@@ -146,10 +146,10 @@ test('read state and archiving', async ($, on) => {
   await ui.press({ key: key('archive', T1) })
   await ui.press({ key: key('thread', T2) })
   await ui.press({ key: key('unread', T2) })
-  expect(w.calls.filter(c => c.tool !== 'check_inbox').map(c => [c.tool, c.args.thread_id])).toEqual([
-    ['mark_read', T1],
-    ['archive_thread', T1],
-    ['mark_unread', T2],
+  expect(w.calls.filter(c => c.tool !== 'psd_collab_inbox_check').map(c => [c.tool, c.args.thread_id])).toEqual([
+    ['psd_collab_thread_mark_read', T1],
+    ['psd_collab_thread_archive', T1],
+    ['psd_collab_thread_mark_unread', T2],
   ])
 })
 
@@ -222,7 +222,7 @@ test('a suggestion of a project opened on this machine files the thread there in
   const { ui, w } = await setUp($, on, [thread({ thread_id: T1, suggested_project: LIBRARY_APP })], { projects: [LIBRARY_APP] })
   expect((await texts(ui)).split('\n')).toEqual(expect.arrayContaining(['suggested:', 'library-app']))
   await ui.press({ key: key('suggest', T1) })
-  expect(w.calls.find(c => c.tool === 'set_projects')?.args).toEqual({ thread_id: T1, projects: [LIBRARY_APP] })
+  expect(w.calls.find(c => c.tool === 'psd_collab_projects_set')?.args).toEqual({ thread_id: T1, projects: [LIBRARY_APP] })
 })
 
 // One press would file it where no window of the person's looks, so it would vanish from every
@@ -240,11 +240,11 @@ test('archived threads load when their group opens', async ($, on) => {
   const { ui, w } = await setUp($, on, [thread({ thread_id: T1 }), thread({ thread_id: T2, title: 'Old news', archived: true })])
   expect(await texts(ui)).not.toContain('Old news')
   await ui.press({ key: 'group:archived' })
-  expect(w.calls.some(c => c.tool === 'check_inbox' && c.args.include_archived === true)).toBe(true)
+  expect(w.calls.some(c => c.tool === 'psd_collab_inbox_check' && c.args.include_archived === true)).toBe(true)
   expect(await texts(ui)).toContain('Old news')
   await ui.press({ key: key('thread', T2, 'archived') })
   await ui.press({ key: key('unarchive', T2, 'archived') })
-  expect(w.calls.some(c => c.tool === 'unarchive_thread')).toBe(true)
+  expect(w.calls.some(c => c.tool === 'psd_collab_thread_unarchive')).toBe(true)
 })
 
 test('auto-filing files unfiled threads into projects opened on this machine, and nowhere else', async ($, on) => {
@@ -254,20 +254,20 @@ test('auto-filing files unfiled threads into projects opened on this machine, an
     [thread({ thread_id: T1, suggested_project: LUNCH_MENU }), thread({ thread_id: T2, suggested_project: LIBRARY_APP })],
     { projects: [LUNCH_MENU] },
   )
-  w.answers.set_projects = args => ({ thread_id: args.thread_id, projects: args.projects })
+  w.answers.psd_collab_projects_set = args => ({ thread_id: args.thread_id, projects: args.projects })
   await clock.advance(30_000)
-  expect(w.calls.some(c => c.tool === 'set_projects')).toBe(false)
+  expect(w.calls.some(c => c.tool === 'psd_collab_projects_set')).toBe(false)
   await ui.press({ key: 'autofile' })
   await clock.advance(30_000)
-  expect(w.calls.filter(c => c.tool === 'set_projects').map(c => c.args)).toEqual([{ thread_id: T1, projects: [LUNCH_MENU] }])
+  expect(w.calls.filter(c => c.tool === 'psd_collab_projects_set').map(c => c.args)).toEqual([{ thread_id: T1, projects: [LUNCH_MENU] }])
 })
 
 /**
- * Answers set_projects as the server does: the list replaces the thread's projects, and a thread
+ * Answers psd_collab_projects_set as the server does: the list replaces the thread's projects, and a thread
  * left unfiled is suggested the project its sender sent from.
  */
 const fileAsServer = (w: World, sentFrom: string) => {
-  w.answers.set_projects = args => {
+  w.answers.psd_collab_projects_set = args => {
     const projects = args.projects as string[]
     w.threads = w.threads.map(t =>
       t.thread_id === args.thread_id ? { ...t, projects, suggested_project: projects.length === 0 ? sentFrom : null } : t,
@@ -276,7 +276,7 @@ const fileAsServer = (w: World, sentFrom: string) => {
   }
 }
 
-const filings = (w: World) => w.calls.filter(c => c.tool === 'set_projects').map(c => c.args.projects)
+const filings = (w: World) => w.calls.filter(c => c.tool === 'psd_collab_projects_set').map(c => c.args.projects)
 
 test('auto-filing leaves a thread unfiled when the person removes its only project in the pane', async ($, on) => {
   const { ui, w, clock } = await setUp($, on, [thread({ thread_id: T1, projects: [LUNCH_MENU] })], {
@@ -312,7 +312,7 @@ test('auto-filing leaves a thread unfiled when Claude removes its projects, unti
   })
   fileAsServer(w, LUNCH_MENU)
   expect(filings(w)).toEqual([[LUNCH_MENU]])
-  // Claude's set_projects call goes to the server without the plugin's help.
+  // Claude's psd_collab_projects_set call goes to the server without the plugin's help.
   w.threads = [thread({ thread_id: T1, suggested_project: LUNCH_MENU })]
   await clock.advance(30_000)
   await clock.advance(30_000)
@@ -370,7 +370,7 @@ test("auto-filing keeps another session's record written while this one was fili
     projects: [LUNCH_MENU],
     autoFile: true,
   })
-  w.answers.set_projects = args => {
+  w.answers.psd_collab_projects_set = args => {
     isFiling = true
     return { thread_id: args.thread_id, projects: args.projects }
   }
@@ -404,10 +404,10 @@ const READ: ThreadRead = {
 
 test('View opens the thread: participants, messages, and links with their real addresses', async ($, on) => {
   const { ui, w } = await setUp($, on)
-  w.answers.read_thread = () => READ
+  w.answers.psd_collab_thread_read = () => READ
   await ui.press({ key: key('thread', T1) })
   await ui.press({ key: key('view', T1) })
-  expect(w.calls.find(c => c.tool === 'read_thread')?.args).toEqual({ thread_id: T1, format: 'json' })
+  expect(w.calls.find(c => c.tool === 'psd_collab_thread_read')?.args).toEqual({ thread_id: T1, format: 'json' })
   const shown = await texts(ui)
   expect(shown).toContain('Retention')
   expect(shown).toContain('wren, parker')
@@ -419,11 +419,11 @@ test('View opens the thread: participants, messages, and links with their real a
 
 test('Earlier messages pages back; Back returns to the list', async ($, on) => {
   const { ui, w } = await setUp($, on)
-  w.answers.read_thread = args => (args.before === undefined ? READ : { ...READ, messages: [{ ...READ.messages[0]!, id: 3, body: 'Even older' }], earlier: 0 })
+  w.answers.psd_collab_thread_read = args => (args.before === undefined ? READ : { ...READ, messages: [{ ...READ.messages[0]!, id: 3, body: 'Even older' }], earlier: 0 })
   await ui.press({ key: key('thread', T1) })
   await ui.press({ key: key('view', T1) })
   await ui.press({ key: 'earlier' })
-  expect(w.calls.filter(c => c.tool === 'read_thread').map(c => c.args.before)).toEqual([undefined, 7])
+  expect(w.calls.filter(c => c.tool === 'psd_collab_thread_read').map(c => c.args.before)).toEqual([undefined, 7])
   expect(await texts(ui)).toContain('Even older')
   expect(await ui.find({ key: 'earlier' })).toBeUndefined()
   await ui.press({ key: 'back' })
@@ -449,7 +449,7 @@ test('the chosen thread and its actions sit in a box', async ($, on) => {
 test('each message sits in a box in its author\'s color; read ones are dimmer', async ($, on) => {
   const { ui, w } = await setUp($, on)
   const reply = { ...READ.messages[2]!, id: 10, author: 'parker@example.com', unread: false, body: 'Thanks' }
-  w.answers.read_thread = () => ({ ...READ, messages: [...READ.messages, reply] })
+  w.answers.psd_collab_thread_read = () => ({ ...READ, messages: [...READ.messages, reply] })
   await ui.press({ key: key('thread', T1) })
   await ui.press({ key: key('view', T1) })
   const old = (await ui.find({ key: 'message:7' }))!.props
@@ -477,7 +477,7 @@ test('a thread filed under two projects is chosen, and pressed, in one group at 
   expect(await ui.findAll({ key: key('archive', T1, lunch) })).toHaveLength(1)
   expect(await ui.find({ key: key('archive', T1, 'here') })).toBeUndefined()
   await ui.press({ key: key('archive', T1, lunch) })
-  expect(w.calls.filter(c => c.tool === 'archive_thread').map(c => c.args.thread_id)).toEqual([T1])
+  expect(w.calls.filter(c => c.tool === 'psd_collab_thread_archive').map(c => c.args.thread_id)).toEqual([T1])
 })
 
 test('a thread filed under two projects can be archived from either group', async ($, on) => {
@@ -486,7 +486,7 @@ test('a thread filed under two projects can be archived from either group', asyn
   await ui.press({ key: key('thread', T1, 'here') })
   expect(await ui.find({ key: key('chosen', T1, `project:${LUNCH_MENU}`) })).toBeUndefined()
   await ui.press({ key: key('archive', T1, 'here') })
-  expect(w.calls.filter(c => c.tool === 'archive_thread').map(c => c.args.thread_id)).toEqual([T1])
+  expect(w.calls.filter(c => c.tool === 'psd_collab_thread_archive').map(c => c.args.thread_id)).toEqual([T1])
 })
 
 const buttons = async (ui: any): Promise<{ key: string; hotkey?: string }[]> =>
@@ -514,7 +514,7 @@ test("the chosen thread's actions have hotkeys, named in a hint under them", asy
   const hint = await ui.find({ key: key('keys', T1) })
   expect(hint?.text).toBe('ctrl+x tab, then: f File there · v View · c Read with Claude · h Move here · r Mark read · a Archive · l Listen here')
   await ui.press({ key: await keyOf(ui, 'a') })
-  expect(w.calls.find(c => c.tool === 'archive_thread')?.args).toEqual({ thread_id: T1 })
+  expect(w.calls.find(c => c.tool === 'psd_collab_thread_archive')?.args).toEqual({ thread_id: T1 })
 })
 
 test('Mark unread and Unarchive have hotkeys too', async ($, on) => {
@@ -537,7 +537,7 @@ test('only the chosen thread offers hotkeys, and no two drawn Buttons share one'
   expect(new Set(hotkeys).size).toBe(hotkeys.length)
   expect(hotkeys.every(k => /^[0-9a-z]$/.test(k))).toBe(true)
   expect(await keyOf(ui, 'f')).toBe(key('suggest', T2))
-  w.answers.read_thread = () => READ
+  w.answers.psd_collab_thread_read = () => READ
   await ui.press({ key: await keyOf(ui, 'v') })
   const inThread = (await buttons(ui)).flatMap(b => b.hotkey ?? [])
   expect(new Set(inThread).size).toBe(inThread.length)
@@ -561,7 +561,7 @@ test('a first thread shown in two groups holds the focus in the first one only',
 
 test('in a thread, b goes back and e pages back; the hint names the keys', async ($, on) => {
   const { ui, w } = await setUp($, on)
-  w.answers.read_thread = args => (args.before === undefined ? READ : { ...READ, messages: [{ ...READ.messages[0]!, id: 3, body: 'Even older' }], earlier: 0 })
+  w.answers.psd_collab_thread_read = args => (args.before === undefined ? READ : { ...READ, messages: [{ ...READ.messages[0]!, id: 3, body: 'Even older' }], earlier: 0 })
   await ui.press({ key: key('thread', T1) })
   await ui.press({ key: key('view', T1) })
   expect((await ui.find({ key: 'keys' }))?.text).toBe('ctrl+x tab, then: b Back · c Read with Claude · h Move here · u Mark unread · a Archive · l Listen here')
@@ -573,7 +573,7 @@ test('in a thread, b goes back and e pages back; the hint names the keys', async
 
 test('a failed action says why in the pane', async ($, on) => {
   const { ui, w } = await setUp($, on)
-  w.answers.mark_unread = () => { throw new Error('No thread') }
+  w.answers.psd_collab_thread_mark_unread = () => { throw new Error('No thread') }
   await ui.press({ key: key('thread', T1) })
   await ui.press({ key: key('unread', T1) })
   expect(await texts(ui)).toContain('collab: No thread')

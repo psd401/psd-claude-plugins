@@ -1,7 +1,7 @@
 // ABOUTME: The collab plugin's state contract: the session's inbox, the threads it listens to,
 // ABOUTME: and what the pane shows, declared under the plugin's name in PluginState.
 
-/** One row of check_inbox, as the server returns it. */
+/** One row of psd_collab_inbox_check, as the server returns it. */
 export type Thread = {
   thread_id: string
   title: string
@@ -24,7 +24,7 @@ export type Thread = {
  */
 export type Inbox = { threads: Thread[]; error: string | null; checked: boolean }
 
-/** One message or membership change in read_thread's JSON form. */
+/** One message or membership change in psd_collab_thread_read's JSON form. */
 export type Message = {
   id: number
   kind: string
@@ -37,7 +37,7 @@ export type Message = {
   body: string
 }
 
-/** read_thread's JSON form: the thread and a run of its messages, with how many lie either side. */
+/** psd_collab_thread_read's JSON form: the thread and a run of its messages, with how many lie either side. */
 export type ThreadRead = {
   thread_id: string
   title: string

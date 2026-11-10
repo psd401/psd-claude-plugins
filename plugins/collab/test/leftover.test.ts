@@ -21,7 +21,7 @@ const leftovers = async ($: any, on: any, options: Parameters<typeof world>[1]) 
 }
 
 test('the old server entry gets its removal command', async ($, on) => {
-  const logs = await leftovers($, on, { tools: ['mcp__collab__check_inbox', 'mcp__plugin_collab_collab__check_inbox'] })
+  const logs = await leftovers($, on, { tools: ['mcp__collab__check_inbox', 'mcp__plugin_collab_collab__psd_collab_inbox_check'] })
   expect(logs.length).toBe(1)
   expect(logs[0]).toContain('claude mcp remove collab -s user')
   expect(logs[0]).not.toContain('install.py')
@@ -104,7 +104,7 @@ test('settings under CLAUDE_CONFIG_DIR are the ones read', async ($, on) => {
 
 test('nothing left over says nothing', async ($, on) => {
   const logs = await leftovers($, on, {
-    tools: ['mcp__plugin_collab_collab__check_inbox'],
+    tools: ['mcp__plugin_collab_collab__psd_collab_inbox_check'],
     files: { '/Users/a/.claude/settings.json': JSON.stringify({ statusLine: { type: 'command', command: 'mine.sh' } }) },
   })
   expect(logs).toEqual([])

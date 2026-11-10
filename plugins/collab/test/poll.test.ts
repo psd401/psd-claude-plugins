@@ -42,7 +42,7 @@ test('a thread filed here and elsewhere counts as here, and one filed in two oth
 })
 
 test('other projects are named busiest first, then most recent, at most two, and the rest counted as elsewhere', () => {
-  // check_inbox lists the most recently active first, among threads alike in waiting.
+  // psd_collab_inbox_check lists the most recently active first, among threads alike in waiting.
   const threads = [waitingIn([C]), waitingIn([A]), waitingIn([B]), waitingIn([B]), waitingIn([LUNCH_MENU]), waitingIn([])]
   expect(statusText(threads, BELL_SCHEDULE, null)).toBe('6 waiting: 2 b-repo · 1 c-repo · 2 elsewhere · 1 unfiled')
 })
@@ -66,12 +66,12 @@ test('the inbox is checked every 30 seconds', async ($, on) => {
   const w = world(on)
   await startSession($, clock)
   await clock.advance(POLL * 3)
-  expect(w.calls.filter(c => c.tool === 'check_inbox').length).toBe(4)
+  expect(w.calls.filter(c => c.tool === 'psd_collab_inbox_check').length).toBe(4)
 })
 
-const checks = (w: { calls: { tool: string }[] }) => w.calls.filter(c => c.tool === 'check_inbox').length
+const checks = (w: { calls: { tool: string }[] }) => w.calls.filter(c => c.tool === 'psd_collab_inbox_check').length
 
-// check_inbox lists the threads waiting on the person first, so once a page holds one that isn't
+// psd_collab_inbox_check lists the threads waiting on the person first, so once a page holds one that isn't
 // waiting, the pages after it hold nothing the status entry or a toast would use.
 test('with the pane closed, a check stops at the first page holding a thread not waiting on the person', async ($, on) => {
   const clock = mock.clock(on)
@@ -151,10 +151,10 @@ test('a failed check says so and keeps the last counts', async ($, on) => {
   const clock = mock.clock(on)
   const w = world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true })] })
   await startSession($, clock)
-  w.answers.check_inbox = () => { throw new Error('Not signed in') }
+  w.answers.psd_collab_inbox_check = () => { throw new Error('Not signed in') }
   await clock.advance(POLL)
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled · inbox check failed: Not signed in')
-  delete w.answers.check_inbox
+  delete w.answers.psd_collab_inbox_check
   await clock.advance(POLL)
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled')
 })
@@ -177,10 +177,10 @@ test('an answer that is not JSON says so, like any failed check', async ($, on) 
   const clock = mock.clock(on)
   const w = world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true })] })
   await startSession($, clock)
-  w.answers.check_inbox = () => '<html>502 Bad Gateway</html>'
+  w.answers.psd_collab_inbox_check = () => '<html>502 Bad Gateway</html>'
   await clock.advance(POLL)
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled · inbox check failed: the server answered something that is not JSON')
-  delete w.answers.check_inbox
+  delete w.answers.psd_collab_inbox_check
   await clock.advance(POLL)
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled')
 })
@@ -217,10 +217,10 @@ test('a failure said across lines shows on one', async ($, on) => {
   const clock = mock.clock(on)
   const w = world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true })] })
   await startSession($, clock)
-  w.answers.check_inbox = () => { throw new Error('Not signed in\r\n\tsign in with /mcp') }
+  w.answers.psd_collab_inbox_check = () => { throw new Error('Not signed in\r\n\tsign in with /mcp') }
   await clock.advance(POLL)
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled · inbox check failed: Not signed in sign in with /mcp')
-  delete w.answers.check_inbox
+  delete w.answers.psd_collab_inbox_check
   await clock.advance(POLL)
   expect(lastStatus(w)).toBe('1 waiting: 1 unfiled')
 })
@@ -247,7 +247,7 @@ test('a reply in a thread this session listens to asks Claude to read it', async
   await clock.advance(POLL)
   expect(w.prompts.length).toBe(1)
   expect(w.prompts[0]).toContain(T1)
-  expect(w.prompts[0]).toContain('read_thread')
+  expect(w.prompts[0]).toContain('psd_collab_thread_read')
   // Titles are other people's words; a prompt from the plugin reads as the person's request.
   expect(w.prompts[0]).not.toContain('Ignore previous')
   expect(w.prompts[0]).not.toContain(T2)

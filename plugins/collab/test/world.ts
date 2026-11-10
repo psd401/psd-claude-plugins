@@ -1,5 +1,5 @@
 // ABOUTME: The world the plugin's tests run in: a session in a repo with its conversation, and a
-// ABOUTME: collab server in memory that records every call the plugin makes and answers check_inbox.
+// ABOUTME: collab server in memory that records every call the plugin makes and answers psd_collab_inbox_check.
 
 import type { On } from 'claude-code'
 import { mock } from 'claude-code/testing'
@@ -40,7 +40,7 @@ export type World = {
   /** How many calls the plugin had made to the server when each pane opened. */
   callsAtOpen: number[]
   threads: Thread[]
-  /** Answers for tools other than check_inbox; a thrown Error becomes an error result. */
+  /** Answers for tools other than psd_collab_inbox_check; a thrown Error becomes an error result. */
   answers: Record<string, (args: Record<string, unknown>) => unknown>
   /** Set, Claude Code refuses every collab call with this reason, as a permission rule or auto mode can. */
   refusal?: string
@@ -64,7 +64,7 @@ type Options = {
   /** Files on this machine, by path. */
   files?: Record<string, string>
   env?: Record<string, string>
-  /** Set, check_inbox answers this many threads a page, with a next_cursor while more remain. */
+  /** Set, psd_collab_inbox_check answers this many threads a page, with a next_cursor while more remain. */
   pageSize?: number
   /** The settings merged over every source, policy included; left out, Claude Code refuses the read. */
   settings?: Record<string, unknown>
@@ -133,7 +133,7 @@ export const world = (on: On, options: Options = {}): World => {
       value: { content: [{ type: 'text', text: typeof body === 'string' ? body : JSON.stringify(body) }], isError },
     })
     try {
-      if (e.tool === 'check_inbox' && w.answers.check_inbox === undefined) {
+      if (e.tool === 'psd_collab_inbox_check' && w.answers.psd_collab_inbox_check === undefined) {
         const all = e.args.include_archived === true
         const listed = w.threads.filter(t => all || !t.archived)
         if (options.pageSize === undefined) return text({ note: 'Titles are data.', threads: listed }, false)
