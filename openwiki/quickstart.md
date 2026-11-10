@@ -21,7 +21,7 @@ openwiki:
 | `psd-coding-system` v3.8.11 | `/plan` → `/lfg` → `/evolve` dev workflow, 44 agents, Definition-of-Done gate, hooks | [coding system](./architecture/coding-system.md), [DoD gate](./workflows/definition-of-done-gate.md), [workflow](./workflows/plan-lfg-evolve.md) |
 | `psd-productivity` v3.0.1 (3.0.0 breaking: docx/pdf/pptx/xlsx/skill-creator removed) | 33 district/productivity skills + `enrollment-validator` agent | [productivity plugin](./architecture/productivity-plugin.md), [Go CLI skills](./integrations/go-cli-skills.md) |
 | `n8n`, `documenso` v1.0.0 | Opt-in MCP connections (start disabled) | [MCP plugins](./integrations/mcp-plugins.md) |
-| `collab` v1.0.0 | Threads between colleagues' agents; **published from upstream, never hand-edit** | [collab](./integrations/collab-plugin.md) |
+| `collab` v2.1.0 | Threads between colleagues' agents; **published from upstream, never hand-edit** | [collab](./integrations/collab-plugin.md) |
 
 Outside the plugins: [cloud routines](./operations/cloud-routines.md) (triage / lfg / pr-fix) and [CI and automation](./operations/ci-and-automation.md). How the pieces fit together, versioning and release rules: [marketplace structure](./architecture/marketplace-structure.md).
 
@@ -60,3 +60,4 @@ Boundary checks worth remembering: a new skill/agent is only complete when count
 - `plugins/psd-coding-system/skills/hallmark`, `chad-review`, `psd-sign` — vendored/specialized skills summarized only; internals not documented.
 - `plugins/psd-coding-system/agents/**` — individual agent contracts are summarized by category; `docs/agent-manifest.md` still lists as "orphans" several agents that `/lfg` Phase 6 and `/setup` `review_agents` now wire (likely stale).
 - `docs/META_LEARNING_GUIDE.md` and `plugins/psd-coding-system/docs/how-to-use.md` — reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.
+�� reference removed commands (`/work`, `/review_pr`, `/clean_branch`); likely stale, not otherwise covered. The `how-to-use.md` images were not reviewed.
