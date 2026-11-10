@@ -31,6 +31,14 @@ const setUp = async ($: any, on: On, threads = [thread({ thread_id: T1 })], stor
 /** A list element's key: what it is, the thread, and the group it's drawn in (a thread can be in several). */
 const key = (kind: string, threadId: string, group = 'unfiled') => `${kind}:${group}:${threadId}`
 
+/** The File in… choices drawn for a thread, as `{ value, label }`, its value the key's end. */
+const fileChoicesShown = async (ui: any, threadId: string, group = 'unfiled') => {
+  const prefix = `${key('file', threadId, group)}:`
+  return (await ui.findAll({ type: 'Button' }))
+    .filter((el: { key?: string }) => el.key?.startsWith(prefix))
+    .map((el: { key: string; props: { label: unknown } }) => ({ value: el.key.slice(prefix.length), label: el.props.label }))
+}
+
 const texts = async (ui: any) => (await ui.findAll({})).map((el: { text: string }) => el.text).join('\n')
 
 test('/collab opens the pane, and closes it when open', async ($, on) => {
@@ -134,9 +142,41 @@ test('File in adds a project, and removes one', async ($, on) => {
   const { ui, w } = await setUp($, on, [thread({ thread_id: T1, projects: [LUNCH_MENU] }), thread({ thread_id: T2, suggested_project: LIBRARY_APP })])
   await ui.press({ key: `group:project:${LUNCH_MENU}` })
   await ui.press({ key: key('thread', T1, `project:${LUNCH_MENU}`) })
-  await ui.select({ key: key('file', T1, `project:${LUNCH_MENU}`), value: `add:${LIBRARY_APP}` })
-  await ui.select({ key: key('file', T1, `project:${LUNCH_MENU}`), value: `remove:${LUNCH_MENU}` })
+  const at = `project:${LUNCH_MENU}`
+  await ui.press({ key: key('file', T1, at) })
+  await ui.press({ key: `${key('file', T1, at)}:add:${LIBRARY_APP}` })
+  await ui.press({ key: key('file', T1, at) })
+  await ui.press({ key: `${key('file', T1, at)}:remove:${LUNCH_MENU}` })
   expect(w.calls.filter(c => c.tool === 'psd_collab_projects_set').map(c => c.args.projects)).toEqual([[LUNCH_MENU, LIBRARY_APP], []])
+})
+
+// A Select keeps the arrow keys while focused, so the choices are buttons the arrows walk past.
+test('File in lists its choices as buttons, and closes once one is pressed', async ($, on) => {
+  const { ui, w } = await setUp($, on, [thread({ thread_id: T1 }), thread({ thread_id: T2, suggested_project: LIBRARY_APP })])
+  await ui.press({ key: key('thread', T1) })
+  expect(await ui.find({ key: key('file', T1) })).toMatchObject({ type: 'Button', props: { label: 'File in…' } })
+  expect(await fileChoicesShown(ui, T1)).toEqual([])
+  await ui.press({ key: key('file', T1) })
+  expect(await fileChoicesShown(ui, T1)).toEqual([
+    { value: `add:${BELL_SCHEDULE}`, label: 'File in bell-schedule' },
+    { value: `add:${LIBRARY_APP}`, label: 'File in library-app' },
+  ])
+  w.answers.psd_collab_projects_set = args => ({ thread_id: args.thread_id, projects: args.projects })
+  await ui.press({ key: `${key('file', T1)}:add:${LIBRARY_APP}` })
+  expect(w.calls.find(c => c.tool === 'psd_collab_projects_set')?.args).toEqual({ thread_id: T1, projects: [LIBRARY_APP] })
+  expect(await fileChoicesShown(ui, T1)).toEqual([])
+})
+
+test('File in closes when pressed again, or when another thread is chosen', async ($, on) => {
+  const { ui } = await setUp($, on, [thread({ thread_id: T1, suggested_project: LIBRARY_APP }), thread({ thread_id: T2 })])
+  await ui.press({ key: key('thread', T1) })
+  await ui.press({ key: key('file', T1) })
+  await ui.press({ key: key('file', T1) })
+  expect(await fileChoicesShown(ui, T1)).toEqual([])
+  await ui.press({ key: key('file', T1) })
+  await ui.press({ key: key('thread', T2) })
+  await ui.press({ key: key('thread', T1) })
+  expect(await fileChoicesShown(ui, T1)).toEqual([])
 })
 
 test('read state and archiving', async ($, on) => {
@@ -232,8 +272,8 @@ test('a suggestion of a project not opened here is named, with no File there', a
   expect(await ui.find({ key: key('suggest', T1) })).toBeUndefined()
   expect(await texts(ui)).toContain("sender's project: library-app (not opened here)")
   await ui.press({ key: key('thread', T1) })
-  const options = (await ui.find({ key: key('file', T1) }))?.props.options
-  expect(options).toEqual(expect.arrayContaining([{ value: `add:${LIBRARY_APP}`, label: 'File in library-app' }]))
+  await ui.press({ key: key('file', T1) })
+  expect(await fileChoicesShown(ui, T1)).toEqual(expect.arrayContaining([{ value: `add:${LIBRARY_APP}`, label: 'File in library-app' }]))
 })
 
 test('archived threads load when their group opens', async ($, on) => {
@@ -286,7 +326,8 @@ test('auto-filing leaves a thread unfiled when the person removes its only proje
   fileAsServer(w, LUNCH_MENU)
   await ui.press({ key: `group:project:${LUNCH_MENU}` })
   await ui.press({ key: key('thread', T1, `project:${LUNCH_MENU}`) })
-  await ui.select({ key: key('file', T1, `project:${LUNCH_MENU}`), value: `remove:${LUNCH_MENU}` })
+  await ui.press({ key: key('file', T1, `project:${LUNCH_MENU}`) })
+  await ui.press({ key: `${key('file', T1, `project:${LUNCH_MENU}`)}:remove:${LUNCH_MENU}` })
   expect(filings(w)).toEqual([[]])
   await clock.advance(30_000)
   expect(filings(w)).toEqual([[]])
@@ -299,7 +340,8 @@ test('auto-filing, once turned on, leaves a thread the person unfiled while it w
   fileAsServer(w, LUNCH_MENU)
   await ui.press({ key: `group:project:${LUNCH_MENU}` })
   await ui.press({ key: key('thread', T1, `project:${LUNCH_MENU}`) })
-  await ui.select({ key: key('file', T1, `project:${LUNCH_MENU}`), value: `remove:${LUNCH_MENU}` })
+  await ui.press({ key: key('file', T1, `project:${LUNCH_MENU}`) })
+  await ui.press({ key: `${key('file', T1, `project:${LUNCH_MENU}`)}:remove:${LUNCH_MENU}` })
   await ui.press({ key: 'autofile' })
   await clock.advance(30_000)
   expect(filings(w)).toEqual([[]])
@@ -383,9 +425,8 @@ test("auto-filing keeps another session's record written while this one was fili
 test("the session's project is remembered on this machine for filing", async ($, on) => {
   const { ui } = await setUp($, on, [thread({ thread_id: T1 })], { projects: [LUNCH_MENU] })
   await ui.press({ key: key('thread', T1) })
-  const select = await ui.find({ key: key('file', T1) })
-  const values = (select?.props.options as { value: string }[]).map(o => o.value)
-  expect(values).toEqual([`add:${LUNCH_MENU}`, `add:${BELL_SCHEDULE}`])
+  await ui.press({ key: key('file', T1) })
+  expect((await fileChoicesShown(ui, T1)).map(c => c.value)).toEqual([`add:${LUNCH_MENU}`, `add:${BELL_SCHEDULE}`])
 })
 
 test('a row names who wrote last by the name collab keeps for them', async ($, on) => {

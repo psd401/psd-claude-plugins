@@ -54,11 +54,17 @@ export type ThreadRead = {
 
 /**
  * What the pane shows: the list (which thread's actions are open, and in which group, since a
- * thread filed under several projects shows in each; which collapsed groups are open) or one
- * thread; with the last action's failure, if it failed.
+ * thread filed under several projects shows in each; whether its File in… choices are open; which
+ * collapsed groups are open) or one thread; with the last action's failure, if it failed.
  */
 export type PaneView =
-  | { screen: 'list'; selected: { group: string; threadId: string } | null; expanded: string[]; error: string | null }
+  | {
+      screen: 'list'
+      selected: { group: string; threadId: string } | null
+      isFiling: boolean
+      expanded: string[]
+      error: string | null
+    }
   | { screen: 'thread'; threadId: string; read: ThreadRead | null; error: string | null }
 
 /** This machine's filing settings: whether to auto-file, and the projects opened here. */

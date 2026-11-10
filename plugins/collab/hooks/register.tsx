@@ -5,7 +5,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, ToolCallResult } from 'claude-code'
 
 import type { Inbox, Names, PaneView, Filing, Project, Thread, ThreadRead } from '../types'
-import { arrivals, backgroundTask, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
+import { arrivals, backgroundTask, claimed, notifiedOf, notifyText, unclaimed, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
 import { hasOldServer, hasOldStatusLine, hasSecondInstall, leftoverText } from './leftovers'
 import { oneLine } from './pane'
 import { projectKey, projectName } from './projects'
@@ -26,7 +26,7 @@ const QUIET_POLL_MS = 5 * 60_000
 // Long enough after start for the session's MCP servers to have connected.
 const LEFTOVER_CHECK_MS = 15_000
 const PANE = 'collab'
-const LIST: PaneView = { screen: 'list', selected: null, expanded: [], error: null }
+const LIST: PaneView = { screen: 'list', selected: null, isFiling: false, expanded: [], error: null }
 
 const listening = atom({ plugin: 'collab', key: 'listening' } as const, [] as string[])
 const inbox = atom({ plugin: 'collab', key: 'inbox' } as const, { threads: [], error: null, checked: false } as Inbox)
@@ -178,6 +178,24 @@ const autoFile = async ($: EngineInterface, threads: Thread[], before: readonly 
   return filed
 }
 
+// The store key under which sessions on this machine claim the arrivals they raised notifications for.
+const NOTIFIED = 'notified'
+
+/**
+ * Raises one native notification for the arrivals no session on this machine has raised one for,
+ * and claims them. A session claims only once its notification went, so one that has no terminal
+ * to raise it in (the desktop app, a -p run) leaves it to one that does. $.store has no
+ * compare-and-set: two sessions checking in the same moment can both notify, a rare duplicate
+ * rather than a miss.
+ */
+const notifyArrivals = async ($: EngineInterface, fresh: Thread[], senders: Names) => {
+  const news = unclaimed(fresh, notifiedOf(await $.store.get(NOTIFIED)))
+  if (news.length === 0) return
+  const sent = await $.ui.notify(notifyText(news, senders))
+  if (!sent.isSent) return
+  await $.store.set(NOTIFIED, claimed(notifiedOf(await $.store.get(NOTIFIED)), news))
+}
+
 /**
  * Checks the inbox once; see poll. Unless `isWhole`, it stops after the waiting threads: the
  * status entry, toasts and listening use no others, and only the pane shows them.
@@ -212,6 +230,11 @@ const pollOnce = async ($: EngineInterface, isWhole: boolean) => {
   // Claude couldn't read a thread since filed only elsewhere; filed here again, it's heard again.
   const heard = fresh.filter(t => listened.includes(t.thread_id) && isReadableHere(t, key)).map(t => t.thread_id)
   if (heard.length > 0) void $.prompt.submit({ text: listenPrompt(heard) })
+  // A failed notification fails nothing else: the toasts have shown. Before 2.1.295 Claude Code
+  // has no $.ui.notify, so the call throws there and those sessions keep the toasts alone.
+  if (fresh.length > 0) {
+    await notifyArrivals($, fresh, senders).catch(error => $.ui.log(`collab: notification failed: ${error}`, { to: 'debug' }))
+  }
 }
 
 const isPaneOpen = async ($: EngineInterface) => (await $.ui.panes()).some(p => p.id === PANE)
@@ -222,9 +245,10 @@ let isWholeWanted = false
 
 /**
  * Checks the inbox: updates the status entry, raises a toast for each thread with a new message
- * addressed to the person, and hands replies in threads this session listens to to Claude. A
- * check asked for while one runs runs after it, so the pane always ends up current. The whole
- * inbox is fetched while the pane is open, or when `isWhole` asks for it before the pane opens.
+ * addressed to the person and one native notification per machine for them all, and hands
+ * replies in threads this session listens to to Claude. A check asked for while one runs runs
+ * after it, so the pane always ends up current. The whole inbox is fetched while the pane is
+ * open, or when `isWhole` asks for it before the pane opens.
  */
 const poll = async ($: EngineInterface, isWhole = false) => {
   if (isWhole) isWholeWanted = true
@@ -351,9 +375,14 @@ const perform = async ($: EngineInterface, action: Action) => {
     switch (action.kind) {
       case 'select': {
         const chosen = { group: action.group, threadId: action.threadId }
-        await update($, pane, v => (v.screen === 'list' ? { ...v, selected: isSelected(v, chosen) ? null : chosen, error: null } : v))
+        await update($, pane, v =>
+          v.screen === 'list' ? { ...v, selected: isSelected(v, chosen) ? null : chosen, isFiling: false, error: null } : v,
+        )
         return
       }
+      case 'fileIn':
+        await update($, pane, v => (v.screen === 'list' ? { ...v, isFiling: !v.isFiling } : v))
+        return
       case 'expand': {
         const view = await read($, pane)
         if (view.screen !== 'list') return
@@ -386,6 +415,7 @@ const perform = async ($: EngineInterface, action: Action) => {
         void $.prompt.submit({ text: readPrompt(action.threadId) })
         return
       case 'setProjects':
+        await update($, pane, v => (v.screen === 'list' ? { ...v, isFiling: false } : v))
         await call($, 'psd_collab_projects_set', { thread_id: action.threadId, projects: action.projects })
         await refresh($)
         return
