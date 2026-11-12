@@ -5,7 +5,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register, ToolCallResult } from 'claude-code'
 
 import type { Inbox, Names, PaneView, Filing, Project, Thread, ThreadRead } from '../types'
-import { arrivals, backgroundTask, claimed, notifiedOf, notifyText, unclaimed, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
+import { arrivals, backgroundTask, claimed, notifiedOf, sharedCheckOf, notifyText, unclaimed, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
 import { hasOldServer, hasOldStatusLine, hasSecondInstall, leftoverText } from './leftovers'
 import { oneLine } from './pane'
 import { projectKey, projectName } from './projects'
@@ -23,6 +23,13 @@ const POLL_MS = 30_000
 // its pane is open: it is most likely left open overnight.
 const QUIET_AFTER_MS = 30 * 60_000
 const QUIET_POLL_MS = 5 * 60_000
+// A check another session on this machine saved this recently stands in for this session's own
+// (in a quiet session, one under QUIET_POLL_MS old): every session asking the server on its own put
+// a person with many sessions open over the server's rate limit.
+const SHARED_FRESH_MS = 25_000
+// The store key the last check is saved under for the other sessions. It isn't tied to who is signed
+// in: the store is the OS account's, beside its Claude Code transcripts, which hold the same titles.
+const CHECKED = 'checked'
 // Long enough after start for the session's MCP servers to have connected.
 const LEFTOVER_CHECK_MS = 15_000
 const PANE = 'collab'
@@ -196,20 +203,38 @@ const notifyArrivals = async ($: EngineInterface, fresh: Thread[], senders: Name
   await $.store.set(NOTIFIED, claimed(notifiedOf(await $.store.get(NOTIFIED)), news))
 }
 
+/** The check another session on this machine saved, if recent enough to stand in for this one's. */
+const usableSharedCheck = async ($: EngineInterface) => {
+  const shared = sharedCheckOf(await $.store.get(CHECKED))
+  if (shared === undefined) return undefined
+  const age = (await $.clock.now()) - shared.at
+  return age >= 0 && age < (isResting ? QUIET_POLL_MS : SHARED_FRESH_MS) ? shared : undefined
+}
+
 /**
- * Checks the inbox once; see poll. Unless `isWhole`, it stops after the waiting threads: the
- * status entry, toasts and listening use no others, and only the pane shows them.
+ * Checks the inbox once; see poll. Unless `isWhole`, it uses a recent check another session on
+ * this machine saved, if there is one, and stops after the waiting threads: the status entry,
+ * toasts and listening use no others, and only the pane shows them. What it asks the server it
+ * saves for the other sessions.
  */
 const pollOnce = async ($: EngineInterface, isWhole: boolean) => {
   const before = await read($, inbox)
   let key: string | undefined
   let threads: Thread[]
+  let askedAt: number | undefined
   try {
     // A check whose project can't be worked out is a failed check to show the person, as a refused call is.
     key = await here($).catch(error => {
       throw new CollabError(error instanceof Error ? error.message : String(error))
     })
-    threads = await fetchInbox($, false, !isWhole)
+    const shared = isWhole ? undefined : await usableSharedCheck($)
+    if (shared === undefined) {
+      askedAt = checkedAt = await $.clock.now()
+      threads = await fetchInbox($, false, !isWhole)
+    } else {
+      await keepNames($, shared)
+      threads = shared.threads
+    }
   } catch (error) {
     if (!(error instanceof CollabError)) throw error
     await update($, inbox, last => ({ ...last, error: error.message }))
@@ -219,6 +244,7 @@ const pollOnce = async ($: EngineInterface, isWhole: boolean) => {
   }
   const { autoFile: isAutoFiling, known } = await read($, filing)
   threads = await autoFile($, threads, before.threads, known, isAutoFiling, isWhole)
+  if (askedAt !== undefined) await $.store.set(CHECKED, { at: askedAt, threads, names: await read($, names) })
   await update($, inbox, () => ({ threads, error: null, checked: true }))
   $.ui.status(statusText(threads, key, null))
   // The first check has nothing to compare with: what already waits is no news.
@@ -273,21 +299,23 @@ const poll = async ($: EngineInterface, isWhole = false) => {
 const checkInbox = ($: EngineInterface, isWhole = false) =>
   poll($, isWhole).catch(error => $.ui.log(`collab: inbox check failed: ${error}`, { to: 'debug' }))
 
-// Whether a prompt came since the timer last ran, when one last did, when the timer last checked
-// the inbox, and whether it is checking only every 5 minutes.
+// Whether a prompt came since the timer last ran, when one last did, when this session last asked
+// the server for the inbox, and whether it is asking only every 5 minutes.
 let isPrompted = false
 let promptedAt = 0
 let checkedAt = 0
 let isResting = false
 
-/** The timer's check: every 30 seconds, or every 5 minutes once the session is quiet. */
+/**
+ * The timer's check: every 30 seconds. Once the session is quiet it asks the server only every 5
+ * minutes, and in between takes only what other sessions on this machine saved.
+ */
 const tick = async ($: EngineInterface) => {
   const now = await $.clock.now()
   if (isPrompted) promptedAt = now
   isPrompted = false
   isResting = now - promptedAt >= QUIET_AFTER_MS && (await read($, listening)).length === 0 && !(await isPaneOpen($))
-  if (isResting && now - checkedAt < QUIET_POLL_MS) return
-  checkedAt = now
+  if (isResting && now - checkedAt < QUIET_POLL_MS && (await usableSharedCheck($)) === undefined) return
   await checkInbox($)
 }
 
@@ -296,9 +324,12 @@ const loadArchived = async ($: EngineInterface) => {
   await update($, archived, () => all.filter(t => t.archived))
 }
 
-/** Checks the inbox after the person changed something, and the archived threads if shown. */
+/**
+ * Checks the inbox after the person changed something, and the archived threads if shown. It asks
+ * the server for the whole inbox, as with the pane open: a check another session saved predates the change.
+ */
 const refresh = async ($: EngineInterface) => {
-  await poll($)
+  await poll($, true)
   if ((await read($, archived)) !== null) await loadArchived($)
 }
 

@@ -1,7 +1,7 @@
 // ABOUTME: Tests for polling the inbox: the status entry's waiting counts, toasts for new
 // ABOUTME: messages addressed to the person, and handing replies to Claude in listened threads.
 
-import { expect, mock, test } from 'claude-code/testing'
+import { describe, expect, mock, test } from 'claude-code/testing'
 
 import { statusText } from '../hooks/inbox'
 import { BELL_SCHEDULE, LUNCH_MENU, startSession, submittedSection, T1, T2, T3, T4, T9, thread, world } from './world'
@@ -316,4 +316,87 @@ test('a reply in a listened thread since filed elsewhere is not handed to Claude
   await clock.advance(POLL)
   expect(w.prompts.length).toBe(1)
   expect(w.prompts[0]).toContain(T1)
+})
+
+// Each session on a machine checking the same inbox on its own made one person with many sessions
+// open run into the server's rate limit: the sessions share what one of them found.
+test('a check saves what it found for the other sessions on this machine', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true })], names: { 'wren@example.com': 'Wren' } })
+  const now = clock.now()
+  await startSession($, clock)
+  expect(w.stored.checked).toEqual({ at: now, threads: w.threads, names: { 'wren@example.com': 'Wren' } })
+})
+
+test('a check uses what another session found under 25 seconds ago instead of asking the server', async ($, on) => {
+  const clock = mock.clock(on)
+  const now = clock.now()
+  const saved = [thread({ thread_id: T1, waiting_on_you: true, projects: [BELL_SCHEDULE] })]
+  const w = world(on, { store: { checked: { at: now - 24_000, threads: saved, names: {} } } })
+  await startSession($, clock)
+  expect(checks(w)).toBe(0)
+  expect(lastStatus(w)).toBe('1 waiting: 1 here')
+})
+
+test('what another session found 25 seconds ago or more is checked again', async ($, on) => {
+  const clock = mock.clock(on)
+  const now = clock.now()
+  const w = world(on, { store: { checked: { at: now - 25_000, threads: [], names: {} } } })
+  await startSession($, clock)
+  expect(checks(w)).toBe(1)
+})
+
+test('a new message another session found raises a toast here too, naming the sender', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1, title: 'Retention' })] })
+  await startSession($, clock)
+  await clock.advance(POLL - 1_000)
+  const arrived = [thread({ thread_id: T1, title: 'Retention', unread_to_you: 1, waiting_on_you: true })]
+  w.stored.checked = { at: clock.now(), threads: arrived, names: { 'wren@example.com': 'Wren' } }
+  await clock.advance(1_000)
+  expect(checks(w)).toBe(1)
+  expect(w.toasts).toEqual(['Wren in “Retention” · /collab to open'])
+})
+
+test('a quiet session uses what others found every 30 seconds, and asks the server only every 5 minutes', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1, title: 'Retention' })] })
+  await startSession($, clock)
+  await clock.advance(31 * MINUTE)
+  const quiet = checks(w)
+  const arrived = [thread({ thread_id: T1, title: 'Retention', unread_to_you: 1, waiting_on_you: true })]
+  w.stored.checked = { at: clock.now(), threads: arrived, names: {} }
+  await clock.advance(POLL)
+  expect(w.toasts).toEqual(['wren in “Retention” · /collab to open'])
+  expect(checks(w)).toBe(quiet)
+  w.stored.checked = { at: clock.now() - 5 * MINUTE, threads: arrived, names: {} }
+  await clock.advance(5 * MINUTE)
+  expect(checks(w)).toBe(quiet + 1)
+})
+
+test('a failed check saves nothing, leaving the last good check for the other sessions', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true })] })
+  await startSession($, clock)
+  const saved = w.stored.checked
+  w.answers.psd_collab_inbox_check = () => { throw new Error('Rate limit exceeded') }
+  await clock.advance(POLL)
+  expect(w.stored.checked).toEqual(saved)
+})
+
+describe('what the store holds under the shared check is not used when it has', () => {
+  const kinds: [string, (now: number) => unknown][] = [
+    ['a time that is not a number', now => ({ at: String(now), threads: [], names: {} })],
+    ['threads that are not a list', now => ({ at: now, threads: 'none', names: {} })],
+    ['names that are not an object', now => ({ at: now, threads: [], names: ['Wren'] })],
+    ['something else entirely', () => ['checked']],
+  ]
+  for (const [what, stored] of kinds) {
+    test(what, async ($, on) => {
+      const clock = mock.clock(on)
+      const w = world(on, { store: { checked: stored(clock.now()) } })
+      await startSession($, clock)
+      expect(checks(w)).toBe(1)
+    })
+  }
 })

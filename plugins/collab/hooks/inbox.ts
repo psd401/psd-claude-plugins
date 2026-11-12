@@ -143,3 +143,15 @@ export const backgroundTask = (text: string | undefined): string | undefined =>
 /** The prompt "Read with Claude" submits; by id only, as listenPrompt. */
 export const readPrompt = (threadId: string): string =>
   `Read the collab thread ${threadId} with psd_collab_thread_read and summarize it.`
+
+/** A session's last inbox check, saved for the other sessions on this machine: when it began, and what it found. */
+export type SharedCheck = { at: number; threads: Thread[]; names: Names }
+
+/** The saved check as the store holds it, or none when it holds something else. */
+export const sharedCheckOf = (stored: unknown): SharedCheck | undefined => {
+  if (typeof stored !== 'object' || stored === null || Array.isArray(stored)) return undefined
+  const { at, threads, names } = stored as Record<string, unknown>
+  if (typeof at !== 'number' || !Array.isArray(threads)) return undefined
+  if (typeof names !== 'object' || names === null || Array.isArray(names)) return undefined
+  return { at, threads, names: names as Names }
+}
