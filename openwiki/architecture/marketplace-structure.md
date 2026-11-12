@@ -76,5 +76,3 @@ Run the `/bump-version` skill (`plugins/psd-coding-system/skills/bump-version/SK
 | Add a third-party plugin source | `.claude-plugin/marketplace.json` `plugins[].source` | `sha` present and 40-char lowercase; `bun ci/check-marketplace-pins.js` |
 
 Stale-doc warning: `docs/META_LEARNING_GUIDE.md` (v1.9.0) still describes removed `/work`, `/test`, `/review_pr`, `/clean_branch` commands; and `plugins/psd-coding-system/docs/agent-manifest.md` lists several agents as "orphans" that `/lfg` Phase 6 and `/setup`'s `review_agents` config now do wire in. Prefer the skill sources. See also [CI and repo automation](../operations/ci-and-automation.md) for what actually validates PRs.
-actually validates PRs.
-nch` commands; and `plugins/psd-coding-system/docs/agent-manifest.md` lists several agents as "orphans" that `/lfg` Phase 6 and `/setup`'s `review_agents` config now do wire in. Prefer the skill sources. See also [CI and repo automation](../operations/ci-and-automation.md) for what actually validates PRs.

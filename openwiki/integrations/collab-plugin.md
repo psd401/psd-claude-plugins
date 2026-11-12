@@ -1,28 +1,29 @@
 ---
 type: Integration
 title: Collab plugin
-description: How the collab Claude Code plugin (v2.4.0) polls the hosted collab MCP server, shares inbox checks between sessions on one machine, runs the pane and listen commands, and guards reads and sends.
+description: How the collab Claude Code plugin (v2.5.0) polls the hosted collab MCP server, reports its plugin version on each inbox check, shares inbox checks between sessions on one machine, runs the pane and listen commands, and guards reads and sends.
 tags: [collab, integration, plugin, polling, mcp]
 openwiki:
   roles: [integration, architecture]
-  change_kinds: [polling, shared-check, pane, listen, guards]
+  change_kinds: [polling, shared-check, plugin-version, pane, listen, guards]
   source_paths:
     - plugins/collab/hooks/register.tsx
     - plugins/collab/hooks/inbox.ts
     - plugins/collab/hooks/hooks.json
     - plugins/collab/.claude-plugin/plugin.json
     - plugins/collab/types/index.d.ts
-  symbols: [register, pollOnce, poll, tick, usableSharedCheck, sharedCheckOf, fetchInbox, call]
+  symbols: [register, pollOnce, poll, tick, usableSharedCheck, sharedCheckOf, fetchInbox, pluginVersion, call]
   test_paths: [plugins/collab/test/poll.test.ts, plugins/collab/test/pane.test.ts]
   invariants:
     - A check another session on the same machine saved within 25 seconds (5 minutes when quiet) stands in for a server check; a failed check saves nothing.
     - Full-inbox checks (pane open, after a person's action, before the pane opens) always ask the server.
+    - Every psd_collab_inbox_check call carries plugin_version read from the plugin's own plugin.json, and omits it when that file cannot be read.
   validation_commands: ["jq -r .version plugins/collab/.claude-plugin/plugin.json"]
 ---
 
 # Collab plugin
 
-The collab plugin is the Claude Code side of threads between colleagues' agents. It is a hooks-only plugin: `plugins/collab/hooks/hooks.json` loads a single module, `./register.tsx`, which registers session hooks, tool guards, a `/collab` command, and a pane UI. The threads themselves live on the hosted collab MCP server that `plugin.json` declares (`mcpServers.collab`, type `http`). Since 2.4.0 that entry also sends an `X-Collab-Plugin-Version` header whose value matches the plugin version; the manifest is the only place in this repository that declares it, and what the server does with it is defined upstream. The plugin is published from upstream `psd401/psd-collab-mcp` (`plugins/collab/.publish-source`) and must not be hand-edited here.
+The collab plugin is the Claude Code side of threads between colleagues' agents. It is a hooks-only plugin: `plugins/collab/hooks/hooks.json` loads a single module, `./register.tsx`, which registers session hooks, tool guards, a `/collab` command, and a pane UI. The threads themselves live on the hosted collab MCP server that `plugin.json` declares (`mcpServers.collab`, type `http`, URL only). The plugin's version reaches the server as a `plugin_version` argument on each `psd_collab_inbox_check` call, not as an HTTP header: 2.4.0 sent an `X-Collab-Plugin-Version` header from the manifest, and 2.5.0 removed that header and moved the signal into the tool call (see [Plugin version on inbox checks](#plugin-version-on-inbox-checks-250)). What the server does with the version is defined upstream. The plugin is published from upstream `psd401/psd-collab-mcp` (`plugins/collab/.publish-source`) and must not be hand-edited here.
 
 ## Components
 
@@ -85,6 +86,14 @@ Full-inbox checks never use the shared record. `poll(…, isWhole)` is set by `r
 - `notifyArrivals` raises one native notification per machine. Sessions claim threads in `notified` (`claimed`/`unclaimed`, keyed by `last_activity`), so a notification is never repeated. Notifications never carry thread titles.
 - `statusText` builds the status entry, such as `4 waiting: 1 here · 1 lunch-menu · 1 unfiled`.
 
+## Plugin version on inbox checks (2.5.0)
+
+`fetchInbox` sends `plugin_version` with every page of `psd_collab_inbox_check`. The value comes from `pluginVersion`, which reads `version` from `$.plugin.root/.claude-plugin/plugin.json` once per load and caches the promise. If the file cannot be read, or `version` is not a string, `pluginVersion` resolves to `undefined` and the argument is left out of the call. The server logs the value and removes it before the tool runs; no tool schema lists it, so Claude never sees it.
+
+- The version is the one in the installed plugin's own manifest, so the value tracks the publish: bumping `plugin.json` changes what the next check reports. The publish and marketplace-entry version rules are in [Marketplace structure](../architecture/marketplace-structure.md).
+- Because the read is cached, a manifest change takes effect on the next plugin load, not mid-session.
+- Changing `pluginVersion` or the argument shape changes the server contract; the upstream server owns the logging behavior, so coordinate in `psd401/psd-collab-mcp`.
+
 ## Filing and projects
 
 `here` maps the session root to a project key with `projectKey`, caching it until the root changes. `autoFile` files unfiled threads under their suggested project only when auto-filing is on, the project is known on this machine (`projects`), and that suggestion has not been settled before (`settled`). A thread the person unfiled stays unfiled until a different project is suggested.
@@ -114,11 +123,14 @@ Behavior matrix for the shared check, all in `plugins/collab/test/poll.test.ts`:
 | A failed check does not overwrite the record | `a failed check saves nothing, leaving the last good check for the other sessions` |
 | Malformed records are ignored (describe block) | `what the store holds under the shared check is not used when it has` (four cases) |
 
+Plugin version behavior, in the same file: `every inbox check names the plugin version its plugin.json gives, for the server to log` (the test's `world` takes a `manifest` option, which the fake `fs.read` returns for any `/.claude-plugin/plugin.json` path) and `an inbox check goes without the version when plugin.json can't be read`.
+
 Other poll behavior: `the inbox is checked every 30 seconds`, `after 30 minutes with no prompt, the inbox is checked every 5 minutes`, `a prompt after a quiet spell checks the inbox at once, then every 30 seconds again`, and `with the pane closed, a check stops at the first page holding a thread not waiting on the person`. Pane actions re-check the inbox: `each action checks the inbox again so the pane shows the result` in `plugins/collab/test/pane.test.ts`. Other files cover the read guard (`guard.test.ts`), listening (`listen.test.ts`), notifications (`notify.test.ts`), dropped task notices (`notice.test.ts`), the session section (`prompt.test.ts`), and projects (`projects.test.ts`).
 
 ## Change navigation
 
 - **Polling cadence, shared checks, or resting logic:** start in `register.tsx` at `usableSharedCheck`, `pollOnce`, `poll`, and `tick`. Add a poll-test case next to the shared-check tests before changing a constant. `SHARED_FRESH_MS`, `QUIET_POLL_MS`, and `QUIET_AFTER_MS` are constants shared by all sessions on a machine.
+- **Version reporting on inbox checks:** `pluginVersion` and the `plugin_version` argument in `fetchInbox` (`register.tsx`). Tests are the two version cases in `poll.test.ts`; the fake manifest comes from `world.ts`.
 - **Pure text, status, or notification wording:** change `inbox.ts` (`statusText`, `toastText`, `notifyText`) and the matching tests in `poll.test.ts` or `notify.test.ts`.
 - **Pane behavior:** `view.tsx` draws, `perform` in `register.tsx` carries out actions, and `pane.test.ts` covers them.
 - **Anything that changes the server contract:** fix upstream `psd401/psd-collab-mcp`, then republish. The contract types live in `types/index.d.ts`.
@@ -128,10 +140,10 @@ Validation here is limited. The plugin's tests import `claude-code/testing`, a r
 ```bash
 jq -r .version plugins/collab/.claude-plugin/plugin.json
 jq -r '.plugins[] | select(.name=="collab") | .version' .claude-plugin/marketplace.json
-jq -r '.mcpServers.collab.headers["X-Collab-Plugin-Version"]' plugins/collab/.claude-plugin/plugin.json
+jq -r '.mcpServers.collab | has("headers")' plugins/collab/.claude-plugin/plugin.json
 ```
 
-The first two must print the same version (`2.4.0` at the last publish), and the header must print that version too, as the 2.4.0 publish set all three together. Run the upstream test suites only after a change to the plugin source is made in `psd401/psd-collab-mcp`.
+The first two must print the same version (`2.5.0` at the last publish). The third is a drift check: the 2.5.0 publish removed the 2.4.0 version header, so `false` is the expected result. Run the upstream test suites only after a change to the plugin source is made in `psd401/psd-collab-mcp`.
 
 ## Related
 
