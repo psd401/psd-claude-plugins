@@ -1,5 +1,5 @@
 // ABOUTME: Tests for polling the inbox: the status entry's waiting counts, toasts for new
-// ABOUTME: messages addressed to the person, and handing replies to Claude in listened threads.
+// ABOUTME: messages addressed to the person, handing replies to Claude in listened threads, and the version each check names.
 
 import { describe, expect, mock, test } from 'claude-code/testing'
 
@@ -67,6 +67,23 @@ test('the inbox is checked every 30 seconds', async ($, on) => {
   await startSession($, clock)
   await clock.advance(POLL * 3)
   expect(w.calls.filter(c => c.tool === 'psd_collab_inbox_check').length).toBe(4)
+})
+
+test('every inbox check names the plugin version its plugin.json gives, for the server to log', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { manifest: JSON.stringify({ name: 'collab', version: '9.8.7' }) })
+  await startSession($, clock)
+  await clock.advance(POLL)
+  const sent = w.calls.filter(c => c.tool === 'psd_collab_inbox_check').map(c => c.args.plugin_version)
+  expect(sent).toEqual(['9.8.7', '9.8.7'])
+})
+
+test('an inbox check goes without the version when plugin.json can\'t be read', async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1, waiting_on_you: true })] })
+  await startSession($, clock)
+  expect(w.calls.filter(c => c.tool === 'psd_collab_inbox_check').map(c => 'plugin_version' in c.args)).toEqual([false])
+  expect(lastStatus(w)).toBe('1 waiting: 1 unfiled')
 })
 
 const checks = (w: { calls: { tool: string }[] }) => w.calls.filter(c => c.tool === 'psd_collab_inbox_check').length

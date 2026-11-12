@@ -81,6 +81,18 @@ const call = async ($: EngineInterface, tool: string, args: Record<string, unkno
 const keepNames = ($: EngineInterface, answer: { names?: Names }) =>
   update($, names, kept => ({ ...kept, ...answer.names }))
 
+// The plugin's version, as its plugin.json gives it, read once a load; undefined when it can't be read.
+let ownVersion: Promise<string | undefined> | undefined
+const pluginVersion = ($: EngineInterface) =>
+  (ownVersion ??= (async () => {
+    try {
+      const { version } = JSON.parse(String(await $.fs.read(`${$.plugin.root}/.claude-plugin/plugin.json`)))
+      return typeof version === 'string' ? version : undefined
+    } catch {
+      return undefined
+    }
+  })())
+
 /**
  * Every thread in the person's inbox, page by page; with `isWaitingEnough`, only the pages through
  * the first that holds a thread not waiting on them. psd_collab_inbox_check lists waiting threads first, so
@@ -91,7 +103,11 @@ const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaiting
   let cursor: string | undefined
   do {
     // Not `page`: before 2.1.290 the loader refuses a file where a function handed $ shares its name with any other declaration.
-    const batch = await call($, 'psd_collab_inbox_check', { include_archived: includeArchived, ...(cursor && { cursor }) })
+    // The server logs plugin_version and takes it off the call; no tool lists it, so Claude never sees it.
+    const version = await pluginVersion($)
+    const batch = await call($, 'psd_collab_inbox_check', {
+      include_archived: includeArchived, ...(cursor && { cursor }), ...(version && { plugin_version: version }),
+    })
     threads.push(...batch.threads)
     await keepNames($, batch)
     const isPastWaiting = isWaitingEnough && batch.threads.some((t: Thread) => !t.waiting_on_you)

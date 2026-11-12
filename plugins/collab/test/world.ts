@@ -76,6 +76,8 @@ type Options = {
   tools?: string[]
   /** Files on this machine, by path. */
   files?: Record<string, string>
+  /** The plugin's own plugin.json, wherever the plugin's folder is. */
+  manifest?: string
   env?: Record<string, string>
   /** Set, psd_collab_inbox_check answers this many threads a page, with a next_cursor while more remain. */
   pageSize?: number
@@ -143,7 +145,7 @@ export const world = (on: On, options: Options = {}): World => {
   on('tool.list', () => ({ value: (options.tools ?? []).map(name => ({ name, description: '', mcp: name.startsWith('mcp__') })) }))
   on('settings.read', () => (options.settings === undefined ? { deny: 'no settings here' } : { value: options.settings }))
   on('fs.read', (_$, e) => {
-    const text = options.files?.[e.path]
+    const text = e.path.endsWith('/.claude-plugin/plugin.json') ? options.manifest : options.files?.[e.path]
     return text === undefined ? { deny: `ENOENT: ${e.path}` } : { value: text }
   })
   on('ui.log', (_$, e) => {
