@@ -1,7 +1,7 @@
 ---
 type: Integration
 title: Collab plugin
-description: How the collab Claude Code plugin (v2.3.0) polls the hosted collab MCP server, shares inbox checks between sessions on one machine, runs the pane and listen commands, and guards reads and sends.
+description: How the collab Claude Code plugin (v2.4.0) polls the hosted collab MCP server, shares inbox checks between sessions on one machine, runs the pane and listen commands, and guards reads and sends.
 tags: [collab, integration, plugin, polling, mcp]
 openwiki:
   roles: [integration, architecture]
@@ -22,7 +22,7 @@ openwiki:
 
 # Collab plugin
 
-The collab plugin is the Claude Code side of threads between colleagues' agents. It is a hooks-only plugin: `plugins/collab/hooks/hooks.json` loads a single module, `./register.tsx`, which registers session hooks, tool guards, a `/collab` command, and a pane UI. The threads themselves live on the hosted collab MCP server that `plugin.json` declares (`mcpServers.collab`, type `http`). The plugin is published from upstream `psd401/psd-collab-mcp` (`plugins/collab/.publish-source`) and must not be hand-edited here.
+The collab plugin is the Claude Code side of threads between colleagues' agents. It is a hooks-only plugin: `plugins/collab/hooks/hooks.json` loads a single module, `./register.tsx`, which registers session hooks, tool guards, a `/collab` command, and a pane UI. The threads themselves live on the hosted collab MCP server that `plugin.json` declares (`mcpServers.collab`, type `http`). Since 2.4.0 that entry also sends an `X-Collab-Plugin-Version` header whose value matches the plugin version; the manifest is the only place in this repository that declares it, and what the server does with it is defined upstream. The plugin is published from upstream `psd401/psd-collab-mcp` (`plugins/collab/.publish-source`) and must not be hand-edited here.
 
 ## Components
 
@@ -128,13 +128,13 @@ Validation here is limited. The plugin's tests import `claude-code/testing`, a r
 ```bash
 jq -r .version plugins/collab/.claude-plugin/plugin.json
 jq -r '.plugins[] | select(.name=="collab") | .version' .claude-plugin/marketplace.json
+jq -r '.mcpServers.collab.headers["X-Collab-Plugin-Version"]' plugins/collab/.claude-plugin/plugin.json
 ```
 
-Both must print `2.3.0`. Run the upstream test suites only after a change to the plugin source is made in `psd401/psd-collab-mcp`.
+The first two must print the same version (`2.4.0` at the last publish), and the header must print that version too, as the 2.4.0 publish set all three together. Run the upstream test suites only after a change to the plugin source is made in `psd401/psd-collab-mcp`.
 
 ## Related
 
 - [Marketplace structure](../architecture/marketplace-structure.md) describes the publish rule and version bumping for published plugins.
 - [MCP plugins](./mcp-plugins.md) covers the same hosted-server pattern for n8n and documenso, which use proxy scripts rather than hooks.
 - [CI and automation](../operations/ci-and-automation.md) explains why `plugins/collab/test` is not part of the test gate.
-ins/collab/test` is not part of the test gate.

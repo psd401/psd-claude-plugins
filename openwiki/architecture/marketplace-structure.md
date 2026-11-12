@@ -10,7 +10,6 @@ openwiki:
   invariants:
     - marketplace.json plugins[] must match the directories under plugins/ and each source must exist.
     - Object-typed third-party sources (github, url, git-subdir) must carry a full 40-character lowercase sha.
-    - Object-typed third-party sources (github, url, git-subdir) must carry a full 40-character lowercase sha.
     - Plugins cannot depend on each other and skills cannot invoke other skills.
     - collab is published from upstream and never hand-edited or bumped here.
   validation_commands:
