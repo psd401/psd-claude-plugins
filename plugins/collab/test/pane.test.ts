@@ -193,6 +193,8 @@ test('read state and archiving', async ($, on) => {
   ])
 })
 
+// The session's own check at the start is saved and still fresh here, so this also holds that an
+// action asks the server rather than using a saved check from before the change.
 test('each action checks the inbox again so the pane shows the result', async ($, on) => {
   const { ui, w } = await setUp($, on, [thread({ thread_id: T1, waiting_on_you: true })])
   await ui.press({ key: key('thread', T1) })
