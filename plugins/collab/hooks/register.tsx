@@ -1,22 +1,25 @@
-// ABOUTME: The collab plugin's hooks: project keys, send checks, the read guard, inbox polling, the
-// ABOUTME: pane, and listening for replies, all over the collab MCP server the manifest declares.
+// ABOUTME: The collab plugin's hooks: project keys, inbox polling, the pane, what follows Claude's own
+// ABOUTME: collab calls, and listening for replies, all over the collab MCP server the manifest declares.
 
 import { atom, read, update } from 'claude-code'
-import type { EngineInterface, Register, ToolCallResult } from 'claude-code'
+import type { Args, EngineInterface, Register } from 'claude-code'
 
 import type { Inbox, Names, PaneView, Filing, Project, Thread, ThreadRead } from '../types'
-import { arrivals, backgroundTask, claimed, notifiedOf, sharedCheckOf, notifyText, unclaimed, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, threadsWithPrefix, toastText } from './inbox'
+import { arrivals, backgroundTask, claimed, notifiedOf, sharedCheckOf, notifyText, unclaimed, isOwnPollNotice, isReadableHere, listenPrompt, readPrompt, sentToast, statusText, threadsTitled, toastText } from './inbox'
 import { hasOldServer, hasOldStatusLine, hasSecondInstall, leftoverText } from './leftovers'
-import { oneLine } from './pane'
+import { oneLine, untagged } from './pane'
 import { projectKey, projectName } from './projects'
 import { holdsSection, sessionSection } from './prompt'
-import { sendRefusal } from './sends'
-import { answerOf, CollabError } from './server'
+import { answerOf, CollabError, resultText } from './server'
 import { isSelected, listView, threadView } from './view'
 import type { Action, PaneElements } from './view'
 
 // The plugin's own server, as Claude calls its tools.
 const COLLAB = 'mcp__plugin_collab_collab__'
+// Claude's collab calls whose answers the plugin acts on: a send's, for its toast and a bare
+// /collab listen, and an inbox check's, for its notice once Claude Code moved it to the background.
+const SENDS = [`${COLLAB}psd_collab_thread_start`, `${COLLAB}psd_collab_message_send`]
+const INBOX_CHECK = `${COLLAB}psd_collab_inbox_check`
 
 const POLL_MS = 30_000
 // A session nobody has prompted for this long checks less often, unless it listens for replies or
@@ -116,38 +119,12 @@ const fetchInbox = async ($: EngineInterface, includeArchived = false, isWaiting
   return threads
 }
 
-// A thread id as psd_collab_inbox_check gives it. The server also reads other spellings of the same id
-// (uppercase, braces, no hyphens), which the guard would fail to match, so only this one is taken.
+// A thread id as psd_collab_inbox_check gives it.
 const THREAD_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
-// The id's first block, as agents name a thread once compaction or a journal has shortened it.
-// The read guard resolves it against the person's own threads, so the server only sees full ids.
-const SHORT_THREAD_ID = /^[0-9a-f]{8}$/
-const NOT_A_THREAD_ID = 'Give the thread id exactly as psd_collab_inbox_check gives it (lowercase, with hyphens).'
 
 /** A thread of the person's, archived or not, or undefined when they have no such thread. */
 const findThread = async ($: EngineInterface, threadId: string): Promise<Thread | undefined> =>
   (await fetchInbox($, true)).find(t => t.thread_id === threadId)
-
-/**
- * The person's thread, archived or not, that a read names: by its id, or by a short id that starts
- * exactly one of their threads. Any other spelling, or a short id that starts none or several, gets
- * a refusal instead (ids only: titles are other people's words). No thread and no refusal: they have
- * no thread with that full id, and the server says so.
- */
-const threadNamed = async ($: EngineInterface, threadId: string): Promise<{ found?: Thread; refusal?: string }> => {
-  if (THREAD_ID.test(threadId)) return { found: await findThread($, threadId) }
-  if (!SHORT_THREAD_ID.test(threadId)) return { refusal: NOT_A_THREAD_ID }
-  const matches = threadsWithPrefix(await fetchInbox($, true), threadId)
-  if (matches.length === 1) return { found: matches[0] }
-  if (matches.length === 0) {
-    return { refusal: `${NOT_A_THREAD_ID} None of your person's threads has an id starting ${threadId}; psd_collab_inbox_check lists the full ids.` }
-  }
-  return {
-    refusal:
-      `More than one of your person's threads has an id starting ${threadId}: ` +
-      `${matches.map(t => t.thread_id).join(', ')}. Give the full id of the one you mean.`,
-  }
-}
 
 /**
  * Files each unfiled thread under its suggested project, when that's a project opened on this
@@ -400,6 +377,18 @@ const listenCommand = async ($: EngineInterface, isStarting: boolean, words: str
 
 const THREAD_TOOLS = { markRead: 'psd_collab_thread_mark_read', markUnread: 'psd_collab_thread_mark_unread', archive: 'psd_collab_thread_archive', unarchive: 'psd_collab_thread_unarchive' }
 
+/**
+ * Reads a thread in the JSON form the pane draws, as this session's project, naming the plugin's
+ * version, which the server takes off the call and no tool lists. For a call naming it, the server
+ * wraps the title and bodies in a tag new to the read, since Claude can name it too, and the pane
+ * takes the tags off here. When the version can't be read, the call goes without it and comes back
+ * untagged, as plugin 2.5.0's reads do.
+ */
+const paneRead = async ($: EngineInterface, args: Record<string, unknown>): Promise<ThreadRead> => {
+  const version = await pluginVersion($)
+  return untagged(await call($, 'psd_collab_thread_read', { ...args, format: 'json', read_from: await here($), ...(version && { plugin_version: version }) }))
+}
+
 /** Reads more of the thread the pane shows, before or after what it has. */
 const page = async ($: EngineInterface, direction: 'before' | 'after') => {
   const view = await read($, pane)
@@ -407,7 +396,7 @@ const page = async ($: EngineInterface, direction: 'before' | 'after') => {
   const shown = view.read
   const edge = direction === 'before' ? shown.messages[0]?.id : shown.messages[shown.messages.length - 1]?.id
   if (edge === undefined) return
-  const more: ThreadRead = await call($, 'psd_collab_thread_read', { thread_id: view.threadId, format: 'json', [direction]: edge })
+  const more = await paneRead($, { thread_id: view.threadId, [direction]: edge })
   await keepNames($, more)
   const merged: ThreadRead =
     direction === 'before'
@@ -442,7 +431,7 @@ const perform = async ($: EngineInterface, action: Action) => {
       case 'view': {
         const threadId = action.threadId
         await update($, pane, (): PaneView => ({ screen: 'thread', threadId, read: null, error: null }))
-        const shown: ThreadRead = await call($, 'psd_collab_thread_read', { thread_id: threadId, format: 'json' })
+        const shown = await paneRead($, { thread_id: threadId })
         await keepNames($, shown)
         await update($, pane, v => (v.screen === 'thread' && v.threadId === threadId ? { ...v, read: shown } : v))
         // Viewing marks the thread read, as Claude reading it does.
@@ -490,18 +479,48 @@ const perform = async ($: EngineInterface, action: Action) => {
 }
 
 /**
- * The thread a send went to, or undefined when it didn't go; unless this session listens to that
- * thread, a toast says how to.
+ * The thread a send that went answered with, from its answer's text, or undefined when the answer
+ * names none; unless this session listens to that thread, a toast says how to. `title` is the
+ * send's own, when it started the thread.
  */
-const noteSend = async ($: EngineInterface, e: { title?: unknown }, sent: ToolCallResult): Promise<string | undefined> => {
-  if (sent.deny !== undefined || sent.isError === true || sent.text === undefined) return undefined
-  const threadId = JSON.parse(sent.text)?.thread_id
+const noteSend = async ($: EngineInterface, title: unknown, answer: string): Promise<string | undefined> => {
+  const threadId = JSON.parse(answer)?.thread_id
   if (typeof threadId !== 'string' || !THREAD_ID.test(threadId)) return undefined
   if (!(await read($, listening)).includes(threadId)) {
-    const title = typeof e.title === 'string' ? e.title : (await findThread($, threadId))?.title
-    $.ui.toast(sentToast(title === undefined ? undefined : oneLine(title)))
+    const named = typeof title === 'string' ? title : (await findThread($, threadId))?.title
+    $.ui.toast(sentToast(named === undefined ? undefined : oneLine(named)))
   }
   return threadId
+}
+
+/** Claude's own collab calls the plugin acts on once they answer, by tool_use id. */
+type Asked = Map<string, { tool: string; input: unknown }>
+
+/** Remembers the calls a response row of Claude's asks for that the plugin acts on once they answer. */
+const noteAsked = (asked: Asked, row: Args<'session.append'>) => {
+  for (const block of row.message.content) {
+    const { id, name } = block
+    if (block.type === 'tool_use' && typeof id === 'string' && typeof name === 'string' && (SENDS.includes(name) || name === INBOX_CHECK)) {
+      asked.set(id, { tool: name, input: block.input })
+    }
+  }
+}
+
+/**
+ * The remembered calls a result row answers, each with the title it gave, its answer's text, and
+ * whether it failed. Each is forgotten: a call answers once.
+ */
+const answersIn = (asked: Asked, row: Args<'session.append'>) => {
+  const answers: { tool: string; title: unknown; answer: string; isError: boolean }[] = []
+  for (const block of row.message.content) {
+    const id = block.tool_use_id
+    const call = block.type === 'tool_result' && typeof id === 'string' ? asked.get(id) : undefined
+    if (call === undefined) continue
+    asked.delete(id as string)
+    const title = (call.input as { title?: unknown } | null | undefined)?.title
+    answers.push({ tool: call.tool, title, answer: resultText(block.content), isError: block.is_error === true })
+  }
+  return answers
 }
 
 /** The conversation Claude reads, in Messages API form; undefined where Claude Code can't show it. */
@@ -546,6 +565,8 @@ export const register: Register = on => {
   let lastSent: string | undefined
   // The background tasks Claude Code moved Claude's own inbox checks to.
   const claudesChecks: string[] = []
+  // Claude's response row asks for each call just before it runs, and its result row answers it.
+  const asked: Asked = new Map()
 
   on('session.start', async ($, e, next) => {
     carriedSection = undefined
@@ -573,68 +594,42 @@ export const register: Register = on => {
     return next(e)
   })
 
-  for (const tool of ['psd_collab_thread_start', 'psd_collab_message_send']) {
-    on('tool.call', { tool: `${COLLAB}${tool}` }, async ($, e, next) => {
-      // Arguments the server would refuse are refused here, before the person is asked to approve
-      // them, and all at once: the server names one problem per call. Should this hook fail, the
-      // send goes on and the server checks it.
-      const refusal = sendRefusal(tool, e)
-      if (refusal !== undefined) return { deny: refusal }
-      // A send whose project can't be worked out still goes, unfiled.
-      const sentFrom = await here($).catch(() => undefined)
-      const sent = await next(sentFrom === undefined ? e : { ...e, sent_from: sentFrom })
-      // Nothing after the send may fail the hook: the message has gone, and a failed hook would
-      // report it as not sent.
-      const threadId = await noteSend($, e as { title?: unknown }, sent).catch(error => {
-        $.ui.log(`collab: after the send: ${error}`, { to: 'debug' })
-        return undefined
-      })
-      if (threadId !== undefined) lastSent = threadId
-      return sent
-    })
-  }
+  // The plugin learns of Claude's own collab calls from the transcript, after the fact: Code Mode
+  // refuses to start beside a hook on tool calls. Nothing here may fail a row, so each passes on
+  // unchanged, and a failure goes to the debug log.
+  on('session.append', { door: 'response' }, async ($, e, next) => {
+    try {
+      noteAsked(asked, e)
+    } catch (error) {
+      $.ui.log(`collab: noting Claude's call: ${error}`, { to: 'debug' })
+    }
+    return next(e)
+  }).catch(($, e, next) => next(e))
 
-  // Claude is told to wait for a check of its own that ran long, so that notice must reach it.
-  on('tool.call', { tool: `${COLLAB}psd_collab_inbox_check` }, async ($, e, next) => {
-    const checked = await next(e)
-    const task = backgroundTask(checked.text)
-    if (task !== undefined) claudesChecks.push(task)
-    return checked
-  })
-
-  // Keeps a session from reading threads filed under other projects: reading marks a thread
-  // read everywhere, so it would stop waiting where it belongs.
-  on('tool.call', { tool: `${COLLAB}psd_collab_thread_read` }, async ($, e, next) => {
-    const { thread_id, format } = e as { thread_id?: unknown; format?: unknown }
-    if (format === 'json') {
-      return {
-        deny:
-          'Read threads with the default text format: it tags what other people wrote as ' +
-          "untrusted data. format \"json\" is for the collab plugin's pane.",
+  on('session.append', { door: 'tool-result' }, async ($, e, next) => {
+    const stored = await next(e)
+    let answers: ReturnType<typeof answersIn> = []
+    try {
+      answers = answersIn(asked, e)
+    } catch (error) {
+      $.ui.log(`collab: reading Claude's call: ${error}`, { to: 'debug' })
+    }
+    for (const { tool, title, answer, isError } of answers) {
+      // Claude is told to wait for a check of its own that ran long, so that notice must reach it.
+      if (tool === INBOX_CHECK) {
+        const task = backgroundTask(answer)
+        if (task !== undefined) claudesChecks.push(task)
+      } else if (!isError) {
+        // Nothing after the send may fail the row: the message has gone.
+        const threadId = await noteSend($, title, answer).catch(error => {
+          $.ui.log(`collab: after the send: ${error}`, { to: 'debug' })
+          return undefined
+        })
+        if (threadId !== undefined) lastSent = threadId
       }
     }
-    if (typeof thread_id !== 'string') return { deny: NOT_A_THREAD_ID }
-    let named: { found?: Thread; refusal?: string }
-    try {
-      named = await threadNamed($, thread_id)
-    } catch (error) {
-      if (error instanceof CollabError) return { deny: `collab: couldn't check where this thread is filed: ${error.message}` }
-      throw error
-    }
-    const { found, refusal } = named
-    if (refusal !== undefined) return { deny: refusal }
-    const key = await here($)
-    // A short id goes to the server as the full id it names.
-    if (found === undefined || found.projects.length === 0 || found.projects.includes(key)) {
-      return next(found === undefined ? e : { ...e, thread_id: found.thread_id })
-    }
-    return {
-      deny:
-        `Not read: your person filed this thread under ${found.projects.map(projectName).join(', ')}, ` +
-        `not this session's project (${projectName(key)}). Tell them which project it belongs to, ` +
-        'and offer to move it here, or to file it here as well, with psd_collab_projects_set if they want it read here.',
-    }
-  }).catch(() => ({ deny: "collab: couldn't check where this thread is filed, so it wasn't read." }))
+    return stored
+  }).catch(($, e, next) => next(e))
 
   on('command.run', { command: 'collab' }, async ($, e) => {
     const args = e.args.trim()

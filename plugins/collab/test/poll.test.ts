@@ -319,7 +319,7 @@ test('a session listening for replies keeps checking every 30 seconds', async ($
   expect(checks(w)).toBe(before + 10)
 })
 
-// Claude couldn't read it there: the read guard refuses threads filed only under other projects.
+// Claude couldn't read it there: the server refuses a read of a thread filed only under other projects.
 test('a reply in a listened thread since filed elsewhere is not handed to Claude, until it is filed here again', async ($, on) => {
   const clock = mock.clock(on)
   const w = world(on, { threads: [thread({ thread_id: T1, title: 'Retention' })] })

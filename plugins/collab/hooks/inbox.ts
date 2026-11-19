@@ -43,7 +43,7 @@ export const arrivals = (before: readonly Thread[], after: readonly Thread[]): T
   return after.filter(t => t.unread_to_you > (had.get(t.thread_id) ?? 0))
 }
 
-/** Whether a session in project `here` can read the thread: the read guard refuses one filed only elsewhere. */
+/** Whether a session in project `here` can read the thread: the server refuses a read of one filed only elsewhere. */
 export const isReadableHere = (thread: Thread, here: string): boolean =>
   thread.projects.length === 0 || thread.projects.includes(here)
 
@@ -104,10 +104,6 @@ export const threadsTitled = (threads: readonly Thread[], words: string): Thread
   const exact = threads.filter(t => t.title.trim().toLowerCase() === wanted)
   return exact.length > 0 ? exact : threads.filter(t => t.title.toLowerCase().includes(wanted))
 }
-
-/** The threads whose id starts with this short id, the id's first block (`aaaaaaaa`). */
-export const threadsWithPrefix = (threads: readonly Thread[], shortId: string): Thread[] =>
-  threads.filter(t => t.thread_id.startsWith(`${shortId}-`))
 
 /**
  * The prompt that hands Claude replies in threads this session listens to. It names threads by

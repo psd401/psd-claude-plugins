@@ -228,7 +228,7 @@ test('threads filed only elsewhere offer no Read with Claude', async ($, on) => 
   expect(await ui.find({ key: key('here', T1, `project:${LUNCH_MENU}`) })).toBeDefined()
 })
 
-// Claude couldn't read a reply there: the read guard refuses threads filed only under other projects.
+// Claude couldn't read a reply there: the server refuses a read of a thread filed only under other projects.
 test('threads filed only elsewhere offer no Listen here', async ($, on) => {
   const { ui } = await setUp($, on, [thread({ thread_id: T1, projects: [LUNCH_MENU] }), thread({ thread_id: T2, projects: [LIBRARY_APP, BELL_SCHEDULE] })])
   const lunch = `project:${LUNCH_MENU}`
@@ -458,7 +458,7 @@ test('View opens the thread: participants, messages, and links with their real a
   w.answers.psd_collab_thread_read = () => READ
   await ui.press({ key: key('thread', T1) })
   await ui.press({ key: key('view', T1) })
-  expect(w.calls.find(c => c.tool === 'psd_collab_thread_read')?.args).toEqual({ thread_id: T1, format: 'json' })
+  expect(w.calls.find(c => c.tool === 'psd_collab_thread_read')?.args).toEqual({ thread_id: T1, format: 'json', read_from: BELL_SCHEDULE })
   const shown = await texts(ui)
   expect(shown).toContain('Retention')
   expect(shown).toContain('wren, parker')
@@ -490,6 +490,48 @@ test('Earlier messages pages back; Back returns to the list', async ($, on) => {
   expect(await ui.find({ key: 'earlier' })).toBeUndefined()
   await ui.press({ key: 'back' })
   expect(await texts(ui)).toContain('This project')
+})
+
+// The server tags a JSON read that names the plugin's version, which no tool lists.
+test("the pane's reads name this session's project and the plugin's version", async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1 })], manifest: JSON.stringify({ name: 'collab', version: '9.8.7' }) })
+  await startSession($, clock)
+  const ui = await $.ui.mount(PANE)
+  w.answers.psd_collab_thread_read = args => (args.before === undefined ? READ : { ...READ, earlier: 0 })
+  await ui.press({ key: key('thread', T1) })
+  await ui.press({ key: key('view', T1) })
+  await ui.press({ key: 'earlier' })
+  const reads = w.calls.filter(c => c.tool === 'psd_collab_thread_read').map(c => c.args)
+  expect(reads).toEqual([
+    { thread_id: T1, format: 'json', read_from: BELL_SCHEDULE, plugin_version: '9.8.7' },
+    { thread_id: T1, format: 'json', read_from: BELL_SCHEDULE, plugin_version: '9.8.7', before: 7 },
+  ])
+})
+
+test("without the plugin's version, the pane's read goes without it and shows the thread as the server sent it", async ($, on) => {
+  const { ui, w } = await setUp($, on)
+  w.answers.psd_collab_thread_read = () => READ
+  await ui.press({ key: key('thread', T1) })
+  await ui.press({ key: key('view', T1) })
+  expect(w.calls.filter(c => c.tool === 'psd_collab_thread_read').map(c => 'plugin_version' in c.args)).toEqual([false])
+  const shown = await texts(ui)
+  expect(shown).toContain('Retention')
+  expect(shown).toContain('Old context')
+})
+
+test("the pane shows a tagged read's title and bodies without the server's tags, on every page", async ($, on) => {
+  const clock = mock.clock(on)
+  const w = world(on, { threads: [thread({ thread_id: T1 })], manifest: JSON.stringify({ name: 'collab', version: '9.8.7' }) })
+  await startSession($, clock)
+  const ui = await $.ui.mount(PANE)
+  w.answers.psd_collab_thread_read = args => (args.before === undefined ? READ : { ...READ, messages: [{ ...READ.messages[0]!, id: 3, body: 'Even older' }], earlier: 0 })
+  await ui.press({ key: key('thread', T1) })
+  await ui.press({ key: key('view', T1) })
+  await ui.press({ key: 'earlier' })
+  const shown = await texts(ui)
+  for (const text of ['Retention', 'Old context', 'wren added casey', '(https://evil.example/p)', 'Even older']) expect(shown).toContain(text)
+  expect(shown).not.toContain('untrusted')
 })
 
 // The mark says whether a thread waits; every title stays at full strength over its dim details.

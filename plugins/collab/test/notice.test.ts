@@ -2,12 +2,10 @@
 // ABOUTME: they're dropped, while notices about anything else, or a check Claude made, get through.
 
 import { expect, test } from 'claude-code/testing'
-import type { On } from 'claude-code'
 
 import { backgroundTask, isOwnPollNotice } from '../hooks/inbox'
-import { submittedSection, world } from './world'
+import { claudeCalls, submittedSection, world } from './world'
 
-const TOOL = 'mcp__plugin_collab_collab__'
 const CHECK = 'plugin:collab:collab/psd_collab_inbox_check'
 const NOTICE = { kind: 'task-notification' }
 
@@ -82,14 +80,10 @@ test('a dropped notice leaves the session section for the person’s next prompt
   expect(await submittedSection($, w)).toBeDefined()
 })
 
-/** Claude Code moving Claude's own collab call to the background, as it does after 120 seconds. */
-const backgrounds = (on: On, id: string) =>
-  on('tool.call', () => ({ result: movedToBackground(id), text: movedToBackground(id) }))
-
 test('the notice of an inbox check Claude made, which Claude was told to wait for, reaches Claude', async ($, on) => {
   const w = world(on)
-  backgrounds(on, 'k4tq0x2ma')
-  await $.tool.call({ tool: `${TOOL}psd_collab_inbox_check` } as any)
+  // What Claude Code records as the result of Claude's own check once it moved it to the background.
+  await claudeCalls($, 'psd_collab_inbox_check', {}, [{ type: 'text', text: movedToBackground('k4tq0x2ma') }])
   await arrive($, notice('k4tq0x2ma', CHECK, 'completed'))
   expect(w.prompts.length).toBe(1)
   // The plugin's own checks, in other tasks, are still dropped.
