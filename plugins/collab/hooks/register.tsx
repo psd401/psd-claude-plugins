@@ -479,15 +479,28 @@ const perform = async ($: EngineInterface, action: Action) => {
 }
 
 /**
- * The thread a send that went answered with, from its answer's text, or undefined when the answer
- * names none; unless this session listens to that thread, a toast says how to. `title` is the
- * send's own, when it started the thread.
+ * The thread a send that went was sent to. Its answer's text names it. Code Mode keeps the result
+ * row of a call that went with no text, so there it's the thread the send named, or for a send
+ * that started one, the newest thread of that title.
  */
-const noteSend = async ($: EngineInterface, title: unknown, answer: string): Promise<string | undefined> => {
-  const threadId = JSON.parse(answer)?.thread_id
+const sentThread = async ($: EngineInterface, input: { thread_id?: unknown; title?: unknown }, answer: string): Promise<unknown> => {
+  if (answer !== '') return JSON.parse(answer)?.thread_id
+  if (input.thread_id !== undefined) return input.thread_id
+  const started = (await fetchInbox($, true)).filter(t => t.title === input.title)
+  return started.sort((a, b) => b.last_activity.localeCompare(a.last_activity))[0]?.thread_id
+}
+
+/**
+ * The thread a send that went was sent to, or undefined when nothing names one; unless this
+ * session listens to that thread, a toast says how to. `input` is the send's arguments, whose
+ * `title` is the thread's when the send started it.
+ */
+const noteSend = async ($: EngineInterface, input: unknown, answer: string): Promise<string | undefined> => {
+  const sent = (input ?? {}) as { thread_id?: unknown; title?: unknown }
+  const threadId = await sentThread($, sent, answer)
   if (typeof threadId !== 'string' || !THREAD_ID.test(threadId)) return undefined
   if (!(await read($, listening)).includes(threadId)) {
-    const named = typeof title === 'string' ? title : (await findThread($, threadId))?.title
+    const named = typeof sent.title === 'string' ? sent.title : (await findThread($, threadId))?.title
     $.ui.toast(sentToast(named === undefined ? undefined : oneLine(named)))
   }
   return threadId
@@ -507,18 +520,17 @@ const noteAsked = (asked: Asked, row: Args<'session.append'>) => {
 }
 
 /**
- * The remembered calls a result row answers, each with the title it gave, its answer's text, and
+ * The remembered calls a result row answers, each with its arguments, its answer's text, and
  * whether it failed. Each is forgotten: a call answers once.
  */
 const answersIn = (asked: Asked, row: Args<'session.append'>) => {
-  const answers: { tool: string; title: unknown; answer: string; isError: boolean }[] = []
+  const answers: { tool: string; input: unknown; answer: string; isError: boolean }[] = []
   for (const block of row.message.content) {
     const id = block.tool_use_id
     const call = block.type === 'tool_result' && typeof id === 'string' ? asked.get(id) : undefined
     if (call === undefined) continue
     asked.delete(id as string)
-    const title = (call.input as { title?: unknown } | null | undefined)?.title
-    answers.push({ tool: call.tool, title, answer: resultText(block.content), isError: block.is_error === true })
+    answers.push({ tool: call.tool, input: call.input, answer: resultText(block.content), isError: block.is_error === true })
   }
   return answers
 }
@@ -614,14 +626,14 @@ export const register: Register = on => {
     } catch (error) {
       $.ui.log(`collab: reading Claude's call: ${error}`, { to: 'debug' })
     }
-    for (const { tool, title, answer, isError } of answers) {
+    for (const { tool, input, answer, isError } of answers) {
       // Claude is told to wait for a check of its own that ran long, so that notice must reach it.
       if (tool === INBOX_CHECK) {
         const task = backgroundTask(answer)
         if (task !== undefined) claudesChecks.push(task)
       } else if (!isError) {
         // Nothing after the send may fail the row: the message has gone.
-        const threadId = await noteSend($, title, answer).catch(error => {
+        const threadId = await noteSend($, input, answer).catch(error => {
           $.ui.log(`collab: after the send: ${error}`, { to: 'debug' })
           return undefined
         })
