@@ -134,6 +134,36 @@ test('a send whose result the transcript keeps as one string toasts too', async 
   expect(w.toasts).toEqual(['Sent to “Log retention question” · /collab listen to hear the reply here'])
 })
 
+// Code Mode keeps the result row of a call that went with no text; one that failed keeps its error.
+test('a send from Code Mode, whose result row has no text, toasts and is the thread /collab listen alone means', async ($, on) => {
+  const w = world(on, { threads: THREADS })
+  await claudeCalls($, 'psd_collab_message_send', { thread_id: T2, body: 'hi', to: ['everyone'], sent_from: BELL_SCHEDULE }, '')
+  expect(w.toasts).toEqual(['Sent to “Menu change notes” · /collab listen to hear the reply here'])
+  await collab($, 'listen')
+  expect(await listeningLine($, w)).toBe(`This session listens to threads ${T2}.`)
+})
+
+test('a thread started from Code Mode is found by its title, the newest when several share it', async ($, on) => {
+  const w = world(on, {
+    threads: [
+      thread({ thread_id: T1, title: 'Bus routes', last_activity: '2026-11-01T10:00:00+00:00' }),
+      thread({ thread_id: T2, title: 'Bus routes', last_activity: '2026-11-20T10:00:00+00:00' }),
+      thread({ thread_id: T3, title: 'Bus routes, part 2', last_activity: '2026-11-20T11:00:00+00:00' }),
+    ],
+  })
+  await claudeCalls($, 'psd_collab_thread_start', { title: 'Bus routes', body: 'hi', participants: [], to: ['everyone'], sent_from: BELL_SCHEDULE }, '')
+  expect(w.toasts).toEqual(['Sent to “Bus routes” · /collab listen to hear the reply here'])
+  await collab($, 'listen')
+  expect(await listeningLine($, w)).toBe(`This session listens to threads ${T2}.`)
+})
+
+test('a send from Code Mode that failed toasts nothing', async ($, on) => {
+  const w = world(on, { threads: THREADS })
+  await claudeCalls($, 'psd_collab_message_send', { thread_id: T1, body: 'hi', to: ['everyone'] }, 'Error: Not sent', true)
+  expect(w.toasts).toEqual([])
+  expect(await collab($, 'listen')).toContain('Nothing sent from this session yet')
+})
+
 test('no toast after a send into a thread this session listens to', async ($, on) => {
   const w = world(on, { threads: THREADS })
   await collab($, 'listen retention')
