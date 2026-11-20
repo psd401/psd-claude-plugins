@@ -1,7 +1,7 @@
 // ABOUTME: What the collab pane shows: threads grouped by project, each row's parts, a color per
-// ABOUTME: author, message bodies made safe to draw, and the choices for filing a thread.
+// ABOUTME: author, message bodies made safe to draw, reads untagged, and the choices for filing a thread.
 
-import type { Names, Thread } from '../types'
+import type { Names, Thread, ThreadRead } from '../types'
 import { personName } from './inbox'
 import { projectName } from './projects'
 
@@ -86,6 +86,24 @@ export const authorColor = (author: string, participants: readonly string[]): (t
 export const bodyMarkdown = (body: string): string => {
   const shown = body.replace(HIDDEN, '').replace(/[\\[\]<]/g, '\\$&')
   return shown.length <= MARKDOWN_MAX ? shown : shown.slice(0, MARKDOWN_MAX - CUT_NOTE.length) + CUT_NOTE
+}
+
+/**
+ * A JSON read as the pane draws it. The server wraps the title and each body in an untrusted tag new
+ * to the read, named in `untrusted_tag`, when the read names the plugin's version, since Claude can
+ * name it too; the pane shows them as data already, so it takes off exactly that wrapper and nothing
+ * a writer could have typed. A read without the tag comes back as it is.
+ */
+export const untagged = (read: ThreadRead & { untrusted_tag?: unknown }): ThreadRead => {
+  const { untrusted_tag: tag, ...rest } = read
+  if (typeof tag !== 'string') return read
+  const open = `<untrusted-${tag}>`
+  const close = `</untrusted-${tag}>`
+  const strip = <T>(value: T): T =>
+    typeof value === 'string' && value.length >= open.length + close.length && value.startsWith(open) && value.endsWith(close)
+      ? (value.slice(open.length, value.length - close.length) as T)
+      : value
+  return { ...rest, title: strip(rest.title), messages: rest.messages.map(m => ({ ...m, body: strip(m.body) })) }
 }
 
 /**

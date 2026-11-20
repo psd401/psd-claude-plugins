@@ -1,5 +1,5 @@
 // ABOUTME: Reading the collab server's answers: each tool answers JSON in a text block, or an
-// ABOUTME: error result whose text says why.
+// ABOUTME: error result whose text says why, whether the plugin made the call or the transcript keeps Claude's.
 
 import type { McpToolResult } from 'claude-code'
 
@@ -15,4 +15,14 @@ export const answerOf = (result: McpToolResult): any => {
   } catch {
     throw new CollabError('the server answered something that is not JSON')
   }
+}
+
+/**
+ * The text of a tool_result block's `content` as the transcript keeps it: one string, or a list of
+ * blocks whose text blocks carry it.
+ */
+export const resultText = (content: unknown): string => {
+  if (typeof content === 'string') return content
+  if (!Array.isArray(content)) return ''
+  return content.map(block => (block?.type === 'text' && typeof block.text === 'string' ? block.text : '')).join('')
 }

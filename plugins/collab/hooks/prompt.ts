@@ -5,8 +5,11 @@ import { projectName } from './projects'
 
 export const sessionSection = (key: string, listening: readonly string[]): string => `\
 # collab in this session
-This session's collab project is "${projectName(key)}", project key \`${key}\`. Use this key as \
-given; never run git to work it out. Each psd_collab_inbox_check row lists the projects your person filed \
+This session's collab project is "${projectName(key)}", project key \`${key}\`. Pass it as \
+\`sent_from\` on every psd_collab_thread_start and psd_collab_message_send, and as \`read_from\` on \
+every psd_collab_thread_read, never another project's key. Use this key as given; never run git to \
+work it out. Each \
+psd_collab_inbox_check row lists the projects your person filed \
 the thread under (\`projects\`, empty when unfiled) and, for an unfiled one, \`suggested_project\`; \
 take other projects' keys from there.
 

@@ -1,10 +1,10 @@
-// ABOUTME: Tests for the plugin's notes to Claude for this session: the project and how to handle
-// ABOUTME: threads filed here, unfiled, and elsewhere, carried as context on the person's prompts.
+// ABOUTME: Tests for the plugin's notes to Claude for this session: the project key, which holds across
+// ABOUTME: shell cds, and how to handle threads filed here, unfiled, and elsewhere, carried on the person's prompts.
 
-import { expect, test } from 'claude-code/testing'
+import { expect, mock, test } from 'claude-code/testing'
 
 import { holdsSection, sessionSection } from '../hooks/prompt'
-import { BELL_SCHEDULE, T1, clearConversation, compactConversation, submittedSection, thread, world } from './world'
+import { BELL_SCHEDULE, LUNCH_MENU, T1, clearConversation, compactConversation, startSession, submittedSection, thread, world } from './world'
 
 const summary = { role: 'user' as const, text: 'The conversation so far.', toolUses: [] }
 
@@ -125,4 +125,47 @@ test('the section covers what is waiting, filed elsewhere, filing, and listening
 test('says when this session listens to no threads', async ($, on) => {
   const w = world(on)
   expect(await submittedSection($, w)).toContain('listens to no threads')
+})
+
+// The server files a send under sent_from and refuses a text read of a thread filed only
+// under other projects than read_from; Claude passes both from the notes.
+test('the section has Claude pass the key as sent_from on sends and as read_from on reads', async ($, on) => {
+  const w = world(on)
+  const text = String(await submittedSection($, w))
+  for (const part of ['`sent_from`', '`read_from`', 'psd_collab_thread_start', 'psd_collab_message_send', 'psd_collab_thread_read', "never another project's key"]) {
+    expect(text).toContain(part)
+  }
+})
+
+// The shell's cwd, which the session's repository follows, moves with every cd; the session's
+// root moves only with /cd or a worktree move.
+const LUNCH_MENU_REPO = { root: '/Users/a/lunch-menu', remote: 'git@github.com:psd401/lunch-menu.git' }
+
+test("a cd into another repo doesn't move the session's project", async ($, on) => {
+  const w = world(on)
+  await startSession($, mock.clock(on))
+  w.repo = LUNCH_MENU_REPO
+  expect(await submittedSection($, w)).toContain(`project key \`${BELL_SCHEDULE}\``)
+})
+
+test("a cd into a clone doesn't move a session outside git", async ($, on) => {
+  const w = world(on, { inRepo: false, root: '/Users/a/notes' })
+  await startSession($, mock.clock(on))
+  w.repo = { root: '/Users/a/notes/bell-schedule', remote: 'git@github.com:psd401/bell-schedule.git' }
+  expect(await submittedSection($, w)).toContain('project key `dir:/Users/a/notes`')
+})
+
+test('the project is worked out again once /cd moves the session', async ($, on) => {
+  const w = world(on)
+  await startSession($, mock.clock(on))
+  w.root = LUNCH_MENU_REPO.root
+  w.repo = LUNCH_MENU_REPO
+  expect(await submittedSection($, w)).toContain(`project key \`${LUNCH_MENU}\``)
+})
+
+test('a project that could not be worked out is tried again', async ($, on) => {
+  const w = world(on, { isRepoBroken: true })
+  await startSession($, mock.clock(on))
+  w.isRepoBroken = false
+  expect(await submittedSection($, w)).toContain(`project key \`${BELL_SCHEDULE}\``)
 })
