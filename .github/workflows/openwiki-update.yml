@@ -18,7 +18,7 @@ jobs:
       contents: write # caller must grant; org default token is read-only
       pull-requests: write
     # SHA-pinned: every `uses:` ref must be a full commit SHA (ci/check-workflow-pins.js).
-    uses: PSD401/.github/.github/workflows/reusable-openwiki.yml@79223669a2a326533a0f6a68059577db55fd9a16 # v1.18.1
+    uses: PSD401/.github/.github/workflows/reusable-openwiki.yml@6822f7d0118ab90f38d1c060311786d36379fbb1 # v1.21.1
     with:
       base_branch: main
     secrets:
